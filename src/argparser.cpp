@@ -16,15 +16,12 @@
 //
 
 #include <string>
-#include <iostream>
-
 #include "getopt.h"
 #include "common.hpp"
 #include "argparser.h"
 #include "elf2e32_opt.hpp"
 #include "elf2e32_version.hpp"
 
-using std::cout;
 using std::string;
 
 ArgParser::ArgParser(int argc, char** argv): iArgc(argc), iArgv(argv)
@@ -48,8 +45,6 @@ Args* ArgParser::Parse()
         Help();
         return nullptr;
     }
-
-    std::string u("blabal");
 
     Args* arg = new Args();
     int rez, optIdx;
@@ -229,16 +224,14 @@ Args* ArgParser::Parse()
             case ':':
                 //optind always point to next argv instead current                ReportError(MISSEDARGUMENT, iArgv[optind-1]);
                 Help();
-                delete arg;
-                return nullptr;
+                return arg;
             case '?': // fallthru
                 //optind always point to next argv instead current
                 ReportError(UNKNOWNOPTION, iArgv[optind-1]);
             case OptionsType::EHELP:
                 Help();
-                delete arg;
-                return nullptr;
-        // ignored options
+                return arg;
+        //silently ignored options
             case OptionsType::EMESSAGEFILE: // fallthru
             case OptionsType::EDUMPMESSAGEFILE:
                 break;
@@ -250,20 +243,8 @@ Args* ArgParser::Parse()
     return arg;
 }
 
-void ErrorReport(const char* wrongopt, int flag)
-{
-    if(wrongopt)
-    {
-        cout << "elf2e32: Error: " << "option " << wrongopt;
-        if(flag == '?')
-            cout << " is Unrecognized.\n";
-        else
-            cout << " has missed argument\n";
-    }else
-        cout << "Something bad. wrong option missing!\n";
-}
-
-const string ScreenOptions = "        --definput=Input DEF File\n"
+const string ScreenOptions =
+"        --definput=Input DEF File\n"
 "        --defoutput=Output DEF\n"
 "        --elfinput=Input ELF File\n"
 "        --output=Output E32 Image\n"
@@ -285,9 +266,9 @@ const string ScreenOptions = "        --definput=Input DEF File\n"
 "        --stack=Stack size in bytes(.EXEs only)\n"
 "        --unfrozen: Don't treat input dot-def file as frozen\n"
 "        --ignorenoncallable: Generate exports for functions only\n"
-"        --capability=Ñapability option\n"
+"        --capability=Capability option\n"
 "        --libpath=A semi-colon separated search path list to locate import DSOs\n"
-"        --sysdef=A semi-colon separated Pre Defined Symbols to be exported and the ordinal number\n"
+"        --sysdef=A semi-colon separated predefined Symbols to be exported and the ordinal number\n"
 "        --log=Redirect tool messages to file\n"
 "        --messagefile=Input Message File(ignored)\n"
 "        --dumpmessagefile=Output Message File(ignored)\n"
@@ -303,7 +284,7 @@ const string ScreenOptions = "        --definput=Input DEF File\n"
 "                t Symbol Info\n"
 "        --e32input=Input E32 Image file name\n"
 "        --priority=Input Priority\n"
-"        -MISSEDARGUMENT-version=Module Version\n"
+"        --version=Module Version\n"
 "        --callentry=Call Entry Point\n"
 "        --fpu=FPU type [softvfp|vfpv2]\n"
 "        --codepaging=Code Paging Strategy [paged|unpaged|default]\n"
@@ -322,25 +303,38 @@ const string ScreenOptions = "        --definput=Input DEF File\n"
 void Help()
 {
     ELF2E32Version v;
-    cout << "\nSymbian Post Linker, Elf2E32 v " << (int16_t)v.iMajor << ".";
-    cout << (int16_t)v.iMinor << " (Build " << (int16_t)v.iBuild << ")\n";
-    cout << "Usage:  elf2e32 [options] [filename]\n\n";
-
-    cout << "Options:\n";
-    cout << ScreenOptions;
+    ReportLog("\nSymbian Post Linker, Elf2E32 v %d.%d (Build %d)\n",
+              (int16_t)v.iMajor, (int16_t)v.iMinor, (int16_t)v.iBuild);
+    ReportLog("Usage:  elf2e32 [options] [filename]\n\n");
+    ReportLog("Options:\n");
+    ReportLog(ScreenOptions);
 }
 
 void ArgInfo(const char *name) // long_opts[*optIdx].name
 {
-    if(name)
-        cout << "Got option: --" << name;
+    #if !_DEBUG
+    return;
+    #endif
+    if(!name)
+    {
+        ReportLog("Option not send!!!\n");
+        return;
+    }
+    ReportLog("Got option: --");
+    ReportLog(name);
 }
 
 void ArgInfo(const char *name, char* opt) // long_opts[*optIdx].name, optarg
 {
+    #if !_DEBUG
+    return;
+    #endif
     ArgInfo(name);
     if(name && opt)
-        cout << "=" << opt;
-    cout << "\n";
+    {
+        ReportLog("=");
+        ReportLog(opt);
+    }
+    ReportLog("\n");
 }
 

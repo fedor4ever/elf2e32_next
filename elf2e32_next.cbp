@@ -16,6 +16,7 @@
 					<Add option="-std=c++14" />
 					<Add option="-pg" />
 					<Add option="-g" />
+					<Add option="-D_DEBUG" />
 					<Add directory="src" />
 					<Add directory="include" />
 				</Compiler>
@@ -49,12 +50,17 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="lib/getopt/getopt.h" />
-		<Unit filename="main.cpp" />
 		<Unit filename="src/argparser.cpp" />
 		<Unit filename="src/argparser.h" />
+		<Unit filename="src/common.cpp" />
+		<Unit filename="src/common.hpp" />
 		<Unit filename="src/elf2e32.cpp" />
 		<Unit filename="src/elf2e32.h" />
-		<Unit filename="src/messenger.hpp" />
+		<Unit filename="src/elf2e32error.cpp" />
+		<Unit filename="src/elf2e32error.h" />
+		<Unit filename="src/logger.cpp" />
+		<Unit filename="src/logger.h" />
+		<Unit filename="src/main.cpp" />
 		<Extensions>
 			<code_completion />
 			<envvars />

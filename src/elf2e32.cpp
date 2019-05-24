@@ -14,6 +14,8 @@
 //
 //
 //
+
+#include "logger.h"
 #include "elf2e32.h"
 #include "e32common.h"
 #include "argparser.h"
@@ -35,4 +37,5 @@ Elf2E32::~Elf2E32()
 void Elf2E32::Run()
 {
     iArg = iArgs->Parse();
+    Logger::Instance(iArg->iLog);
 }

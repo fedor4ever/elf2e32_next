@@ -14,14 +14,15 @@
 // Holds current version elf2e32 tool
 //
 //
+
 #ifndef ELF2E32_VERSION_HPP_INCLUDED
 #define ELF2E32_VERSION_HPP_INCLUDED
 
-struct ELF2E32Version
+struct ToolVersion
 {
     uint8_t iMajor = 3;
     uint8_t iMinor = 1;
-    int16_t iBuild = 0;
+    int16_t iBuild = 1;
 };
 
 #endif // ELF2E32_VERSION_HPP_INCLUDED

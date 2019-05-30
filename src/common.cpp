@@ -19,7 +19,12 @@
 #include "logger.h"
 #include "common.hpp"
 
-using std::cout;
+void ReportError(const ErrorCodes err, const int x, const int y)
+{
+    ReportLog("elf2e32: Error: ");
+    Logger::Instance()->Log(err, x, y);
+    throw err;
+}
 
 void ReportError(const ErrorCodes err, const std::string& s, const int)
 {

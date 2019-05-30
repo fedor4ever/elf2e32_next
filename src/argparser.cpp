@@ -302,7 +302,7 @@ const string ScreenOptions =
 
 void Help()
 {
-    ELF2E32Version v;
+    ToolVersion v;
     ReportLog("\nSymbian Post Linker, Elf2E32 v %d.%d (Build %d)\n",
               (int16_t)v.iMajor, (int16_t)v.iMinor, (int16_t)v.iBuild);
     ReportLog("Usage:  elf2e32 [options] [filename]\n\n");

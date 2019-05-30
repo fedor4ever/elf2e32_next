@@ -11,7 +11,7 @@
 // Contributors:
 //
 // Description:
-//
+// Control workflow for the elf2e32 tool
 //
 //
 

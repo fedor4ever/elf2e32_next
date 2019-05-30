@@ -19,6 +19,7 @@
 					<Add option="-D_DEBUG" />
 					<Add directory="src" />
 					<Add directory="include" />
+					<Add directory="lib/e32" />
 				</Compiler>
 				<Linker>
 					<Add option="-pg -lgmon" />
@@ -33,6 +34,7 @@
 				<Compiler>
 					<Add option="-O2" />
 					<Add directory="src" />
+					<Add directory="lib/e32" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -42,10 +44,20 @@
 		<Compiler>
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
+			<Add directory="include" />
+			<Add directory="src" />
 		</Compiler>
-		<Unit filename="e32target.h" />
+		<Unit filename="include/e32common.h" />
 		<Unit filename="include/elf2e32_opt.hpp" />
 		<Unit filename="include/elf2e32_version.hpp" />
+		<Unit filename="lib/e32/E32Target.h" />
+		<Unit filename="lib/e32/e32imagecompressor.cpp" />
+		<Unit filename="lib/e32/e32imagecompressor.h" />
+		<Unit filename="lib/e32/e32importsprocessor.cpp" />
+		<Unit filename="lib/e32/e32importsprocessor.hpp" />
+		<Unit filename="lib/e32/e32parser.cpp" />
+		<Unit filename="lib/e32/e32parser.h" />
+		<Unit filename="lib/e32/e32target.cpp" />
 		<Unit filename="lib/getopt/getopt.c">
 			<Option compilerVar="CC" />
 		</Unit>

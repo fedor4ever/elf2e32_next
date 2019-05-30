@@ -29,10 +29,23 @@ struct Message
 
 struct Message Messages[]=
 {
-    {ErrorCodes::UNKNOWNERROR  , "Unknown error happens!\n"},
-    {ErrorCodes::MISSEDARGUMENT, "option %s has missed argument\n"},
-    {ErrorCodes::UNKNOWNOPTION , "option %s unrecognized\n"}
-//    {, },
+    {ErrorCodes::UNKNOWNERROR,  "Unknown error happens!\n"},
+    {ErrorCodes::MISSEDARGUMENT, "Option %s has missed argument\n"},
+    {ErrorCodes::UNKNOWNOPTION, "Option %s unrecognized\n"},
+    {ErrorCodes::FILEOPENERROR, "Can't open file: %s!\n"},
+    {ErrorCodes::NOTELFFILE,    "This file not ELF: %s!\n"},
+    {ErrorCodes::UNKNOWNCOMPRESSION, "Unknown compression algorythm.\n"},
+    {ErrorCodes::BYTEPAIRINCONSISTENTSIZE,
+            "Inconsistent sizes discovered during Byte pair uncompression.\n"},
+    {ErrorCodes::HUFFMANINCONSISTENTSIZE,
+            "Inconsistent sizes discovered during Huffman uncompression.\n"},
+    {ErrorCodes::ELFFILEEXPECTEDE32, "Expected E32 image but got ELF file.\n"},
+    {ErrorCodes::WRONGFILESIZEFORDECOMPRESSION, "Set wrong size for "
+            "decompression. Expected: %d but got: %d\n"},
+    {ErrorCodes::ZEROBUFFER, "Got zero sized buffer for parse!"
+            "May be internal error.\n"},
+    {ErrorCodes::BADEXPORTS, "Bad exports.\n"}//,
+//    {ErrorCodes::, "\n"},
 };
 
 Logger::Logger(const std::string& s)
@@ -89,4 +102,11 @@ void Logger::Log(ErrorCodes errcode, const std::string& s)
     if(iFile)
         fprintf(iFile, Messages[errcode].str, s.c_str());
     printf(Messages[errcode].str, s.c_str());
+}
+
+void Logger::Log(ErrorCodes errcode, const int x, const int y)
+{
+    if(iFile)
+        fprintf(iFile, Messages[errcode].str, x, y);
+    printf(Messages[errcode].str, x, y);
 }

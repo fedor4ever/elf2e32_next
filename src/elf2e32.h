@@ -1,5 +1,3 @@
-// Copyright (c) 2019 Strizhniou Fiodar
-// All rights reserved.
 // This component and the accompanying materials are made available
 // under the terms of "Eclipse Public License v1.0"
 // which accompanies this distribution, and is available
@@ -11,9 +9,10 @@
 // Contributors:
 //
 // Description:
+// Control workflow for the elf2e32 tool
 //
 //
-//
+
 #ifndef ELF2E32_H
 #define ELF2E32_H
 

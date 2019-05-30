@@ -24,11 +24,21 @@ enum ErrorCodes
 {
     UNKNOWNERROR,
     MISSEDARGUMENT,
-    UNKNOWNOPTION
+    UNKNOWNOPTION,
+    FILEOPENERROR,
+    NOTELFFILE,
+    UNKNOWNCOMPRESSION,
+    BYTEPAIRINCONSISTENTSIZE,
+    HUFFMANINCONSISTENTSIZE,
+    ELFFILEEXPECTEDE32,
+    WRONGFILESIZEFORDECOMPRESSION,
+    ZEROBUFFER,
+    BADEXPORTS
 };
 
 const std::string empty = std::string();
 
+void ReportError(  const ErrorCodes err, const int x, const int = 0);
 void ReportError(  const ErrorCodes err, const std::string& str = empty, const int = 0);
 void ReportWarning(const ErrorCodes err, const std::string& str = empty, const int = 0);
 void ReportLog(const std::string& str, int x = -1, int y = -1, int z = -1);

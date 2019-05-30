@@ -15,6 +15,7 @@
 // file(optional) for the elf2e32 tool
 //
 //
+
 #ifndef LOGGER_H
 #define LOGGER_H
 
@@ -32,6 +33,7 @@ class Logger
         void Log(const std::string& s, int x, int y);
         void Log(const std::string& s, int x, int y, int z);
         void Log(ErrorCodes errcode, const std::string& s);
+        void Log(ErrorCodes errcode, const int x, const int y);
     private:
         Logger(const std::string& s);
         Logger(const Logger&) = delete;

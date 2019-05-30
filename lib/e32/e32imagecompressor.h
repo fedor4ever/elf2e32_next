@@ -11,20 +11,18 @@
 // Contributors:
 //
 // Description:
-// Throws exceptions for the elf2e32 tool
+// (De)compression routines for the elf2e32 tool
 //
 //
 
-#ifndef ELF2E32ERROR_H
-#define ELF2E32ERROR_H
+#ifndef E32IMAGECOMPRESSOR_H
+#define E32IMAGECOMPRESSOR_H
 
 
-class Elf2E32Error
-{
-    public:
-        Elf2E32Error();
-        ~Elf2E32Error();
-    private:
-};
+char* Decompress(const char* src, uint32_t srcsize,
+        uint32_t& dstsize, uint32_t cmpalgorythm);
 
-#endif // ELF2E32ERROR_H
+char* Compress(const char* src, uint32_t srcsize,
+        uint32_t cmpalgorythm);
+
+#endif // E32IMAGECOMPRESSOR_H

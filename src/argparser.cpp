@@ -222,12 +222,10 @@ Args* ArgParser::Parse()
                 ArgInfo(optname);
                 break;
             case ':':
-                //optind always point to next argv instead current                ReportError(MISSEDARGUMENT, iArgv[optind-1]);
-                Help();
-                return arg;
-            case '?': // fallthru
+                //optind always point to next argv instead current                ReportError(MISSEDARGUMENT, iArgv[optind-1], Help);
+            case '?':
                 //optind always point to next argv instead current
-                ReportError(UNKNOWNOPTION, iArgv[optind-1]);
+                ReportError(UNKNOWNOPTION, iArgv[optind-1], Help);
             case OptionsType::EHELP:
                 Help();
                 return arg;

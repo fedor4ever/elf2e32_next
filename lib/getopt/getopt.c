@@ -358,7 +358,8 @@ getopt_long(int argc, char **argv, const char *shortopts,
 	 * no matching option found
 	 */
 	if (optptr->name == NULL) {
-		printf("unknown option \'%s\'\n", argv[optind]);
+        if(opterr)
+            printf("unknown option \'%s\'\n", argv[optind]);
 		optind++;
 		return '?';
 	}

@@ -17,6 +17,7 @@
 
 #include <iostream>
 #include "elf2e32.h"
+#include "common.hpp"
 
 using namespace std;
 
@@ -26,7 +27,15 @@ using namespace std;
 
 int main(int argc, char** argv)
 {
+    int res = 0;
     Elf2E32 task(argc, argv);
-    task.Run();
-    return 0;
+    try{
+        task.Run();
+    }catch(ErrorCodes err){
+        res = -err;
+    }catch(...){
+        res = -ErrorCodes::UNKNOWNERROR;
+        ReportWarning(ErrorCodes::UNKNOWNERROR);
+    }
+    return res;
 }

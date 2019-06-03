@@ -44,8 +44,16 @@ struct Message Messages[]=
             "decompression. Expected: %d but got: %d\n"},
     {ErrorCodes::ZEROBUFFER, "Got zero sized buffer for parse!"
             "May be internal error.\n"},
-    {ErrorCodes::BADEXPORTS, "Bad exports.\n"}//,
-//    {ErrorCodes::, "\n"},
+    {ErrorCodes::BADEXPORTS, "Bad exports.\n"},
+    {ErrorCodes::NOREQUIREDOPTION, "Expected option %s not set.\n"},
+    {ErrorCodes::INVALIDARGUMENT, "Option :%s has invalid arg: %s.\n"},
+    {ErrorCodes::EMPTYFILEREADING, "Def file: %s has no symbols definitions.\n"},
+    {ErrorCodes::ORDINALSEQUENCE, "Ordinal number is not in sequence:"
+            " %s[Line No=%d][%s].\n"},
+    {ErrorCodes::ARGUMENTNAME, "Argument %s is not correct.\n"},
+    {ErrorCodes::UNRECOGNIZEDTOKEN, "Unrecognized Token : %s[Line No=%d][%s].\n"},
+    {ErrorCodes::EMPTYDATAWRITING, "Got empty data for store in file: %s.\n"}//,
+//    {ErrorCodes::, ".\n"}//,
 };
 
 Logger::Logger(const std::string& s)
@@ -104,9 +112,31 @@ void Logger::Log(ErrorCodes errcode, const std::string& s)
     printf(Messages[errcode].str, s.c_str());
 }
 
+
+void Logger::Log(ErrorCodes errcode, const std::string& s1, const std::string& s)
+{
+    if(iFile)
+        fprintf(iFile, Messages[errcode].str, s1.c_str(), s.c_str());
+    printf(Messages[errcode].str, s1.c_str(), s.c_str());
+}
+
+void Logger::Log(ErrorCodes errcode)
+{
+    if(iFile)
+        fprintf(iFile, Messages[errcode].str);
+    printf(Messages[errcode].str);
+}
+
 void Logger::Log(ErrorCodes errcode, const int x, const int y)
 {
     if(iFile)
         fprintf(iFile, Messages[errcode].str, x, y);
     printf(Messages[errcode].str, x, y);
+}
+
+void Logger::Log(ErrorCodes errcode, const int x)
+{
+    if(iFile)
+        fprintf(iFile, Messages[errcode].str, x);
+    printf(Messages[errcode].str, x);
 }

@@ -32,8 +32,14 @@ class Logger
         void Log(const std::string& s, int x);
         void Log(const std::string& s, int x, int y);
         void Log(const std::string& s, int x, int y, int z);
+
+        void Log(ErrorCodes errcode);
         void Log(ErrorCodes errcode, const std::string& s);
-        void Log(ErrorCodes errcode, const int x, const int y);
+        void Log(ErrorCodes errcode, const std::string& s1, const std::string& s2);
+
+        void Log(ErrorCodes errcode, int x);
+        void Log(ErrorCodes errcode, int x, int y);
+        void Log(ErrorCodes errcode, int x, int y, int z);
     private:
         Logger(const std::string& s);
         Logger(const Logger&) = delete;

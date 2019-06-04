@@ -11,18 +11,17 @@
 // Contributors:
 //
 // Description:
-// Holds current version elf2e32 tool
+// Provide common interface for major task in elf2e32 tool
 //
 //
 
-#ifndef ELF2E32_VERSION_HPP_INCLUDED
-#define ELF2E32_VERSION_HPP_INCLUDED
+#ifndef TASK_HPP_INCLUDED
+#define TASK_HPP_INCLUDED
 
-struct ToolVersion
+class Task
 {
-    uint8_t iMajor = 3;
-    uint8_t iMinor = 1;
-    int16_t iBuild = 3;
+public:
+    virtual void Run() = 0;
 };
 
-#endif // ELF2E32_VERSION_HPP_INCLUDED
+#endif // TASK_HPP_INCLUDED

@@ -168,7 +168,7 @@ struct Args
     std::string iDso;
     std::string iLibpath; //holds path to DSO separated by ';'
     std::string iE32input;
-    std::string iDump;
+    std::string iDump = "h";
     std::string iLog;
     std::string iVersion; // ex: elf2e32.exe --version=22.06.1982
 };

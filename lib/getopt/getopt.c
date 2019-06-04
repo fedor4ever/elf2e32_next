@@ -347,7 +347,8 @@ getopt_long(int argc, char **argv, const char *shortopts,
 
 	while (optptr->name != NULL)
     {
-		if (strcmp(&argv[optind][idx], optptr->name) == 0)
+        size_t optlen = strlen(optptr->name);
+		if (strncmp(&argv[optind][idx], optptr->name, optlen) == 0)
 			break;
 
 		optptr++;
@@ -386,6 +387,16 @@ getopt_long(int argc, char **argv, const char *shortopts,
 
 		if (argpresent)
 			argpresent = (argv[optind][0] != '-');
+
+        if(!argpresent)
+        {
+            optarg = strchr(argv[optind - 1], '=');
+            if(optarg){
+                optarg++;
+                optind++;
+                break;
+            }
+        }
 
 		if (argpresent) {
 			/*

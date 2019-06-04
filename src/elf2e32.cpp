@@ -17,6 +17,7 @@
 
 #include "logger.h"
 #include "elf2e32.h"
+#include "e32info.h"
 #include "e32common.h"
 #include "argparser.h"
 #include "elf2e32_opt.hpp"
@@ -38,4 +39,9 @@ void Elf2E32::Run()
 {
     iArg = iArgs->Parse();
     Logger::Instance(iArg->iLog);
+    if(!iArg->iE32input.empty() && iArg->iOutput.empty())
+        iTask = new E32Info(iArg);
+
+    if(iTask)
+        iTask->Run();
 }

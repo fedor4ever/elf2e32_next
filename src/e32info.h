@@ -24,18 +24,19 @@
 #include <cstddef>
 #include <string>
 
+#include "task.hpp"
 #include "e32common.h"
 
+struct Args;
 class E32Parser;
 struct E32ImageHeader;
-struct Args;
 
-class E32Info
+class E32Info: public Task
 {
     public:
         E32Info(Args *param);
-        ~E32Info();
-        void Run();
+        virtual ~E32Info();
+        virtual void Run() override;
     public:
 //        These functions print for that dump options [hscdeit]:
         void HeaderInfo(); //h

@@ -16,9 +16,10 @@
 #ifndef ELF2E32_H
 #define ELF2E32_H
 
-class E32ImageHeader;
-class ArgParser;
 class Args;
+class Task;
+class ArgParser;
+class E32ImageHeader;
 
 class Elf2E32
 {
@@ -32,6 +33,7 @@ class Elf2E32
         E32ImageHeader* iHdr = nullptr;
         ArgParser* iArgs = nullptr;
         Args* iArg = nullptr;
+        Task* iTask = nullptr;
 };
 
 #endif // ELF2E32_H

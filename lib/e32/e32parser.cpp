@@ -279,7 +279,7 @@ void E32Parser::ParseExportBitMap()
 	{
 		if (exports[i] == absentVal)
 		{
-//			iExportBitMap[i>>3] &= ~(1u << (i & 7));
+			iExportBitMap[i>>3] &= ~(1u << (i & 7));
 			++iMissingExports;
 		}
 	}

@@ -11,7 +11,7 @@
 				<Option object_output="obj/Debug/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
-				<Option parameters="--lll" />
+				<Option parameters="--e32input=tests\libcrypto-2.4.5.SDK.dll" />
 				<Compiler>
 					<Add option="-std=c++14" />
 					<Add option="-pg" />
@@ -27,7 +27,7 @@
 				<Option object_output="obj/Release/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
-				<Option parameters="--lll" />
+				<Option parameters="--e32input=tests\libcrypto-2.4.5.SDK.dll" />
 				<Compiler>
 					<Add option="-O2" />
 				</Compiler>
@@ -47,6 +47,7 @@
 		<Unit filename="include/e32common.h" />
 		<Unit filename="include/elf2e32_opt.hpp" />
 		<Unit filename="include/elf2e32_version.hpp" />
+		<Unit filename="include/task.hpp" />
 		<Unit filename="lib/e32/E32Target.h" />
 		<Unit filename="lib/e32/e32capability.h" />
 		<Unit filename="lib/e32/e32imagecompressor.cpp" />

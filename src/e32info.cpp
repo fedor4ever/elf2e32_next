@@ -31,7 +31,7 @@
 //#define INCLUDE_CAPABILITY_NAMES
 #include "e32capability.h"
 
-void DumpRelocs(char *relocs);
+void DumpRelocs(const char *relocs);
 void GenerateAsmFile(Args *param);
 void PrintHexData(const void *pos, size_t lenth);
 
@@ -230,9 +230,7 @@ void E32Info::HeaderInfo()
     {
         const E32RelocSection *r = iE32->GetRelocSection(iHdr1->iCodeRelocOffset);
         printf(" %06x %06x", iHdr1->iCodeRelocOffset, r->iNumberOfRelocs);
-    }
-    else
-        printf("              ");
+    }else printf("              ");
 
     printf("        +%06x (entry pnt)", iHdr1->iEntryPoint);
     printf("\n");
@@ -329,11 +327,11 @@ void E32Info::SecurityInfo(bool CapNames)
 void E32Info::CodeSection()
 {
     printf("\nCode (text size=%08x)\n", iHdr1->iTextSize);
-    PrintHexData(iE32->GetBufferedImage() + iHdr1->iCodeOffset, iHdr1->iCodeSize);
+    PrintHexData(iE32->GetImportTable(), iHdr1->iCodeSize);
 
     const E32RelocSection *a = iE32->GetRelocSection(iHdr1->iCodeRelocOffset);
     if (iHdr1->iCodeRelocOffset)
-        DumpRelocs((char *)a);
+        DumpRelocs((const char *)a);
 }
 
 void E32Info::DataSection()
@@ -343,7 +341,7 @@ void E32Info::DataSection()
 
     const E32RelocSection *a = iE32->GetRelocSection(iHdr1->iDataRelocOffset);
     if (iHdr1->iDataRelocOffset)
-        DumpRelocs((char *)a);
+        DumpRelocs((const char *)a);
 }
 
 void E32Info::ExportTable()
@@ -351,7 +349,7 @@ void E32Info::ExportTable()
     printf("\nNumber of exports = %u\n", iHdr1->iExportDirCount);
     uint32_t* exports = (uint32_t*)(iE32->GetBufferedImage() + iHdr1->iExportDirOffset);
     uint32_t absoluteEntryPoint = iHdr1->iEntryPoint + iHdr1->iCodeBase;
-    uint32_t impfmt = iHdr1->iFlags & KImageImpFmtMask;
+    uint32_t impfmt = ImpFmtFromFlags(iHdr1->iFlags);
     uint32_t absentVal = (impfmt == KImageImpFmt_ELF) ? absoluteEntryPoint : iHdr1->iEntryPoint;
     for (uint32_t i = 0; i < iHdr1->iExportDirCount; ++i)
     {
@@ -368,27 +366,29 @@ void E32Info::ImportTableInfo()
     if(!iHdr1->iImportOffset)
         return;
 
-    const char *impTable = iE32->GetBufferedImage() + iHdr1->iCodeOffset;
-
+    uint32_t impfmt = ImpFmtFromFlags(iHdr1->iFlags);
     const E32ImportSection* section = iE32->GetImportSection();
-    uint32_t* iat = (uint32_t*)iE32->GetImportAddressTable();
-    printf("\nIdata\tSize=%08x\n", section->iSize);
+    E32ImportParser* parser =
+            new E32ImportParser(impfmt, section, iHdr1->iDllRefTableCount);
+
+    const char* impTable = iE32->GetImportTable();
+    const uint32_t* impAddrTable = iE32->GetImportAddressTable();
+
+    printf("\nIdata\tSize=%08x\n", parser->GetSectionSize());
     printf("Offset of import address table (relative to code section): %08x\n", iHdr1->iTextSize);
 
-    const E32ImportBlock* b = (const E32ImportBlock*)(section + 1);
-    for (int32_t d=0; d<iHdr1->iDllRefTableCount; d++)
+    while(parser->HasImports())
     {
-        const char* dllname = iE32->GetDLLName(b->iOffsetOfDllName);
-        int32_t n = b->iNumberOfImports;
-        printf("%d imports from %s\n", b->iNumberOfImports, dllname);
-        const uint32_t* p = b->Imports();
-        uint32_t impfmt = ImpFmtFromFlags(iHdr1->iFlags);
+        uint32_t offset = parser->GetOffsetOfDllName();
+        const char* dllname = iE32->GetDLLName(offset);
+        uint32_t importsCount = parser->GetNumberOfImports();
+        printf("%d imports from %s\n", importsCount, dllname);
+
         if (impfmt == KImageImpFmt_ELF)
         {
-            while (n--)
+            for(uint32_t i = 0; i < importsCount; i++)
             {
-                uint32_t impd_offset = *p++;
-                uint32_t impd = *(uint32_t*)(impTable + impd_offset);
+                uint32_t impd = *(uint32_t*)(impTable + parser->GetImportOffset(i));
                 uint32_t ordinal = impd & 0xffff;
                 uint32_t offset = impd >> 16;
 
@@ -400,10 +400,10 @@ void E32Info::ImportTableInfo()
         }
         else
         {
-            while (n--)
-                printf("\t%u\n", *iat++);
+            while (importsCount--)
+                printf("\t%u\n", *impAddrTable++);
         }
-        b = b->NextBlock(impfmt);
+        parser->NextImportBlock();
     }
 }
 
@@ -452,42 +452,42 @@ void E32Info::SymbolInfo()
 	if(!symInfoHdr->iDllCount)
         return;
 
-    const char *e32Buf = iE32->GetBufferedImage();
+    const char *e32Buf = iEcde32->GetBufferedImage();
     // The import table orders the dependencies alphabetically...
     // We need to list out in the link order...
     printf("%d Static dependencies found\n", symInfoHdr->iDllCount);
     uint32_t* depTbl = (uint32_t*)((char*)symInfoHdr + symInfoHdr->iDepDllZeroOrdTableOffset);
     uint32_t* depOffset =  (uint32_t*)((char*)depTbl - e32Buf);
 
-    const E32ImportSection* isection = iE32->GetImportSection();// return;
+    const E32ImportSection* section = iE32->GetImportSection();
+    uint32_t impfmt = ImpFmtFromFlags(iHdr1->iFlags);
+    E32ImportParser* parser =
+            new E32ImportParser(impfmt, section, iHdr1->iDllRefTableCount);
 
     /* The import table has offsets to the location (in code section) where the
      * import is required. For dependencies pointed by 0th ordinal, this offset
      * must be same as the offset of the dependency table entry (relative to
      * the code section).
      */
-    for(int aDep = 0; aDep < symInfoHdr->iDllCount; aDep++)
+    for(int i = 0; i < symInfoHdr->iDllCount; i++)
     {
-        const E32ImportBlock* b = (const E32ImportBlock*)(isection + 1);
         bool aZerothFound = false;
-        for (int32_t d=0; d<iHdr1->iDllRefTableCount; d++)
+        while(parser->HasImports())
         {
-            const char* dllname = iE32->GetDLLName(b->iOffsetOfDllName);
-            int32_t n = b->iNumberOfImports;
+            const char* dllname = iE32->GetDLLName(parser->GetOffsetOfDllName());
+            uint32_t importsCount = parser->GetNumberOfImports();
 
-            const uint32_t* p = b->Imports()+ (n - 1);//start from the end of the import table
-            uint32_t impfmt = ImpFmtFromFlags(iHdr1->iFlags);;
-            if (impfmt == KImageImpFmt_ELF)
+            if(impfmt == KImageImpFmt_ELF)
             {
-                while (n--)
+                while(importsCount--)//start from the end of the import table
                 {
-                    uint32_t impd_offset = *p--;
-                    uint32_t impd = *(uint32_t*)(e32Buf + iHdr1->iCodeOffset + impd_offset);
+                    uint32_t impd_offset = parser->GetImportOffset(importsCount);
+                    uint32_t impd = *(uint32_t*)(iE32->GetImportTable() + impd_offset);
                     uint32_t ordinal = impd & 0xffff;
 
-                    if (ordinal == 0 )
+                    if(ordinal == 0)
                     {
-                        if( impd_offset == (uint32_t)((char*)depOffset - iHdr1->iCodeOffset))
+                        if(impd_offset == (uint32_t)((char*)depOffset - iHdr1->iCodeOffset))
                         {
                             /* The offset in import table is same as the offset of this
                              * dependency entry
@@ -502,14 +502,13 @@ void E32Info::SymbolInfo()
             if(aZerothFound)
                 break;
 
-            b = b->NextBlock(impfmt);
+            parser->NextImportBlock();
         }
         if(!aZerothFound)
-            printf("!!Invalid dependency listed at %d\n",aDep );
+            printf("!!Invalid dependency listed at %d\n", i);
 
         depOffset++;
     }
-
 }
 
 /** \brief This function prints in hex
@@ -646,7 +645,7 @@ void E32Info::CPUIdentifier(uint16_t aCPUType, bool &isARM)
     }
 }
 
-void DumpRelocs(char *relocs)
+void DumpRelocs(const char *relocs)
 {
     int32_t cnt=((E32RelocSection *)relocs)->iNumberOfRelocs;
 	printf("%d relocs\n", cnt);

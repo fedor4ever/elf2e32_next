@@ -28,33 +28,6 @@ struct E32RelocSection
 };
 
 /**
-Header for the Import Section in an image, as referenced by E32ImageHeader::iImportOffset.
-Immediately following this structure are an array of E32ImportBlock structures.
-The number of these is given by E32ImageHeader::iDllRefTableCount.
-*/
-struct E32ImportSection
-{
-    int32_t iSize;     ///< Size of this section excluding 'this' structure
-//  E32ImportBlock iImportBlock[iDllRefTableCount];
-};
-
-/**
-A block of imports from a single executable.
-These structures are conatined in a images Import Section (E32ImportSection).
-*/
-struct E32ImportBlock
-{
-    const E32ImportBlock* NextBlock(uint32_t aImpFmt) const;
-    uint32_t Size(uint32_t aImpFmt) const;
-    const uint32_t* Imports() const;    // import list if present
-
-    uint32_t iOffsetOfDllName;           ///< Offset from start of import section for a NUL terminated executable (DLL or EXE) name.
-    int32_t    iNumberOfImports;           ///< Number of imports from this executable.
-//  uint32_t   iImport[iNumberOfImports];  ///< For ELF-derived executes: list of code section offsets. For PE, list of imported ordinals. Omitted in PE2 import format
-};
-
-
-/**
 A block of relocations for a single page (4kB) of code/data.
 
 Immediately following this structure are an array of uint16_t values
@@ -72,7 +45,50 @@ struct E32RelocBlock
 {
 	uint32_t iPageOffset; ///< Offset, in bytes, for the page being relocated; relative to the section start. Always a multiple of the page size: 4096 bytes.
 	uint32_t iBlockSize;  ///< Size, in bytes, for this block structure. Always a multiple of 4.
-// uint16_t iEntry[]
+    uint16_t iEntry[];
+};
+
+struct E32ImportBlockPE2
+{
+    uint32_t iOffsetOfDllName = 0;           ///< Offset from start of import section for a NULL terminated executable (DLL or EXE) name.
+    int32_t  iNumberOfImports = 0;           ///< Number of imports from this executable.
+};
+
+struct E32ImportBlock
+{
+    uint32_t Size(uint32_t aImpFmt) const;
+    uint32_t iOffsetOfDllName = 0;        ///< Offset from start of import section for a NULL terminated executable (DLL or EXE) name.
+    int32_t  iNumberOfImports = 0;        ///< Number of imports from this executable.
+//  uint32_t  iImport[iNumberOfImports];  ///< For ELF-derived executes: list of code section offsets. For PE, list of imported ordinals. Omitted in PE2 import format
+    const uint32_t iImports[1];
+};
+
+struct E32ImportSection
+{
+    int32_t iSize;     ///< Size of E32ImportBlock arrays
+    const E32ImportBlock iImportBlock[1]; //iImportBlock[iDllRefTableCount]
+};
+
+class E32ImportParser
+{
+public:
+    E32ImportParser(uint32_t importFormat, const E32ImportSection* section,
+                    uint32_t numberOfImportDlls);
+    void NextImportBlock();
+    bool HasImports();
+    const uint32_t GetOffsetOfDllName();
+    const uint32_t GetSectionSize();
+    const uint32_t GetNumberOfImports();
+    const uint32_t GetImportOrdinal();
+    const uint32_t GetImportOffset(uint32_t index);
+private:
+    uint32_t iNumberOfImportDlls; //number E32ImportBlock sections
+    uint32_t iImportCounter;
+    uint32_t iImportFormat = 0;
+    const E32ImportSection* iSection = nullptr;
+    const E32ImportBlock* iNext = nullptr;
+    uint32_t iImpOrdinal = 0;
+    uint32_t iImpOffset = 0;
 };
 
 #endif // E32IMPORTPROCESSOR_H_INCLUDED

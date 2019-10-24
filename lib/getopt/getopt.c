@@ -388,14 +388,10 @@ getopt_long(int argc, char **argv, const char *shortopts,
 		if (argpresent)
 			argpresent = (argv[optind][0] != '-');
 
-        if(!argpresent)
-        {
-            optarg = strchr(argv[optind - 1], '=');
-            if(optarg){
-                optarg++;
-                optind++;
-                break;
-            }
+        optarg = strchr(argv[optind - 1], '=');
+        if(optarg){
+            optarg++;
+            break;
         }
 
 		if (argpresent) {

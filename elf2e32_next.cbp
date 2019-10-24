@@ -11,7 +11,7 @@
 				<Option object_output="obj/Debug/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
-				<Option parameters="--e32input=tests\libcrypto-2.4.5.SDK.dll" />
+				<Option parameters="--e32input=tests\libcrypto-2.4.5.SDK.dll --dump=i" />
 				<Compiler>
 					<Add option="-std=c++14" />
 					<Add option="-pg" />
@@ -39,6 +39,7 @@
 		<Compiler>
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
+			<Add option="-D__STDC_FORMAT_MACROS" />
 			<Add directory="include" />
 			<Add directory="src" />
 			<Add directory="lib/elf" />

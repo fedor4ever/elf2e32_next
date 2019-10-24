@@ -15,40 +15,64 @@
 //
 //
 
+#include <inttypes.h>
+#include <stdio.h>
+
 #include "e32common.h"
 #include "e32importsprocessor.hpp"
 
-/**
-Return address of first import in this block.
-For import format KImageImpFmt_ELF, imports are list of code section offsets.
-For import format KImageImpFmt_PE, imports are a list of imported ordinals.
-For import format KImageImpFmt_PE2, the import list is not present and should not be accessed.
-*/
-const uint32_t* E32ImportBlock::Imports() const {
-    return (const uint32_t*)(this + 1);
-}
 
-/**
-Return pointer to import block which immediately follows this one.
-@param aImpFmt Import format as obtained from image header.
-*/
-const E32ImportBlock* E32ImportBlock::NextBlock(uint32_t aImpFmt) const
-{
-    const E32ImportBlock* next = this + 1;
-    if(aImpFmt!=KImageImpFmt_PE2)
-        next = (const E32ImportBlock*)( (uint8_t*)next + iNumberOfImports * sizeof(uint32_t) );
-    return next;
-}
-
-/**
-Return size of this import block.
-@param aImpFmt Import format as obtained from image header.
-*/
 uint32_t E32ImportBlock::Size(uint32_t aImpFmt) const
 {
-	uint32_t r = sizeof(E32ImportBlock);
-    if(aImpFmt!=KImageImpFmt_PE2)
+    uint32_t r = sizeof(E32ImportBlockPE2);
+    if(aImpFmt != KImageImpFmt_PE2)
         r += iNumberOfImports * sizeof(uint32_t);
     return r;
 }
 
+E32ImportParser::E32ImportParser(uint32_t importFormat,
+     const E32ImportSection* section, uint32_t numberOfImportDlls):
+         iImportFormat(importFormat), iSection(section),
+         iNumberOfImportDlls(numberOfImportDlls), iImportCounter(numberOfImportDlls)
+{
+    iNext = iSection->iImportBlock;
+}
+
+void E32ImportParser::NextImportBlock()
+{
+    --iImportCounter;
+    uint32_t arrayMemberOffset = iNext->iNumberOfImports;
+    if(iImportFormat == KImageImpFmt_PE2)
+        arrayMemberOffset = 0;
+    iNext = (E32ImportBlock*)(iNext->iImports + arrayMemberOffset);
+}
+
+const uint32_t E32ImportParser::GetOffsetOfDllName()
+{
+    return iNext->iOffsetOfDllName;
+}
+
+const uint32_t E32ImportParser::GetSectionSize()
+{
+    return iSection->iSize;
+}
+
+const uint32_t E32ImportParser::GetNumberOfImports()
+{
+    return iNext->iNumberOfImports;
+}
+
+const uint32_t E32ImportParser::GetImportOrdinal()
+{
+    return iImpOrdinal;
+}
+
+const uint32_t E32ImportParser::GetImportOffset(uint32_t index)
+{
+    return iNext->iImports[index];
+}
+
+bool E32ImportParser::HasImports()
+{
+    return iImportCounter > 0;
+}

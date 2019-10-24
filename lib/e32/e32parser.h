@@ -35,41 +35,43 @@ class E32Parser
                   const std::streamoff& bufsize, bool compressed = true);
         ~E32Parser() {}
 
-        const E32ImageHeader *GetFileLayout();
-        const E32ImageHeaderJ *GetE32HdrJ() const;
-        const E32ImageHeaderV *GetE32HdrV() const;
+        const E32ImageHeader* GetFileLayout();
+
+        const E32ImageHeaderJ* GetE32HdrJ() const;
+        const E32ImageHeaderV* GetE32HdrV() const;
 
         uint32_t BSSOffset() const;
-        const TExceptionDescriptor *GetExceptionDescriptor() const;
-        const E32ImportSection *GetImportSection() const;
-        const char *GetImportAddressTable() const;
+        const TExceptionDescriptor* GetExceptionDescriptor() const;
+        const E32ImportSection* GetImportSection() const;
 
-        const E32EpocExpSymInfoHdr *GetEpocExpSymInfoHdr() const;
+        const uint32_t* GetImportAddressTable() const;
+        const E32EpocExpSymInfoHdr* GetEpocExpSymInfoHdr() const;
+        int32_t GetExportDescription();
+        const char* GetImportTable() const;
 
-        const char *GetDLLName(uint32_t OffsetOfDllName) const;
+        const char* GetDLLName(uint32_t OffsetOfDllName) const;
 
-        const char *GetBufferedImage() const;
+        const char* GetBufferedImage() const;
         int32_t UncompressedFileSize() const;
         size_t GetFileSize() const;
-        int32_t GetExportDescription();
         const E32RelocSection *GetRelocSection(uint32_t offSet);
     private:
         void ParseExportBitMap();
         void DecompressImage();
 
     private:
-        const char *iBufferedFile = nullptr;
+        const char* iBufferedFile = nullptr;
         const std::streamoff iE32Size = 0;
         // for example bulded from scratch E32 Image is uncompressed and may have compression flag
         bool iAlreadyUncompressed = true;
 
     private:
-        const E32ImageHeader *iHdr = nullptr;
-        const E32ImageHeaderJ *iHdrJ = nullptr;
-        const E32ImageHeaderV *iHdrV = nullptr;
+        const E32ImageHeader* iHdr = nullptr;
+        const E32ImageHeaderJ* iHdrJ = nullptr;
+        const E32ImageHeaderV* iHdrV = nullptr;
 
         //used in ParseExportBitMap()
-        uint8_t *iExportBitMap = nullptr;
+        uint8_t* iExportBitMap = nullptr;
         size_t iMissingExports = 0;
 };
 

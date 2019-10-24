@@ -176,14 +176,19 @@ const E32RelocSection* E32Parser::GetRelocSection(uint32_t offSet)
     return (E32RelocSection*)(iBufferedFile + offSet);
 }
 
-const E32ImportSection *E32Parser::GetImportSection() const
+const E32ImportSection* E32Parser::GetImportSection() const
 {
     return (E32ImportSection*)(iBufferedFile + iHdr->iImportOffset);
 }
 
-const char* E32Parser::GetImportAddressTable() const
+const uint32_t* E32Parser::GetImportAddressTable() const
 {
-    return (iBufferedFile + iHdr->iCodeOffset + iHdr->iTextSize);
+    return (uint32_t*)(iBufferedFile + iHdr->iCodeOffset + iHdr->iTextSize);
+}
+
+const char* E32Parser::GetImportTable() const
+{
+    return (iBufferedFile + iHdr->iCodeOffset);
 }
 
 const char* E32Parser::GetDLLName(uint32_t OffsetOfDllName) const

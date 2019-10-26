@@ -300,7 +300,7 @@ void E32Info::ImagePriority(TProcessPriority priority) const
     printf("\n");
 }
 
-void E32Info::SecurityInfo(bool CapNames)
+void E32Info::SecurityInfo(bool aCapNames)
 {
     uint32_t fmt = HdrFmtFromFlags(iHdr1->iFlags);
     if (fmt < KImageHdrFmt_V)
@@ -315,7 +315,7 @@ void E32Info::SecurityInfo(bool CapNames)
     printf("Vendor ID: %08x\n", v->iS.iVendorId);
     printf("Capabilities: %08x %08x\n", v->iS.iCaps.iSet[1], v->iS.iCaps.iSet[0]);
 
-    if(!CapNames)
+    if(!aCapNames)
         return;
 
     for(int32_t i=0; i<ECapability_Limit; i++)
@@ -475,7 +475,7 @@ void E32Info::SymbolInfo()
      */
     for(int i = 0; i < symInfoHdr->iDllCount; i++)
     {
-        bool aZerothFound = false;
+        bool zerothFound = false;
         while(parser->HasImports())
         {
             const char* dllname = iE32->GetDLLName(parser->GetOffsetOfDllName());
@@ -497,18 +497,18 @@ void E32Info::SymbolInfo()
                              * dependency entry
                              */
                             printf("\t%s\n", dllname);
-                            aZerothFound = true;
+                            zerothFound = true;
                         }
                         break;
                     }
                 }
             }
-            if(aZerothFound)
+            if(zerothFound)
                 break;
 
             parser->NextImportBlock();
         }
-        if(!aZerothFound)
+        if(!zerothFound)
             printf("!!Invalid dependency listed at %d\n", i);
 
         depOffset++;
@@ -691,7 +691,7 @@ void GenerateAsmFile(Args *param)
         ReportError(NOREQUIREDOPTION, "--definput");
 
     const char *defin = param->iDefoutput.c_str();
-	Symbols aSymList = SymbolsFromDef(defin);
+	Symbols syms = SymbolsFromDef(defin);
 
 	FILE *fptr = nullptr;
 	if(output)
@@ -699,7 +699,7 @@ void GenerateAsmFile(Args *param)
 	if(!fptr)
         printf("Can't store ASM in file! Print to screen.\n");
 
-    for(auto x: aSymList)
+    for(auto x: syms)
     {
         if(x->Absent())
             continue;
@@ -714,7 +714,7 @@ void GenerateAsmFile(Args *param)
     printf("\n AREA |.directive|, READONLY, NOALLOC\n\n");
     printf("\tDCB \"#<SYMEDIT>#\\n\"\n");
 
-    for(auto x: aSymList)
+    for(auto x: syms)
     {
         if(x->Absent())
             continue;

@@ -15,7 +15,6 @@
 //
 //
 
-#include <iostream>
 #include "elf2e32.h"
 #include "common.hpp"
 

@@ -42,6 +42,8 @@ void Elf2E32::Run()
     if(!iArg->iE32input.empty() && iArg->iOutput.empty())
         iTask = new E32Info(iArg);
 
-    if(iTask)
-        iTask->Run();
+    if(!iTask)
+        ReportError(ErrorCodes::FAILEDTASK);
+
+    iTask->Run();
 }

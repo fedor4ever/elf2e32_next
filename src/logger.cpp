@@ -52,15 +52,22 @@ struct Message Messages[]=
             " %s[Line No=%d][%s].\n"},
     {ErrorCodes::ARGUMENTNAME, "Argument %s is not correct.\n"},
     {ErrorCodes::UNRECOGNIZEDTOKEN, "Unrecognized Token : %s[Line No=%d][%s].\n"},
-    {ErrorCodes::EMPTYDATAWRITING, "Got empty data for store in file: %s.\n"}//,
+    {ErrorCodes::EMPTYDATAWRITING, "Got empty data for store in file: %s.\n"},
+    {ErrorCodes::FAILEDTASK, "Failed to init iTask->Run() in Elf2E32::Run() \n"}//,
 //    {ErrorCodes::, ".\n"}//,
 };
 
 Logger::Logger(const std::string& s)
 {
-    iFile = fopen(s.c_str(), "w");
-    if(!iFile && !s.empty())
-        printf("Cannot open file %s.\n", s.c_str());
+    if(!s.empty())
+    {
+        iFile = fopen(s.c_str(), "w");
+        if(!iFile)
+        {
+            printf("Cannot open file %s.\n", s.c_str());
+            throw ErrorCodes::FILEOPENERROR;
+        }
+    }
 }
 
 Logger::~Logger()

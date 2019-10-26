@@ -44,7 +44,8 @@ enum ErrorCodes
     ORDINALSEQUENCE,
     ARGUMENTNAME,
     UNRECOGNIZEDTOKEN,
-    EMPTYDATAWRITING
+    EMPTYDATAWRITING,
+    FAILEDTASK
 };
 
 const std::string empty = std::string();

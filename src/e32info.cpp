@@ -45,9 +45,6 @@ E32Info::~E32Info()
 
 void E32Info::HeaderInfo()
 {
-    if(!iHdr1)
-        printf("%s\n", "File not read!");
-
     uint32_t flags = iHdr1->iFlags;
     bool isARM = false;
     uint32_t hdrfmt = HdrFmtFromFlags(flags);
@@ -575,10 +572,13 @@ void PrintHexData(const void *pos, size_t length)
 void E32Info::Run()
 {
     if(iParam->iE32input.empty())
-        return;
+        ReportError(ErrorCodes::MISSEDARGUMENT, "--e32input");
 
     std::streamsize size;
     iE32File = ReadFile(iParam->iE32input.c_str(), size);
+    if(!iE32File)
+        ReportError(ErrorCodes::FILEOPENERROR, iParam->iE32input);
+
     printf("E32ImageFile \'%s\'\n", iParam->iE32input.c_str());
 
     iE32 = new E32Parser(iE32File, size);

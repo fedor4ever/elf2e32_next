@@ -370,7 +370,7 @@ void E32Info::ImportTableInfo()
     uint32_t impfmt = ImpFmtFromFlags(iHdr1->iFlags);
     const E32ImportSection* section = iE32->GetImportSection();
     E32ImportParser* parser =
-            new E32ImportParser(impfmt, section, iHdr1->iDllRefTableCount);
+            new E32ImportParser(iHdr1->iDllRefTableCount, impfmt, section);
 
     const char* impTable = iE32->GetImportTable();
     const uint32_t* impAddrTable = iE32->GetImportAddressTable();
@@ -463,7 +463,7 @@ void E32Info::SymbolInfo()
     const E32ImportSection* section = iE32->GetImportSection();
     uint32_t impfmt = ImpFmtFromFlags(iHdr1->iFlags);
     E32ImportParser* parser =
-            new E32ImportParser(impfmt, section, iHdr1->iDllRefTableCount);
+            new E32ImportParser(iHdr1->iDllRefTableCount, impfmt, section);
 
     /* The import table has offsets to the location (in code section) where the
      * import is required. For dependencies pointed by 0th ordinal, this offset
@@ -525,7 +525,7 @@ void E32Info::SymbolInfo()
 
 void PrintHexData(const void *pos, size_t length)
 {
-    printf("Block length: %lu\n", length);
+    printf("Block length: %lu\n", (unsigned long)length);
     const unsigned LINE_MAX = 32;
     char *p = (char *)pos;
     char str[LINE_MAX + 1] = {"\n"};

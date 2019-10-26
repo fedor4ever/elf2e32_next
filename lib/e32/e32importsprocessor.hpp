@@ -73,15 +73,15 @@ struct E32ImportSection
 class E32ImportParser
 {
 public:
-    E32ImportParser(uint32_t importFormat, const E32ImportSection* section,
-                    uint32_t numberOfImportDlls);
+    E32ImportParser(uint32_t numberOfImportDlls, uint32_t importFormat,
+                     const E32ImportSection* section);
     void NextImportBlock();
     bool HasImports();
-    const uint32_t GetOffsetOfDllName();
-    const uint32_t GetSectionSize();
-    const uint32_t GetNumberOfImports();
-    const uint32_t GetImportOrdinal();
-    const uint32_t GetImportOffset(uint32_t index);
+    uint32_t GetOffsetOfDllName();
+    uint32_t GetSectionSize();
+    uint32_t GetNumberOfImports();
+    uint32_t GetImportOrdinal();
+    uint32_t GetImportOffset(uint32_t index);
 private:
     uint32_t iNumberOfImportDlls; //number E32ImportBlock sections
     uint32_t iImportCounter;

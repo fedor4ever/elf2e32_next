@@ -21,14 +21,14 @@
 //param dstsize - after first function call hold offset to data part of the image.
 //So used for Bytepair compression only.
 char* Decompress(const char* src, uint32_t srcsize,
-    uint32_t& dstsize, uint32_t cmpalgorythm)
+    uint32_t& dstsize, uint32_t algorythm)
 {
 //    if(dstsize != extractedsize) ReportWarning(HUFFMANINCONSISTENTSIZE)
     return nullptr;
 }
 
 char* Compress(const char* src, uint32_t srcsize,
-    uint32_t cmpalgorythm)
+    uint32_t algorythm)
 {
 //    if(dstsize != extractedsize) ReportError(HUFFMANINCONSISTENTSIZE)
     return nullptr;

@@ -21,12 +21,6 @@
 #include <cstdint>
 #include <cstddef>
 
-struct E32RelocSection
-{
-    int32_t iSize;                 // size of this relocation section
-    int32_t iNumberOfRelocs;       // number of relocations in this section
-};
-
 /**
 A block of relocations for a single page (4kB) of code/data.
 
@@ -45,7 +39,14 @@ struct E32RelocBlock
 {
 	uint32_t iPageOffset; ///< Offset, in bytes, for the page being relocated; relative to the section start. Always a multiple of the page size: 4096 bytes.
 	uint32_t iBlockSize;  ///< Size, in bytes, for this block structure. Always a multiple of 4.
-    uint16_t iEntry[];
+    uint16_t iEntry[1];
+};
+
+struct E32RelocSection
+{
+    int32_t iSize;                 // size of this relocation section
+    int32_t iNumberOfRelocs;       // number of relocations in this section
+    E32RelocBlock iRelocBlock[1];
 };
 
 struct E32ImportBlockPE2

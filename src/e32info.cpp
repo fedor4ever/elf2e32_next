@@ -31,11 +31,11 @@
 //#define INCLUDE_CAPABILITY_NAMES
 #include "e32capability.h"
 
-void DumpRelocs(const char *relocs);
-void GenerateAsmFile(Args *param);
-void PrintHexData(const void *pos, size_t lenth);
+void DumpRelocs(const E32RelocSection* relocs);
+void GenerateAsmFile(Args* param);
+void PrintHexData(const void* pos, size_t lenth);
 
-E32Info::E32Info(Args *param): iParam(param),
+E32Info::E32Info(Args* param): iParam(param),
     iFlags(param->iDump) {}
 
 E32Info::~E32Info()
@@ -329,9 +329,11 @@ void E32Info::CodeSection()
     printf("\nCode (text size=%08x)\n", iHdr1->iTextSize);
     PrintHexData(iE32->GetImportTable(), iHdr1->iCodeSize);
 
-    const E32RelocSection *a = iE32->GetRelocSection(iHdr1->iCodeRelocOffset);
     if (iHdr1->iCodeRelocOffset)
-        DumpRelocs((const char *)a);
+    {
+        const E32RelocSection *a = iE32->GetRelocSection(iHdr1->iCodeRelocOffset);
+        DumpRelocs(a);
+    }
 }
 
 void E32Info::DataSection()
@@ -339,9 +341,11 @@ void E32Info::DataSection()
     printf("\nData\n");
     PrintHexData(iE32->GetBufferedImage() + iHdr1->iDataOffset, iHdr1->iDataSize);
 
-    const E32RelocSection *a = iE32->GetRelocSection(iHdr1->iDataRelocOffset);
     if (iHdr1->iDataRelocOffset)
-        DumpRelocs((const char *)a);
+    {
+        const E32RelocSection *a = iE32->GetRelocSection(iHdr1->iDataRelocOffset);
+        DumpRelocs(a);
+    }
 }
 
 void E32Info::ExportTable()
@@ -452,7 +456,7 @@ void E32Info::SymbolInfo()
 	if(!symInfoHdr->iDllCount)
         return;
 
-    const char *e32Buf = iEcde32->GetBufferedImage();
+    const char *e32Buf = iE32->GetBufferedImage();
     // The import table orders the dependencies alphabetically...
     // We need to list out in the link order...
     printf("%d Static dependencies found\n", symInfoHdr->iDllCount);
@@ -645,19 +649,18 @@ void E32Info::CPUIdentifier(uint16_t aCPUType, bool &isARM)
     }
 }
 
-void DumpRelocs(const char *relocs)
+void DumpRelocs(const E32RelocSection *reloc)
 {
-    int32_t cnt=((E32RelocSection *)relocs)->iNumberOfRelocs;
+    int32_t cnt=reloc->iNumberOfRelocs;
 	printf("%d relocs\n", cnt);
-	relocs+=sizeof(E32RelocSection);
+	const E32RelocBlock* relocs=reloc->iRelocBlock;
 	int32_t printed=0;
 	while(cnt > 0)
     {
-        int32_t page=*(uint32_t *)relocs;
-		int32_t size=*(uint32_t *)(relocs+4);
-		int32_t pagesize=size;
+        int32_t page=relocs->iPageOffset;
+		int32_t size=relocs->iBlockSize;
 		size-=8;
-		uint16_t *p=(uint16_t *)(relocs+8);
+		const uint16_t *p = relocs->iEntry;
 		while (size>0)
 		{
 			uint32_t a=*p++;
@@ -675,7 +678,7 @@ void DumpRelocs(const char *relocs)
 			size-=2;
 			cnt--;
 		}
-		relocs+=pagesize;
+		relocs = (const E32RelocBlock*)p;
     }
     printf("\n");
 }

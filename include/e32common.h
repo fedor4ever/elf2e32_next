@@ -31,7 +31,7 @@ Consist from 4 subsections in strict order:
 --offset table to function names, every value points to start of function name
 --exported function names in that format:
 	**aligned by 4 bytes
-	**every function name zero termitates
+	**every function is zero terminated string
 	**stored in 8 byte char array
 */
 struct E32EpocExpSymInfoHdr

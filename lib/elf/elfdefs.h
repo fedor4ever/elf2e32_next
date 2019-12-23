@@ -23,12 +23,12 @@
 
 // ARMELF 3.1.2
 // Data Representation
-typedef uint32_t Elf32_Addr;     //Unsigned program address
+typedef uint32_t Elf32_Addr;   //Unsigned program address
 typedef uint16_t Elf32_Half;   //Unsigned medium integer
-typedef uint32_t Elf32_Off;      //Unsigned file offset
-typedef int32_t Elf32_Sword;      //Signed large integer
-typedef uint32_t Elf32_Word;     //Unsigned large integer
-typedef unsigned char UChar;         //Unsigned small integer
+typedef uint32_t Elf32_Off;    //Unsigned file offset
+typedef int32_t Elf32_Sword;   //Signed large integer
+typedef uint32_t Elf32_Word;   //Unsigned large integer
+typedef unsigned char UChar;   //Unsigned small integer
 
 typedef char* MemAddr;
 /*

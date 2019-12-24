@@ -38,15 +38,14 @@ void ArgInfo(const char *name); // long_opts[optIdx].name
 void ArgInfo(const char *name, char* opt); // long_opts[optIdx].name, optarg
 void Help();
 
-Args* ArgParser::Parse()
+bool ArgParser::Parse(Args* arg) const
 {
     if(iArgc == 1)
     {
         Help();
-        return nullptr;
+        return false;
     }
 
-    Args* arg = new Args();
     int rez, optIdx;
     const char* optname = nullptr;
     while( (rez = getopt_long(iArgc, iArgv, nullptr, long_opts, &optIdx)) != -1)
@@ -223,22 +222,24 @@ Args* ArgParser::Parse()
                 break;
             case ':':
                 //optind always point to next argv instead current                ReportError(MISSEDARGUMENT, iArgv[optind-1], Help);
+                return false;
             case '?':
                 //optind always point to next argv instead current
                 ReportError(UNKNOWNOPTION, iArgv[optind-1], Help);
+                return false;
             case OptionsType::EHELP:
                 Help();
-                return arg;
+                return false;
         //silently ignored options
             case OptionsType::EMESSAGEFILE: // fallthru
             case OptionsType::EDUMPMESSAGEFILE:
                 break;
             default:
                 Help();
-                break;
+                return false;
         }
     };
-    return arg;
+    return true;
 }
 
 const string ScreenOptions =

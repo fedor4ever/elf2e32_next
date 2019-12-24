@@ -14,7 +14,7 @@
 // Control workflow for the elf2e32 tool
 //
 //
-
+#include <iostream>
 #include "logger.h"
 #include "elf2e32.h"
 #include "e32info.h"
@@ -25,25 +25,26 @@
 Elf2E32::Elf2E32(int argc, char** argv)
 {
     iHdr = new E32ImageHeader();
-    iArgs = new ArgParser(argc, argv);
+    iArgParser = new ArgParser(argc, argv);
+    iCmdParam = new Args();
 }
 
 Elf2E32::~Elf2E32()
 {
     delete iHdr;
-    delete iArgs;
-    delete iArg;
+    delete iArgParser;
+    delete iCmdParam;
 }
 
 void Elf2E32::Run()
 {
-    iArg = iArgs->Parse();
-    Logger::Instance(iArg->iLog);
-    if(!iArg->iE32input.empty() && iArg->iOutput.empty())
-        iTask = new E32Info(iArg);
+    if(!iArgParser->Parse(iCmdParam))
+    	return;
 
-    if(!iTask)
-        ReportError(ErrorCodes::FAILEDTASK);
+    Logger::Instance(iCmdParam->iLog);
+    if(!iCmdParam->iE32input.empty() && iCmdParam->iOutput.empty())
+        iTask = new E32Info(iCmdParam);
 
-    iTask->Run();
+    if(iTask)
+        iTask->Run();
 }

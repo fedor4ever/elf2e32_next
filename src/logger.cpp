@@ -52,8 +52,7 @@ struct Message Messages[]=
             " %s[Line No=%d][%s].\n"},
     {ErrorCodes::ARGUMENTNAME, "Argument %s is not correct.\n"},
     {ErrorCodes::UNRECOGNIZEDTOKEN, "Unrecognized Token : %s[Line No=%d][%s].\n"},
-    {ErrorCodes::EMPTYDATAWRITING, "Got empty data for store in file: %s.\n"},
-    {ErrorCodes::FAILEDTASK, "Failed to init iTask->Run() in Elf2E32::Run() \n"}//,
+    {ErrorCodes::EMPTYDATAWRITING, "Got empty data for store in file: %s.\n"}//,
 //    {ErrorCodes::, ".\n"}//,
 };
 

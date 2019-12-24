@@ -25,7 +25,7 @@ class ArgParser
     public:
         ArgParser(int argc, char** argv);
         ~ArgParser();
-        Args* Parse();
+        bool Parse(Args* args) const;
     private:
         int iArgc;
         char** iArgv;

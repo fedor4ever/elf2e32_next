@@ -58,13 +58,6 @@ enum TProcessPriority
     EPrioritySupervisor=950
 };
 
-enum TargetType
-{
-    EXE = 0,
-    DLL = 1,
-    FIXEDADDRESEXE = 2
-};
-
 struct SCapabilitySet
 {
     uint32_t iSet[2];

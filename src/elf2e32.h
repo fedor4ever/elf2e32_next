@@ -16,10 +16,10 @@
 #ifndef ELF2E32_H
 #define ELF2E32_H
 
-class Args;
+struct Args;
 class Task;
 class ArgParser;
-class E32ImageHeader;
+struct E32ImageHeader;
 
 class Elf2E32
 {

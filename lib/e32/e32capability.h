@@ -257,14 +257,8 @@ enum TCapability
 	};
 
 
-/** Define this macro to reference the names of the capabilities. This is here so
-	that ROMBUILD can accept capability names.
-*/
-#ifdef REFERENCE_CAPABILITY_NAMES
-
 extern const char* const CapabilityNames[ECapability_Limit];
 
-#endif	// REFERENCE_CAPABILITY_NAMES
 
 /** Define this macro to include the names of the capabilities. This is here so
 	that ROMBUILD can accept capability names.
@@ -273,9 +267,6 @@ extern const char* const CapabilityNames[ECapability_Limit];
 
 /** List of names of all supported capabilities
 	Must be in the same order as the enumerators in TCapability
-
-@publishedAll
-@released
 */
 extern const char* const CapabilityNames[ECapability_Limit] =
 	{

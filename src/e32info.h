@@ -34,7 +34,7 @@ struct E32ImageHeader;
 class E32Info: public Task
 {
     public:
-        E32Info(Args *param);
+        E32Info(Args* param);
         virtual ~E32Info();
         virtual void Run() override;
     public:
@@ -50,11 +50,11 @@ class E32Info: public Task
         void CPUIdentifier(uint16_t CPUType, bool &isARM);
         void ImagePriority(TProcessPriority priority) const;
     private:
-        Args *iParam = nullptr;
+        Args* iParam = nullptr;
         std::string iFlags = nullptr;
-        const char *iE32File = nullptr;
-        E32Parser *iE32 = nullptr;
-        const E32ImageHeader *iHdr1 = nullptr;
+        const char* iE32File = nullptr;
+        E32Parser* iE32 = nullptr;
+        const E32ImageHeader* iHdr = nullptr;
 };
 
 #endif // E32INFO_H

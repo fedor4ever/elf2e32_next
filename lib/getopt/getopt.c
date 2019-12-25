@@ -27,7 +27,7 @@
 int opterr = 1;
 int optopt = 0;
 int optind = 1;
-char *optarg = NULL;
+const char *optarg = NULL;
 
 /*
  * internal values needed by getopt

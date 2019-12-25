@@ -86,8 +86,8 @@ Logger* Logger::Instance(const std::string& s)
 void Logger::Log(const std::string& s)
 {
     if(iFile)
-        fprintf(iFile, s.c_str());
-    printf(s.c_str());
+        fprintf(iFile, "%s", s.c_str());
+    printf("%s", s.c_str());
 }
 
 void Logger::Log(const std::string& s, int x)
@@ -129,8 +129,8 @@ void Logger::Log(ErrorCodes errcode, const std::string& s1, const std::string& s
 void Logger::Log(ErrorCodes errcode)
 {
     if(iFile)
-        fprintf(iFile, Messages[errcode].str);
-    printf(Messages[errcode].str);
+        fprintf(iFile, "%s", Messages[errcode].str);
+    printf("%s", Messages[errcode].str);
 }
 
 void Logger::Log(ErrorCodes errcode, const int x, const int y)

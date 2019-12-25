@@ -45,7 +45,7 @@ class Logger
         Logger(const Logger&) = delete;
         Logger& operator=(const Logger&) = delete;
     private:
-        FILE * iFile = nullptr;
+        FILE* iFile = nullptr;
 };
 
 #endif // LOGGER_H

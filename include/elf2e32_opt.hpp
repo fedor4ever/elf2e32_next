@@ -18,7 +18,6 @@
 #define ELF2E32_OPT_HPP_INCLUDED
 
 #include <string>
-#include <getopt.h>
 
 struct OptionsType
 {
@@ -75,60 +74,6 @@ struct OptionsType
     };
 };
 
-static struct option long_opts[] =
-{
-    {"uid1",  required_argument, 0, OptionsType::EUID1},
-    {"uid2",  required_argument, 0, OptionsType::EUID2},
-    {"uid3",  required_argument, 0, OptionsType::EUID3},
-    {"sid",   required_argument, 0, OptionsType::ESID},
-    {"vid",   required_argument, 0, OptionsType::EVID},
-    {"heap",  required_argument, 0, OptionsType::EHEAP},
-    {"stack", required_argument, 0, OptionsType::ESTACK},
-    // for E32ImageHeader::iFlags
-    {"fixedaddress",     no_argument, 0, OptionsType::EFIXEDADDRESS},
-    {"callentry",        no_argument, 0, OptionsType::ECALLENTRY},
-    {"fpu",        required_argument, 0, OptionsType::EFPU},
-    {"codepaging", required_argument, 0, OptionsType::ECODEPAGING},
-    {"datapaging", required_argument, 0, OptionsType::EDATAPAGING},
-    {"paged",            no_argument, 0, OptionsType::EPAGED},
-    {"defaultpaged",     no_argument, 0, OptionsType::EDEFAULTPAGED},
-    {"unpaged",          no_argument, 0, OptionsType::EUNPAGED},
-    {"debuggable",       no_argument, 0, OptionsType::EDEBUGGABLE},
-    {"smpsafe",          no_argument, 0, OptionsType::ESMPSAFE},
-    // for image generation
-    {"targettype",   required_argument, 0, OptionsType::ETARGETTYPE},
-    {"linkas",       required_argument, 0, OptionsType::ELINKAS},
-    {"uncompressed",       no_argument, 0, OptionsType::EUNCOMPRESSED},
-    {"compressionmethod", required_argument, 0, OptionsType::ECOMPRESSIONMETHOD},
-    {"unfrozen",           no_argument, 0, OptionsType::EUNFROZEN},
-    {"ignorenoncallable",  no_argument, 0, OptionsType::EIGNORENONCALLABLE},
-    {"capability",   required_argument, 0, OptionsType::ECAPABILITY},
-    {"sysdef",       required_argument, 0, OptionsType::ESYSDEF},
-    {"dlldata",            no_argument, 0, OptionsType::EDLLDATA},
-    {"priority",     required_argument, 0, OptionsType::EPRIORITY},
-    {"excludeunwantedexports",   no_argument, 0, OptionsType::EEXCLUDEUNWANTEDEXPORTS},
-    {"customdlltarget",    no_argument, 0, OptionsType::ECUSTOMDLLTARGET},
-    {"namedlookup",        no_argument, 0, OptionsType::ENAMEDLOOKUP},
-    // input files
-    {"definput",  required_argument, 0, OptionsType::EDEFINPUT},
-    {"defoutput", required_argument, 0, OptionsType::EDEFOUTPUT},
-    {"elfinput",  required_argument, 0, OptionsType::EELFINPUT},
-    {"output",    required_argument, 0, OptionsType::EOUTPUT},
-    {"dso",       required_argument, 0, OptionsType::EDSO},
-    {"libpath",   required_argument, 0, OptionsType::ELIBPATH},
-    {"e32input",  required_argument, 0, OptionsType::EE32INPUT},
-    // info for E32 image
-    {"dump",      required_argument, 0, OptionsType::EDUMP},
-    // common options
-    {"log",             required_argument, 0, OptionsType::ELOG},
-    {"version",               no_argument, 0, OptionsType::EVERSION},
-    {"help",                  no_argument, 0, OptionsType::EHELP},
-    // ignored options
-    {"messagefile",     required_argument, 0, OptionsType::EMESSAGEFILE},
-    {"dumpmessagefile", required_argument, 0, OptionsType::EDUMPMESSAGEFILE},
-    {0,0,0,0}
-};
-
 struct Args
 {
     std::string iUid1;
@@ -170,7 +115,7 @@ struct Args
     std::string iE32input;
     std::string iDump = "h";
     std::string iLog;
-    std::string iVersion; // ex: elf2e32.exe --version=22.06.1982
+    std::string iVersion; // ex: elf2e32.exe --version
 };
 
 #endif // ELF2E32_OPT_HPP_INCLUDED

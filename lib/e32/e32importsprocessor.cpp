@@ -30,10 +30,8 @@ uint32_t E32ImportBlock::Size(uint32_t aImpFmt) const
     return r;
 }
 
-E32ImportParser::E32ImportParser(uint32_t numberOfImportDlls,
-     uint32_t importFormat, const E32ImportSection* section):
-         iNumberOfImportDlls(numberOfImportDlls),
-         iImportCounter(numberOfImportDlls),
+E32ImportParser::E32ImportParser(uint32_t importFormat,
+    const E32ImportSection* section):
          iImportFormat(importFormat), iSection(section)
 {
     iNext = iSection->iImportBlock;
@@ -48,32 +46,32 @@ void E32ImportParser::NextImportBlock()
     iNext = (E32ImportBlock*)(iNext->iImports + arrayMemberOffset);
 }
 
-uint32_t E32ImportParser::GetOffsetOfDllName()
+uint32_t E32ImportParser::GetOffsetOfDllName() const
 {
     return iNext->iOffsetOfDllName;
 }
 
-uint32_t E32ImportParser::GetSectionSize()
+uint32_t E32ImportParser::GetSectionSize() const
 {
     return iSection->iSize;
 }
 
-uint32_t E32ImportParser::GetNumberOfImports()
+uint32_t E32ImportParser::GetNumberOfImports() const
 {
     return iNext->iNumberOfImports;
 }
 
-uint32_t E32ImportParser::GetImportOrdinal()
+uint32_t E32ImportParser::GetImportOrdinal() const
 {
     return iImpOrdinal;
 }
 
-uint32_t E32ImportParser::GetImportOffset(uint32_t index)
+uint32_t E32ImportParser::GetImportOffset(uint32_t index) const
 {
     return iNext->iImports[index];
 }
 
-bool E32ImportParser::HasImports()
+bool E32ImportParser::HasImports() const
 {
     return iImportCounter > 0;
 }

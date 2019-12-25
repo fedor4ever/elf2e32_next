@@ -45,30 +45,30 @@ E32Info::~E32Info()
 
 void E32Info::HeaderInfo()
 {
-    uint32_t flags = iHdr1->iFlags;
+    uint32_t flags = iHdr->iFlags;
     bool isARM = false;
     uint32_t hdrfmt = HdrFmtFromFlags(flags);
 
-    printf("V%d.%02d(%03d)", iHdr1->iVersion.iMajor,
-           iHdr1->iVersion.iMinor, iHdr1->iVersion.iBuild);
-    printf("\tTime Stamp: %08x,%08x\n", iHdr1->iTimeHi, iHdr1->iTimeLo);
+    printf("V%d.%02d(%03d)", iHdr->iVersion.iMajor,
+           iHdr->iVersion.iMinor, iHdr->iVersion.iBuild);
+    printf("\tTime Stamp: %08x,%08x\n", iHdr->iTimeHi, iHdr->iTimeLo);
 
     char sig[5] = {};
-    memcpy(sig, (const char*)&iHdr1->iSignature, 4);
+    memcpy(sig, (const char*)&iHdr->iSignature, 4);
     printf(sig);
 
     if(flags & KImageDll)
         printf(" Dll for ");
     else
         printf(" Exe for ");
-    CPUIdentifier(iHdr1->iCpuIdentifier, isARM);
+    CPUIdentifier(iHdr->iCpuIdentifier, isARM);
 
     printf("Flags:\t%08x\n", flags);
 
     if (!(flags & KImageDll))
     {
         printf("Priority ");
-        ImagePriority((TProcessPriority)iHdr1->iProcessPriority);
+        ImagePriority((TProcessPriority)iHdr->iProcessPriority);
         if (flags & KImageFixedAddressExe)
             printf("Fixed process\n");
     }
@@ -77,7 +77,7 @@ void E32Info::HeaderInfo()
         printf("Entry points are not called\n");
 
     printf("Image header is format %u\n", hdrfmt>>24);
-    uint32_t compression = iHdr1->iCompressionType;
+    uint32_t compression = iHdr->iCompressionType;
 
     switch (compression)
     {
@@ -177,7 +177,7 @@ void E32Info::HeaderInfo()
             printf("!! Export description inconsistent !!\n");
     }
 
-    uint32_t mv = iHdr1->iModuleVersion;
+    uint32_t mv = iHdr->iModuleVersion;
     printf("Module Version: %u.%u\n", mv>>16, mv&0xffff);
 
     switch(ImpFmtFromFlags(flags))
@@ -200,55 +200,55 @@ void E32Info::HeaderInfo()
     printf("Built against EKA2\n");
     // end todo
 
-    printf("Uids:\t\t%08x %08x %08x (%08x)\n", iHdr1->iUid1, iHdr1->iUid2, iHdr1->iUid3, iHdr1->iUidChecksum);
+    printf("Uids:\t\t%08x %08x %08x (%08x)\n", iHdr->iUid1, iHdr->iUid2, iHdr->iUid3, iHdr->iUidChecksum);
 
     if (hdrfmt >= KImageHdrFmt_V)
-        printf("Header CRC:\t%08x\n", iHdr1->iHeaderCrc);
+        printf("Header CRC:\t%08x\n", iHdr->iHeaderCrc);
 
     printf("File Size:\t%08x\n", iE32->GetFileSize());
-    printf("Code Size:\t%08x\n", iHdr1->iCodeSize);
-    printf("Data Size:\t%08x\n", iHdr1->iDataSize);
-    printf("Compression:\t%08x\n", iHdr1->iCompressionType);
-    printf("Min Heap Size:\t%08x\n", iHdr1->iHeapSizeMin);
-    printf("Max Heap Size:\t%08x\n", iHdr1->iHeapSizeMax);
-    printf("Stack Size:\t%08x\n", iHdr1->iStackSize);
-    printf("Code link addr:\t%08x\n", iHdr1->iCodeBase);
-    printf("Data link addr:\t%08x\n", iHdr1->iDataBase);
-    printf("Code reloc offset:\t%08x\n", iHdr1->iCodeRelocOffset);
-    printf("Data reloc offset:\t%08x\n", iHdr1->iDataRelocOffset);
-    printf("Dll ref table count: %d\n", iHdr1->iDllRefTableCount);
+    printf("Code Size:\t%08x\n", iHdr->iCodeSize);
+    printf("Data Size:\t%08x\n", iHdr->iDataSize);
+    printf("Compression:\t%08x\n", iHdr->iCompressionType);
+    printf("Min Heap Size:\t%08x\n", iHdr->iHeapSizeMin);
+    printf("Max Heap Size:\t%08x\n", iHdr->iHeapSizeMax);
+    printf("Stack Size:\t%08x\n", iHdr->iStackSize);
+    printf("Code link addr:\t%08x\n", iHdr->iCodeBase);
+    printf("Data link addr:\t%08x\n", iHdr->iDataBase);
+    printf("Code reloc offset:\t%08x\n", iHdr->iCodeRelocOffset);
+    printf("Data reloc offset:\t%08x\n", iHdr->iDataRelocOffset);
+    printf("Dll ref table count: %d\n", iHdr->iDllRefTableCount);
 
-    if (iHdr1->iCodeSize || iHdr1->iDataSize || iHdr1->iBssSize || iHdr1->iImportOffset)
+    if (iHdr->iCodeSize || iHdr->iDataSize || iHdr->iBssSize || iHdr->iImportOffset)
         printf("        Offset  Size  Relocs #Relocs\n");
 
-    printf("Code    %06x %06x", iHdr1->iCodeOffset, iHdr1->iCodeSize);
+    printf("Code    %06x %06x", iHdr->iCodeOffset, iHdr->iCodeSize);
 
-    if (iHdr1->iCodeRelocOffset)
+    if (iHdr->iCodeRelocOffset)
     {
-        const E32RelocSection *r = iE32->GetRelocSection(iHdr1->iCodeRelocOffset);
-        printf(" %06x %06x", iHdr1->iCodeRelocOffset, r->iNumberOfRelocs);
+        const E32RelocSection *r = iE32->GetRelocSection(iHdr->iCodeRelocOffset);
+        printf(" %06x %06x", iHdr->iCodeRelocOffset, r->iNumberOfRelocs);
     }else printf("              ");
 
-    printf("        +%06x (entry pnt)", iHdr1->iEntryPoint);
+    printf("        +%06x (entry pnt)", iHdr->iEntryPoint);
     printf("\n");
 
-    printf("Data    %06x %06x", iHdr1->iDataOffset, iHdr1->iDataSize);
+    printf("Data    %06x %06x", iHdr->iDataOffset, iHdr->iDataSize);
 
-    if (iHdr1->iDataRelocOffset)
+    if (iHdr->iDataRelocOffset)
     {
-        const E32RelocSection *r = iE32->GetRelocSection(iHdr1->iDataRelocOffset);
-        printf(" %06x %06x", iHdr1->iDataRelocOffset, r->iNumberOfRelocs);
+        const E32RelocSection *r = iE32->GetRelocSection(iHdr->iDataRelocOffset);
+        printf(" %06x %06x", iHdr->iDataRelocOffset, r->iNumberOfRelocs);
     }
     printf("\n");
 
-    printf("Bss            %06x\n", iHdr1->iBssSize);
+    printf("Bss            %06x\n", iHdr->iBssSize);
 
-    if (iHdr1->iExportDirOffset)
+    if (iHdr->iExportDirOffset)
         printf("Export  %06x %06x                      (%u entries)\n",
-               iHdr1->iExportDirOffset, iHdr1->iExportDirCount*4, iHdr1->iExportDirCount);
+               iHdr->iExportDirOffset, iHdr->iExportDirCount*4, iHdr->iExportDirCount);
 
-    if (iHdr1->iImportOffset)
-        printf("Import  %06x\n", iHdr1->iImportOffset);
+    if (iHdr->iImportOffset)
+        printf("Import  %06x\n", iHdr->iImportOffset);
 }
 
 void E32Info::ImagePriority(TProcessPriority priority) const
@@ -299,7 +299,7 @@ void E32Info::ImagePriority(TProcessPriority priority) const
 
 void E32Info::SecurityInfo(bool aCapNames)
 {
-    uint32_t fmt = HdrFmtFromFlags(iHdr1->iFlags);
+    uint32_t fmt = HdrFmtFromFlags(iHdr->iFlags);
     if (fmt < KImageHdrFmt_V)
         return;
 
@@ -323,12 +323,12 @@ void E32Info::SecurityInfo(bool aCapNames)
 
 void E32Info::CodeSection()
 {
-    printf("\nCode (text size=%08x)\n", iHdr1->iTextSize);
-    PrintHexData(iE32->GetImportTable(), iHdr1->iCodeSize);
+    printf("\nCode (text size=%08x)\n", iHdr->iTextSize);
+    PrintHexData(iE32->GetImportTable(), iHdr->iCodeSize);
 
-    if (iHdr1->iCodeRelocOffset)
+    if (iHdr->iCodeRelocOffset)
     {
-        const E32RelocSection *a = iE32->GetRelocSection(iHdr1->iCodeRelocOffset);
+        const E32RelocSection *a = iE32->GetRelocSection(iHdr->iCodeRelocOffset);
         DumpRelocs(a);
     }
 }
@@ -336,23 +336,23 @@ void E32Info::CodeSection()
 void E32Info::DataSection()
 {
     printf("\nData\n");
-    PrintHexData(iE32->GetBufferedImage() + iHdr1->iDataOffset, iHdr1->iDataSize);
+    PrintHexData(iE32->GetBufferedImage() + iHdr->iDataOffset, iHdr->iDataSize);
 
-    if (iHdr1->iDataRelocOffset)
+    if (iHdr->iDataRelocOffset)
     {
-        const E32RelocSection *a = iE32->GetRelocSection(iHdr1->iDataRelocOffset);
+        const E32RelocSection *a = iE32->GetRelocSection(iHdr->iDataRelocOffset);
         DumpRelocs(a);
     }
 }
 
 void E32Info::ExportTable()
 {
-    printf("\nNumber of exports = %u\n", iHdr1->iExportDirCount);
-    uint32_t* exports = (uint32_t*)(iE32->GetBufferedImage() + iHdr1->iExportDirOffset);
-    uint32_t absoluteEntryPoint = iHdr1->iEntryPoint + iHdr1->iCodeBase;
-    uint32_t impfmt = ImpFmtFromFlags(iHdr1->iFlags);
-    uint32_t absentVal = (impfmt == KImageImpFmt_ELF) ? absoluteEntryPoint : iHdr1->iEntryPoint;
-    for (uint32_t i = 0; i < iHdr1->iExportDirCount; ++i)
+    printf("\nNumber of exports = %u\n", iHdr->iExportDirCount);
+    uint32_t* exports = (uint32_t*)(iE32->GetBufferedImage() + iHdr->iExportDirOffset);
+    uint32_t absoluteEntryPoint = iHdr->iEntryPoint + iHdr->iCodeBase;
+    uint32_t impfmt = ImpFmtFromFlags(iHdr->iFlags);
+    uint32_t absentVal = (impfmt == KImageImpFmt_ELF) ? absoluteEntryPoint : iHdr->iEntryPoint;
+    for (uint32_t i = 0; i < iHdr->iExportDirCount; ++i)
     {
         uint32_t exp = exports[i];
         if (exp == absentVal)
@@ -364,19 +364,17 @@ void E32Info::ExportTable()
 
 void E32Info::ImportTableInfo()
 {
-    if(!iHdr1->iImportOffset)
+    if(!iHdr->iImportOffset)
         return;
 
-    uint32_t impfmt = ImpFmtFromFlags(iHdr1->iFlags);
+    uint32_t impfmt = ImpFmtFromFlags(iHdr->iFlags);
     const E32ImportSection* section = iE32->GetImportSection();
-    E32ImportParser* parser =
-            new E32ImportParser(iHdr1->iDllRefTableCount, impfmt, section);
-
+    E32ImportParser* parser = new E32ImportParser(impfmt, section);
     const char* impTable = iE32->GetImportTable();
     const uint32_t* impAddrTable = iE32->GetImportAddressTable();
 
     printf("\nIdata\tSize=%08x\n", parser->GetSectionSize());
-    printf("Offset of import address table (relative to code section): %08x\n", iHdr1->iTextSize);
+    printf("Offset of import address table (relative to code section): %08x\n", iHdr->iTextSize);
 
     while(parser->HasImports())
     {
@@ -410,7 +408,7 @@ void E32Info::ImportTableInfo()
 
 void E32Info::SymbolInfo()
 {
-    if(!(iHdr1->iFlags & KImageNmdExpData))
+    if(!(iHdr->iFlags & KImageNmdExpData))
         return;
     const E32EpocExpSymInfoHdr *symInfoHdr = iE32->GetEpocExpSymInfoHdr();
     if(!symInfoHdr)
@@ -461,9 +459,8 @@ void E32Info::SymbolInfo()
     uint32_t* depOffset =  (uint32_t*)((char*)depTbl - e32Buf);
 
     const E32ImportSection* section = iE32->GetImportSection();
-    uint32_t impfmt = ImpFmtFromFlags(iHdr1->iFlags);
-    E32ImportParser* parser =
-            new E32ImportParser(iHdr1->iDllRefTableCount, impfmt, section);
+    uint32_t impfmt = ImpFmtFromFlags(iHdr->iFlags);
+    E32ImportParser* parser = new E32ImportParser(impfmt, section);
 
     /* The import table has offsets to the location (in code section) where the
      * import is required. For dependencies pointed by 0th ordinal, this offset
@@ -488,7 +485,7 @@ void E32Info::SymbolInfo()
 
                     if(ordinal == 0)
                     {
-                        if(impd_offset == (uint32_t)((char*)depOffset - iHdr1->iCodeOffset))
+                        if(impd_offset == (uint32_t)((char*)depOffset - iHdr->iCodeOffset))
                         {
                             /* The offset in import table is same as the offset of this
                              * dependency entry
@@ -582,7 +579,7 @@ void E32Info::Run()
     printf("E32ImageFile \'%s\'\n", iParam->iE32input.c_str());
 
     iE32 = new E32Parser(iE32File, size);
-    iHdr1 = iE32->GetFileLayout();
+    iHdr = iE32->GetFileLayout();
 
     ValidateE32Image(iE32->GetBufferedImage(), iE32->GetFileSize());
 

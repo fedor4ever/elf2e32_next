@@ -37,6 +37,7 @@ class E32Parser
 
         const E32ImageHeader* GetFileLayout();
 
+        const E32ImageHeader* GetE32Hdr() const;
         const E32ImageHeaderJ* GetE32HdrJ() const;
         const E32ImageHeaderV* GetE32HdrV() const;
 

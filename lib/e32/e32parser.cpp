@@ -42,10 +42,10 @@ E32Parser::E32Parser(const char* buf, const std::streamoff& bufsize, bool compre
 const E32ImageHeader* E32Parser::GetFileLayout()
 {
     if(!iBufferedFile)
-        ReportError(ZEROBUFFER);
+        ReportError(ZEROBUFFER, "Buffered E32Image not set at all.");
 
     if(!iE32Size)
-        ReportError(ZEROBUFFER);
+        ReportError(ZEROBUFFER, "Size for buffered E32Image not set.");
 
     if((iBufferedFile[1] == 'E')&&(iBufferedFile[2] == 'L')&&(iBufferedFile[3] == 'F'))
         ReportError(ELFFILEEXPECTEDE32);
@@ -119,6 +119,13 @@ const TExceptionDescriptor* E32Parser::GetExceptionDescriptor() const
     uint32_t xd = iHdrV->iExceptionDescriptor;
     xd &= ~1;
     return (TExceptionDescriptor *)(iBufferedFile + iHdr->iCodeOffset + xd);
+}
+
+const E32ImageHeader* E32Parser::GetE32Hdr() const
+{
+	if(!iHdr)
+		ReportError(ZEROBUFFER, "Buffered file in E32Parser not set. Call first E32ImageHeader* GetFileLayout()");
+    return iHdr;
 }
 
 const E32ImageHeaderJ* E32Parser::GetE32HdrJ() const

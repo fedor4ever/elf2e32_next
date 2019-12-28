@@ -23,6 +23,9 @@
 
 #include "elf2e32_version.hpp"
 
+uint32_t GetUidChecksum(uint32_t uid1, uint32_t uid2, uint32_t uid3);
+uint32_t Crc32(const void * aPtr, uint32_t aLength);
+
 /** This holds info for entire symname lookup section
 
 Consist from 4 subsections in strict order:

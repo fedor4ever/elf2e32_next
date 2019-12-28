@@ -26,6 +26,7 @@
 #include "e32parser.h"
 #include "elf2e32_opt.hpp"
 #include "e32importsprocessor.hpp"
+#include "e32validator.h"
 
 #define REFERENCE_CAPABILITY_NAMES
 //#define INCLUDE_CAPABILITY_NAMES
@@ -41,6 +42,7 @@ E32Info::E32Info(Args* param): iParam(param),
 E32Info::~E32Info()
 {
     delete iE32;
+    delete iE32File;
 }
 
 void E32Info::HeaderInfo()
@@ -581,7 +583,7 @@ void E32Info::Run()
     iE32 = new E32Parser(iE32File, size);
     iHdr = iE32->GetFileLayout();
 
-    ValidateE32Image(iE32->GetBufferedImage(), iE32->GetFileSize());
+    ValidateE32Image(iE32);
 
     for(auto x: iParam->iDump)
     {

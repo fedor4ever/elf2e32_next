@@ -42,8 +42,7 @@ struct Message Messages[]=
     {ErrorCodes::ELFFILEEXPECTEDE32, "Expected E32 image but got ELF file.\n"},
     {ErrorCodes::WRONGFILESIZEFORDECOMPRESSION, "Set wrong size for "
             "decompression. Expected: %d but got: %d\n"},
-    {ErrorCodes::ZEROBUFFER, "Got zero sized buffer for parse!"
-            "May be internal error.\n"},
+    {ErrorCodes::ZEROBUFFER, "%s"},
     {ErrorCodes::BADEXPORTS, "Bad exports.\n"},
     {ErrorCodes::NOREQUIREDOPTION, "Expected option %s not set.\n"},
     {ErrorCodes::INVALIDARGUMENT, "Option :%s has invalid arg: %s.\n"},
@@ -52,7 +51,9 @@ struct Message Messages[]=
             " %s[Line No=%d][%s].\n"},
     {ErrorCodes::ARGUMENTNAME, "Argument %s is not correct.\n"},
     {ErrorCodes::UNRECOGNIZEDTOKEN, "Unrecognized Token : %s[Line No=%d][%s].\n"},
-    {ErrorCodes::EMPTYDATAWRITING, "Got empty data for store in file: %s.\n"}//,
+    {ErrorCodes::EMPTYDATAWRITING, "Got empty data for store in file: %s.\n"},
+    {ErrorCodes::E32IMAGEVALIDATIOFAILURE, "Failed to validate E32 image for"
+            " valid %s.\n"}//,
 //    {ErrorCodes::, ".\n"}//,
 };
 

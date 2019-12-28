@@ -85,8 +85,3 @@ const char* ReadFile(const char* filename, std::streamsize& fsize)
     fs.close();
     return bufferedFile;
 }
-
-void ValidateE32Image(const char *buffer, uint32_t size)
-{
-    ;
-}

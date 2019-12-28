@@ -44,8 +44,17 @@ enum ErrorCodes
     ORDINALSEQUENCE,
     ARGUMENTNAME,
     UNRECOGNIZEDTOKEN,
-    EMPTYDATAWRITING
+    EMPTYDATAWRITING,
+	E32IMAGEVALIDATIOFAILURE
 };
+
+// handy macro for tracing
+// ex: E32IMAGEHEADER_TRACE(("E32RelocSection block offset: 0x%x\t size: 0x%x\n",pageOffset,blockSize));
+#if USE_E32IMAGE_TRACE
+	#define E32IMAGEHEADER_TRACE(_t) printf _t
+#else
+	#define E32IMAGEHEADER_TRACE(_t)
+#endif
 
 const std::string empty = std::string();
 
@@ -59,8 +68,6 @@ void ReportWarning(const ErrorCodes err, const std::string& str = empty, const i
 void ReportLog(const std::string& str, int x = -1, int y = -1, int z = -1);
 
 const char* ReadFile(const char* filename, int& fsize);
-
-void ValidateE32Image(const char *buffer, uint32_t size);
 
 Symbols SymbolsFromDef(const char *defFile);
 

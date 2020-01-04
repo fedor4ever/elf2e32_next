@@ -27,8 +27,8 @@
 
 int32_t Adjust(int32_t size);
 
-E32Parser::E32Parser(const char* buf, const std::streamoff& bufsize, bool compressed):
-    iBufferedFile(buf), iE32Size(bufsize), iAlreadyUncompressed(compressed)
+E32Parser::E32Parser(const char* buf, const std::streamoff& bufsize):
+    iBufferedFile(buf), iE32Size(bufsize)
 {}
 
 
@@ -68,7 +68,7 @@ const E32ImageHeader* E32Parser::GetFileLayout()
 
 void E32Parser::DecompressImage()
 {
-    if(iAlreadyUncompressed || !iHdr->iCompressionType)
+    if(!iHdr->iCompressionType)
         return;
 
     uint32_t expectedSize = iHdrJ->iUncompressedSize;
@@ -124,7 +124,7 @@ const TExceptionDescriptor* E32Parser::GetExceptionDescriptor() const
 const E32ImageHeader* E32Parser::GetE32Hdr() const
 {
 	if(!iHdr)
-		ReportError(ZEROBUFFER, "Buffered file in E32Parser not set. Call first E32ImageHeader* GetFileLayout()");
+		ReportError(ZEROBUFFER, "Buffer in E32Parser. Call first E32ImageHeader* GetFileLayout()");
     return iHdr;
 }
 

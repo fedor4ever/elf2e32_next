@@ -32,7 +32,7 @@ class E32Parser
 {
     public:
         E32Parser(const char* fileBuf,
-                  const std::streamoff& bufsize, bool compressed = true);
+                  const std::streamoff& bufsize);
         ~E32Parser() {}
 
         const E32ImageHeader* GetFileLayout();
@@ -63,8 +63,6 @@ class E32Parser
     private:
         const char* iBufferedFile = nullptr;
         const std::streamoff iE32Size = 0;
-        // for example bulded from scratch E32 Image is uncompressed and may have compression flag
-        bool iAlreadyUncompressed = true;
 
     private:
         const E32ImageHeader* iHdr = nullptr;

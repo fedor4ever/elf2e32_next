@@ -1,3 +1,20 @@
+// Copyright (c) 2018-2020 Strizhniou Fiodar
+// All rights reserved.
+// This component and the accompanying materials are made available
+// under the terms of "Eclipse Public License v1.0"
+// which accompanies this distribution, and is available
+// at the URL "http://www.eclipse.org/legal/epl-v10.html".
+//
+// Initial Contributors:
+// Strizhniou Fiodar - initial contribution.
+//
+// Contributors:
+//
+// Description:
+//  check consistency supplied E32 image
+//
+//
+
 #include <cstdio>
 #include <string.h>
 #include <assert.h>
@@ -81,24 +98,20 @@ void E32Validator::ValidateHeader()
 	bool isARM = (cpu==ArmV4Cpu || cpu==ArmV5Cpu || cpu==ArmV6Cpu);
 	iPointerAlignMask = isARM ? 3 : 0; // mask of bits which must be zero for aligned pointers/offsets
 
-#if 0
 	uint32_t checksum = GetUidChecksum(iHdr->iUid1, iHdr->iUid2, iHdr->iUid3);
 	ThrowIfTrue(checksum != iHdr->iUidChecksum, "UID checksum");
-#endif
 
     // check iSignature...
 	if( *(uint32_t*)(iHdr->iSignature) != 0x434f5045) // 'EPOC'
         ThrowIfTrue(true, "E32 image signature for that file");
 
-#if 0
 	// check iHeaderCrc...
-	char* buf = new char(iHdr->iCodeOffset);
-	memcpy(buf, iHdr, iHdr->iCodeOffset + 1);
+	char* buf = new char[iHdr->iCodeOffset]();
+	memcpy(buf, iHdr, iHdr->iCodeOffset);
 	((E32ImageHeader*)buf)->iHeaderCrc = KImageCrcInitialiser;
 	uint32_t crc = Crc32(buf, iHdr->iCodeOffset);
-	delete buf;
+	delete[] buf;
 	ThrowIfTrue(crc != iHdr->iHeaderCrc, "E32Image header crc");
-#endif
 
 	// check iModuleVersion...
 	uint32_t mv = iHdr->iModuleVersion;

@@ -42,7 +42,7 @@ E32Info::E32Info(Args* param): iParam(param),
 E32Info::~E32Info()
 {
     delete iE32;
-    delete iE32File;
+    delete[] iE32File;
 }
 
 void E32Info::HeaderInfo()
@@ -51,7 +51,7 @@ void E32Info::HeaderInfo()
     bool isARM = false;
     uint32_t hdrfmt = HdrFmtFromFlags(flags);
 
-    printf("V%d.%02d(%03d)", iHdr->iVersion.iMajor,
+    printf("Builded with tool v%d.%02d(%03d)", iHdr->iVersion.iMajor,
            iHdr->iVersion.iMinor, iHdr->iVersion.iBuild);
     printf("\tTime Stamp: %08x,%08x\n", iHdr->iTimeHi, iHdr->iTimeLo);
 

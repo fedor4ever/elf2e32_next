@@ -1,3 +1,20 @@
+// Copyright (c) 2018-2020 Strizhniou Fiodar
+// All rights reserved.
+// This component and the accompanying materials are made available
+// under the terms of "Eclipse Public License v1.0"
+// which accompanies this distribution, and is available
+// at the URL "http://www.eclipse.org/legal/epl-v10.html".
+//
+// Initial Contributors:
+// Strizhniou Fiodar - initial contribution.
+//
+// Contributors:
+//
+// Description:
+//  check consistency supplied E32 image
+//
+//
+
 #ifndef E32VALIDATOR_H
 #define E32VALIDATOR_H
 

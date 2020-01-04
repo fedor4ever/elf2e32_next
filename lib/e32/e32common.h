@@ -24,9 +24,9 @@
 #include "elf2e32_version.hpp"
 
 uint32_t GetUidChecksum(uint32_t uid1, uint32_t uid2, uint32_t uid3);
-uint32_t Crc32(const void * aPtr, uint32_t aLength);
+uint32_t Crc32(const void* ptr, uint32_t length);
 
-/** This holds info for entire symname lookup section
+/** This holds info for entire symbol name lookup section
 
 Consist from 4 subsections in strict order:
 --section header itself - E32EpocExpSymInfoHdr

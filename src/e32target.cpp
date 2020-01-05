@@ -46,8 +46,12 @@ E32Target::~E32Target()
     //dtor
 }
 
-E32Target::E32Target(E32ImageHeader& hdr): iHdr(hdr){}
+E32Target::E32Target(Args* param): iBuildOptions(param){}
 
+void E32Target::Run()
+{
+	;
+}
 void E32Target::Add(const E32Section& s)
 {
     iE32Image.push_back(s);

@@ -22,6 +22,7 @@
 #include <vector>
 #include <string>
 
+struct Args;
 struct E32ImageHeader;
 typedef std::vector<char> E32SectionUnit;
 
@@ -55,17 +56,18 @@ struct E32Section
 
 typedef std::list<E32Section> E32img;
 
-class E32Target
+class E32Target: public Task
 {
     public:
-        E32Target(E32ImageHeader &hdr);
-        ~E32Target();
+        E32Target(Args* param);
+        virtual void Run() override;
+        virtual ~E32Target();
         void Add(const E32Section& s);
     private:
         void Sort();
     private:
+        Args* iBuildOptions = nullptr;
         E32img iE32Image;
-        E32ImageHeader& iHdr;
 };
 
 #endif // E32TARGET_H

@@ -82,6 +82,11 @@ const char* ReadFile(const char* filename, std::streamsize& fsize)
 
     char* bufferedFile = new char[fsize]();
     fs.read(bufferedFile, fsize);
+    if(!fs)
+    {
+    	delete[] bufferedFile;
+    	ReportError(FILEREADERROR, filename);
+    }
     fs.close();
     return bufferedFile;
 }

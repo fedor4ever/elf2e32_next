@@ -33,6 +33,7 @@ struct Message Messages[]=
     {ErrorCodes::MISSEDARGUMENT, "Option %s has missed argument\n"},
     {ErrorCodes::UNKNOWNOPTION, "Option %s unrecognized\n"},
     {ErrorCodes::FILEOPENERROR, "Can't open file: %s!\n"},
+	{ErrorCodes::FILEREADERROR, "Can't read file: %s.\n"},
     {ErrorCodes::NOTELFFILE,    "This file not ELF: %s!\n"},
     {ErrorCodes::UNKNOWNCOMPRESSION, "Unknown compression algorythm.\n"},
     {ErrorCodes::BYTEPAIRINCONSISTENTSIZE,

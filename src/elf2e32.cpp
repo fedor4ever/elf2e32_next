@@ -20,6 +20,7 @@
 #include "e32info.h"
 #include "e32common.h"
 #include "argparser.h"
+#include "e32rebuilder.h"
 #include "elf2e32_opt.hpp"
 
 Elf2E32::Elf2E32(int argc, char** argv)
@@ -34,6 +35,7 @@ Elf2E32::~Elf2E32()
     delete iHdr;
     delete iArgParser;
     delete iCmdParam;
+    delete iTask;
 }
 
 void Elf2E32::Run()
@@ -44,6 +46,9 @@ void Elf2E32::Run()
     Logger::Instance(iCmdParam->iLog);
     if(!iCmdParam->iE32input.empty() && iCmdParam->iOutput.empty())
         iTask = new E32Info(iCmdParam);
+
+    if(!iCmdParam->iE32input.empty() && !iCmdParam->iOutput.empty())
+        iTask = new E32Rebuilder(iCmdParam);
 
     if(iTask)
         iTask->Run();

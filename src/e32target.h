@@ -22,6 +22,8 @@
 #include <vector>
 #include <string>
 
+#include "task.hpp"
+
 struct Args;
 struct E32ImageHeader;
 typedef std::vector<char> E32SectionUnit;
@@ -60,7 +62,7 @@ class E32Target: public Task
 {
     public:
         E32Target(Args* param);
-        virtual void Run() override;
+        virtual void Run() final;
         virtual ~E32Target();
         void Add(const E32Section& s);
     private:

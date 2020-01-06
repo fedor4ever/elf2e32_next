@@ -36,7 +36,7 @@ class E32Info: public Task
     public:
         E32Info(Args* param);
         virtual ~E32Info();
-        virtual void Run() override;
+        virtual void Run() final;
     public:
 //        These functions print for that dump options [hscdeit]:
         void HeaderInfo(); //h

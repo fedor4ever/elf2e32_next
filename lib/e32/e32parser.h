@@ -27,6 +27,8 @@ struct E32ImageHeaderJ;
 struct E32ImageHeaderV;
 struct E32RelocSection;
 struct E32ImportSection;
+struct TExceptionDescriptor;
+struct E32EpocExpSymInfoHdr;
 
 class E32Parser
 {

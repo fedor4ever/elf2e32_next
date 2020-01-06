@@ -31,6 +31,7 @@ enum ErrorCodes
     UNKNOWNOPTION,
     FILEOPENERROR,
 	FILEREADERROR,
+	FILESTORERROR,
     NOTELFFILE,
     UNKNOWNCOMPRESSION,
     BYTEPAIRINCONSISTENTSIZE,
@@ -69,6 +70,8 @@ void ReportWarning(const ErrorCodes err, const std::string& str = empty, const i
 void ReportLog(const std::string& str, int x = -1, int y = -1, int z = -1);
 
 const char* ReadFile(const char* filename, int& fsize);
+void SaveFile(const char* filename, const char* filebuf, int fsize);
+uint16_t ProcessPriority(const std::string& str);
 
 Symbols SymbolsFromDef(const char *defFile);
 

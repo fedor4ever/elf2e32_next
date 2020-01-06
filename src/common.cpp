@@ -19,6 +19,7 @@
 
 #include "logger.h"
 #include "common.hpp"
+#include "e32common.h"
 #define INCLUDE_CAPABILITY_NAMES
 #include "e32capability.h"
 
@@ -89,4 +90,37 @@ const char* ReadFile(const char* filename, std::streamsize& fsize)
     }
     fs.close();
     return bufferedFile;
+}
+
+void SaveFile(const char* filename, const char* filebuf, int fsize)
+{
+    std::fstream fs(filename, std::fstream::binary | std::fstream::out | std::fstream::trunc);
+    if(!fs)
+        ReportError(FILEOPENERROR, filename);
+    fs.write(filebuf, fsize);
+
+    if(!fs)
+    	ReportError(FILESTORERROR, filename);
+	fs.close();
+}
+
+uint16_t ProcessPriority(const std::string& str)
+{
+	if(str == "low")
+		return (uint16_t)TProcessPriority::EPriorityLow;
+	if(str == "background")
+		return (uint16_t)TProcessPriority::EPriorityBackground;
+	if(str == "foreground")
+		return (uint16_t)TProcessPriority::EPriorityForeground;
+	if(str == "high")
+		return (uint16_t)TProcessPriority::EPriorityHigh;
+	if(str == "windowserver")
+		return (uint16_t)TProcessPriority::EPriorityWindowServer;
+	if(str == "fileserver")
+		return (uint16_t)TProcessPriority::EPriorityFileServer;
+	if(str == "realtimeserver")
+		return (uint16_t)TProcessPriority::EPriorityRealTimeServer;
+	if(str == "supervisor")
+		return (uint16_t)TProcessPriority::EPrioritySupervisor;
+	return 0;
 }

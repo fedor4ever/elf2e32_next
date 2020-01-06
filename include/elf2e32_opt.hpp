@@ -76,13 +76,14 @@ struct OptionsType
 
 struct Args
 {
-    std::string iUid1;
-    std::string iUid2;
-    std::string iUid3;
-    std::string iSid;
-    std::string iVid;
-    std::string iHeap; // holds max and min Heap size separated by ','
-    std::string iStack;
+    uint32_t iUid1 = 0;
+    uint32_t iUid2 = 0;
+    uint32_t iUid3 = 0;
+    uint32_t iSid = 0;
+    uint32_t iVid = 0;
+    uint32_t iHeapMin = 0;
+    uint32_t iHeapMax = 0;
+    uint32_t iStack = 0;
     bool iFixedaddress = false;
     bool iCallentry = false;
     std::string iFpu;
@@ -102,7 +103,7 @@ struct Args
     std::string iCapability;
     std::string iSysdef;
     bool iDlldata = false;
-    std::string iPriority;
+    uint16_t iPriority; // executables priority
     bool iExcludeunwantedexports = false;
     bool iCustomdlltarget = false;
     bool iNamedlookup = false;
@@ -115,7 +116,7 @@ struct Args
     std::string iE32input;
     std::string iDump = "h";
     std::string iLog;
-    std::string iVersion; // ex: elf2e32.exe --version
+    uint32_t iVersion; // ex: elf2e32.exe --version
 };
 
 #endif // ELF2E32_OPT_HPP_INCLUDED

@@ -11,6 +11,7 @@
 #include "task.hpp"
 
 struct Args;
+class E32Parser;
 
 class E32Rebuilder: public Task
 {
@@ -19,7 +20,13 @@ class E32Rebuilder: public Task
 		virtual ~E32Rebuilder();
 		virtual void Run() final;
 	private:
+		void EditHeader();
+		void ReCompress();
+	private:
+		E32Parser* iParser = nullptr;
 		Args* iReBuildOptions = nullptr;
+		const char* iFile = nullptr;
+		int iFileSize = 0;
 };
 
 #endif /* SRC_E32REBUILDER_H_ */

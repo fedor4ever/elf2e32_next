@@ -95,28 +95,28 @@ struct E32ImageHeader
     uint32_t iHeaderCrc = KImageCrcInitialiser;  // CRC-32 of entire header
     uint32_t iModuleVersion;     // Version number for this executable (used in link resolution)
     uint32_t iCompressionType = KUidCompressionDeflate;   // Type of compression used (UID or 0 for none)
-    ToolVersion iVersion;     // Version of PETRAN/ELFTRAN which generated this file
+    ToolVersion iVersion;        // Version of PETRAN/ELFTRAN which generated this file
     uint32_t iTimeLo;
     uint32_t iTimeHi;
-    uint32_t iFlags;               // 0 = exe, 1 = dll, 2 = fixed address exe
-    uint32_t iCodeSize;             // size of code, import address table, constant data and export dir
-    uint32_t iDataSize;             // size of initialised data
+    uint32_t iFlags;             // 0 = exe, 1 = dll, 2 = fixed address exe
+    uint32_t iCodeSize;          // size of code, import address table, constant data and export dir
+    uint32_t iDataSize;          // size of initialised data
     int32_t iHeapSizeMin = KHeapCommittedSize;
     int32_t iHeapSizeMax = KHeapReservedSize;
     int32_t iStackSize = 0x2000;
     int32_t iBssSize;
-    uint32_t iEntryPoint;          // offset into code of entry point
-    uint32_t iCodeBase;            // where the code is linked for
-    uint32_t iDataBase;            // where the data is linked for
-    int32_t iDllRefTableCount;     // filling this in enables E32ROM to leave space for it
-    uint32_t iExportDirOffset;     // offset into the file of the export address table
+    uint32_t iEntryPoint;        // offset into code of entry point
+    uint32_t iCodeBase;          // where the code is linked for
+    uint32_t iDataBase;          // where the data is linked for
+    int32_t iDllRefTableCount;   // filling this in enables E32ROM to leave space for it
+    uint32_t iExportDirOffset;   // offset into the file of the export address table
     uint32_t iExportDirCount;
-    uint32_t iTextSize;             // size of just the text section, also doubles as the offset for the iat w.r.t. the code section
-    uint32_t iCodeOffset;          // file offset to code section, also doubles as header size
-    uint32_t iDataOffset;          // file offset to data section
-    uint32_t iImportOffset;        // file offset to import section
-    uint32_t iCodeRelocOffset;     // relocations for code and const
-    uint32_t iDataRelocOffset;     // relocations for data
+    uint32_t iTextSize;          // size of just the text section, also doubles as the offset for the iat w.r.t. the code section
+    uint32_t iCodeOffset;        // file offset to code section, also doubles as header size
+    uint32_t iDataOffset;        // file offset to data section
+    uint32_t iImportOffset;      // file offset to import section
+    uint32_t iCodeRelocOffset;   // relocations for code and const
+    uint32_t iDataRelocOffset;   // relocations for data
     uint16_t iProcessPriority;   // executables priority
     uint16_t iCpuIdentifier;     // 0x1000 = X86, 0x2000 = ARM;
 };

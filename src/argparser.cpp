@@ -24,6 +24,8 @@
 
 using std::string;
 
+uint32_t SetToolVersion(const char* str);
+
 static struct option long_opts[] =
 {
     {"uid1",  required_argument, 0, OptionsType::EUID1},
@@ -89,7 +91,7 @@ ArgParser::~ArgParser()
 }
 
 void ArgInfo(const char *name); // long_opts[optIdx].name
-void ArgInfo(const char *name, char* opt); // long_opts[optIdx].name, optarg
+void ArgInfo(const char *name, const char* opt); // long_opts[optIdx].name, optarg
 void Help();
 
 bool ArgParser::Parse(Args* arg) const
@@ -110,32 +112,36 @@ bool ArgParser::Parse(Args* arg) const
         switch(rez)
         {
             case OptionsType::EUID1:
-                arg->iUid1 = optarg;
-                ArgInfo(optname ,optarg);
+                arg->iUid1 = std::stoi(optarg);
+                ArgInfo(optname, optarg);
                 break;
             case OptionsType::EUID2:
-                arg->iUid2 = optarg;
-                ArgInfo(optname ,optarg);
+                arg->iUid2 = std::stoi(optarg);
+                ArgInfo(optname, optarg);
                 break;
             case OptionsType::EUID3:
-                arg->iUid3 = optarg;
-                ArgInfo(optname ,optarg);
+                arg->iUid3 = std::stoi(optarg);
+                ArgInfo(optname, optarg);
                 break;
             case OptionsType::ESID:
-                arg->iSid = optarg;
-                ArgInfo(optname ,optarg);
+                arg->iSid = std::stoi(optarg);
+                ArgInfo(optname, optarg);
                 break;
             case OptionsType::EVID:
-                arg->iVid = optarg;
-                ArgInfo(optname ,optarg);
+                arg->iVid = std::stoi(optarg);
+                ArgInfo(optname, optarg);
                 break;
             case OptionsType::EHEAP:
-                arg->iHeap = optarg;
-                ArgInfo(optname ,optarg);
+            {
+                arg->iHeapMin = std::stoi(optarg);
+                string t(optarg);
+                arg->iHeapMax = std::stoi(t.substr( t.find_first_of(",.;") + 1 ));
+                ArgInfo(optname, optarg);
                 break;
+            }
             case OptionsType::ESTACK:
-                arg->iStack = optarg;
-                ArgInfo(optname ,optarg);
+                arg->iStack = std::stoi(optarg);
+                ArgInfo(optname, optarg);
                 break;
         // for E32ImageHeader::iFlags
             case OptionsType::EFIXEDADDRESS:
@@ -181,7 +187,7 @@ bool ArgParser::Parse(Args* arg) const
         // for image generation
             case OptionsType::ETARGETTYPE:
                 arg->iTargettype = optarg;
-                ArgInfo(optname ,optarg);
+                ArgInfo(optname, optarg);
                 break;
             case OptionsType::ELINKAS:
                 arg->iLinkas = optarg;
@@ -205,19 +211,19 @@ bool ArgParser::Parse(Args* arg) const
                 break;
             case OptionsType::ECAPABILITY:
                 arg->iCapability = optarg;
-                ArgInfo(optname ,optarg);
+                ArgInfo(optname, optarg);
                 break;
             case OptionsType::ESYSDEF:
                 arg->iSysdef = optarg;
-                ArgInfo(optname ,optarg);
+                ArgInfo(optname, optarg);
                 break;
             case OptionsType::EDLLDATA:
                 arg->iDlldata = true;
                 ArgInfo(optname);
                 break;
             case OptionsType::EPRIORITY:
-                arg->iPriority = optarg;
-                ArgInfo(optname ,optarg);
+                arg->iPriority = ProcessPriority(optarg);
+                ArgInfo(optname, optarg);
                 break;
             case OptionsType::EEXCLUDEUNWANTEDEXPORTS:
                 arg->iExcludeunwantedexports = true;
@@ -234,31 +240,31 @@ bool ArgParser::Parse(Args* arg) const
         // input files
             case OptionsType::EDEFINPUT:
                 arg->iDefinput = optarg;
-                ArgInfo(optname ,optarg);
+                ArgInfo(optname, optarg);
                 break;
             case OptionsType::EDEFOUTPUT:
                 arg->iDefoutput = optarg;
-                ArgInfo(optname ,optarg);
+                ArgInfo(optname, optarg);
                 break;
             case OptionsType::EELFINPUT:
                 arg->iElfinput = optarg;
-                ArgInfo(optname ,optarg);
+                ArgInfo(optname, optarg);
                 break;
             case OptionsType::EOUTPUT:
                 arg->iOutput = optarg;
-                ArgInfo(optname ,optarg);
+                ArgInfo(optname, optarg);
                 break;
             case OptionsType::EDSO:
                 arg->iDso = optarg;
-                ArgInfo(optname ,optarg);
+                ArgInfo(optname, optarg);
                 break;
             case OptionsType::ELIBPATH:
                 arg->iLibpath = optarg;
-                ArgInfo(optname ,optarg);
+                ArgInfo(optname, optarg);
                 break;
             case OptionsType::EE32INPUT:
                 arg->iE32input = optarg;
-                ArgInfo(optname ,optarg);
+                ArgInfo(optname, optarg);
                 break;
         // info for E32 image
             case OptionsType::EDUMP:
@@ -268,12 +274,14 @@ bool ArgParser::Parse(Args* arg) const
         // common options
             case OptionsType::ELOG:
                 arg->iLog = optarg;
-                ArgInfo(optname ,optarg);
+                ArgInfo(optname, optarg);
                 break;
             case OptionsType::EVERSION:
-                arg->iVersion = optarg;
+
+                arg->iVersion = SetToolVersion(optarg);
                 ArgInfo(optname);
                 break;
+
             case ':':
                 //optind always point to next argv instead current                ReportError(MISSEDARGUMENT, iArgv[optind-1], Help);
                 return false;
@@ -296,6 +304,19 @@ bool ArgParser::Parse(Args* arg) const
     return true;
 }
 
+uint32_t SetToolVersion(const char* str)
+{
+	ReportLog("!!! check input param for SetToolVersion():\n");
+	ReportLog(str);
+	ReportLog("!!!********!!!\n");
+
+	uint32_t hi, lo;
+	hi = std::stoi(str);
+    string t(str);
+    lo = std::stoi(t.substr( t.find_first_of(".,;") + 1 ));
+    return ((hi & 0xFFFF) << 16) | (lo & 0xFFFF);
+}
+
 const string ScreenOptions =
 "        --definput=Input DEF File\n"
 "        --defoutput=Output DEF\n"
@@ -315,7 +336,7 @@ const string ScreenOptions =
 "                none     no compress the image.\n"
 "                inflate  compress image with Inflate algorithm.\n"
 "                bytepair compress image with BytePair Pak algorithm.\n"
-"        --heap=Heap committed and reserved size in bytes(.EXEs only)\n"
+"        --heap=Heap committed and reserved size in bytes(.EXEs only), comma separated.\n"
 "        --stack=Stack size in bytes(.EXEs only)\n"
 "        --unfrozen: Don't treat input dot-def file as frozen\n"
 "        --ignorenoncallable: Generate exports for functions only\n"
@@ -377,7 +398,7 @@ void ArgInfo(const char *name) // long_opts[*optIdx].name
     ReportLog(name);
 }
 
-void ArgInfo(const char *name, char* opt) // long_opts[*optIdx].name, optarg
+void ArgInfo(const char *name, const char* opt) // long_opts[*optIdx].name, optarg
 {
     #if !_DEBUG
     return;

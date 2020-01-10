@@ -573,14 +573,14 @@ void E32Info::Run()
     if(iParam->iE32input.empty())
         ReportError(ErrorCodes::MISSEDARGUMENT, "--e32input");
 
-    std::streamsize size;
-    iE32File = ReadFile(iParam->iE32input.c_str(), size);
+    std::streamsize s = 0;
+    iE32File = ReadFile(iParam->iE32input.c_str(), s);
     if(!iE32File)
         ReportError(ErrorCodes::FILEOPENERROR, iParam->iE32input);
 
     printf("E32ImageFile \'%s\'\n", iParam->iE32input.c_str());
 
-    iE32 = new E32Parser(iE32File, size);
+    iE32 = new E32Parser(iE32File, s);
     iHdr = iE32->GetFileLayout();
 
     ValidateE32Image(iE32);

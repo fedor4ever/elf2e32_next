@@ -26,7 +26,7 @@ class E32Rebuilder: public Task
 		E32Parser* iParser = nullptr;
 		Args* iReBuildOptions = nullptr;
 		const char* iFile = nullptr;
-		int iFileSize = 0;
+		std::streamsize iFileSize = 0;
 };
 
 #endif /* SRC_E32REBUILDER_H_ */

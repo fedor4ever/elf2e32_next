@@ -69,7 +69,7 @@ void ReportError(const ErrorCodes err, const std::string& str = empty,
 void ReportWarning(const ErrorCodes err, const std::string& str = empty, const int = 0);
 void ReportLog(const std::string& str, int x = -1, int y = -1, int z = -1);
 
-const char* ReadFile(const char* filename, int& fsize);
+const char* ReadFile(const char* filename, std::streamsize& fsize);
 void SaveFile(const char* filename, const char* filebuf, int fsize);
 uint16_t ProcessPriority(const std::string& str);
 

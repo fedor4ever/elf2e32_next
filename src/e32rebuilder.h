@@ -26,6 +26,7 @@ class E32Rebuilder: public Task
 		E32Parser* iParser = nullptr;
 		Args* iReBuildOptions = nullptr;
 		const char* iFile = nullptr;
+		E32ImageHeader* iHdr = nullptr;
 		std::streamsize iFileSize = 0;
 };
 

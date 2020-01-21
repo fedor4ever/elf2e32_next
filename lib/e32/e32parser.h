@@ -12,8 +12,8 @@
 //
 // Description:
 // Parse E32 Images for the elf2e32 tool
-// @internalComponent
-// @released
+// For decompression purpose clients should provide memory buffer large
+// enough to hold uncompressed data
 //
 //
 
@@ -64,7 +64,7 @@ class E32Parser
 
     private:
         const char* iBufferedFile = nullptr;
-        const std::streamoff iE32Size = 0;
+        std::streamoff iE32Size = 0;
 
     private:
         const E32ImageHeader* iHdr = nullptr;

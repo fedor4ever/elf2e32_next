@@ -179,3 +179,11 @@ uint32_t GetUidChecksum(uint32_t uid1, uint32_t uid2, uint32_t uid3)
 	uids[2] = uid3;
     return( checkSum(&( (uint8_t*)uids)[1] ) << 16) | checkSum(uids);
 }
+
+void SetE32ImageCrc(const char* buf)
+{
+	E32ImageHeader* h = (E32ImageHeader*)buf;
+	h->iUidChecksum = GetUidChecksum(h->iUid1, h->iUid2, h->iUid3);
+	h->iHeaderCrc = KImageCrcInitialiser;
+	h->iHeaderCrc = Crc32(buf, h->iCodeOffset);
+}

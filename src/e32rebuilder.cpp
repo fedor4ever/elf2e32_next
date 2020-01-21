@@ -1,26 +1,56 @@
-/*
- * E32Rebulder.cpp
- *
- *  Created on: 6 янв. 2020 г.
- *      Author: Artiom
- */
+// Copyright (c) 2020 Strizhniou Fiodar
+// All rights reserved.
+// This component and the accompanying materials are made available
+// under the terms of "Eclipse Public License v1.0"
+// which accompanies this distribution, and is available
+// at the URL "http://www.eclipse.org/legal/epl-v10.html".
+//
+// Initial Contributors:
+// Strizhniou Fiodar - initial contribution.
+//
+// Contributors:
+//
+// Description:
+// Edit E32Image header fields and compression type
+//
+//
 
-#include <e32common.h>
 #include "common.hpp"
+#include "e32common.h"
 #include "e32parser.h"
+#include "e32validator.h"
 #include "e32rebuilder.h"
 #include "elf2e32_opt.hpp"
 #include "elf2e32_version.hpp"
 
 E32Rebuilder::E32Rebuilder(Args* param): iReBuildOptions(param)
 {
-	iFile = ReadFile(iReBuildOptions->iE32input.c_str(), iFileSize);
 }
 
 void E32Rebuilder::Run()
 {
+	iFile = ReadFile(iReBuildOptions->iE32input.c_str(), iFileSize);
+	//for decompression purpose we provide memory buffer large enough to hold uncompressed data
+	if( ((E32ImageHeader*)(iFile))->iCompressionType)
+    {
+        uint32_t extracted = ((E32ImageHeader*)(iFile))->iCodeOffset;
+        extracted += ((E32ImageHeaderJ*)(iFile + sizeof(E32ImageHeader) ))->iUncompressedSize;
+        const char* newfile = new char[extracted]();
+        memcpy(newfile, iFile, iFileSize);
+        delete[] iFile;
+        iFile = nullptr;
+        iFile = newfile;
+        iFileSize = extracted;
+    }
+
+	iParser = new E32Parser(iFile, iFileSize);
+	iHdr = iParser->GetFileLayout();
+	iFileSize = iParser->GetFileSize();
+	iFile = iParser->GetBufferedImage();
+//    ValidateE32Image(iParser);
 	EditHeader();
 	ReCompress();
+	SetE32ImageCrc(iFile);
 	SaveFile(iReBuildOptions->iOutput.c_str(), iFile, iFileSize);
 }
 
@@ -32,40 +62,34 @@ E32Rebuilder::~E32Rebuilder()
 
 void E32Rebuilder::EditHeader()
 {
-	E32ImageHeader* h = (E32ImageHeader*)iFile;
-	E32ImageHeaderV* v = (E32ImageHeaderV*)iFile + sizeof(E32ImageHeader);
 	if(iReBuildOptions->iUid1)
-		h->iUid1 = iReBuildOptions->iUid1;
+		iHdr->iUid1 = iReBuildOptions->iUid1;
 	if(iReBuildOptions->iUid2)
-		h->iUid2 = iReBuildOptions->iUid2;
+		iHdr->iUid2 = iReBuildOptions->iUid2;
 	if(iReBuildOptions->iUid3)
-		h->iUid3 = iReBuildOptions->iUid3;
+		iHdr->iUid3 = iReBuildOptions->iUid3;
 
 	if(iReBuildOptions->iVersion)
-		h->iModuleVersion = iReBuildOptions->iVersion;
+		iHdr->iModuleVersion = iReBuildOptions->iVersion;
 
 	ToolVersion tool;
-	h->iVersion.iMajor = tool.iMajor;
-	h->iVersion.iMinor = tool.iMinor;
-	h->iVersion.iBuild = tool.iBuild;
+	iHdr->iVersion.iMajor = tool.iMajor;
+	iHdr->iVersion.iMinor = tool.iMinor;
+	iHdr->iVersion.iBuild = tool.iBuild;
 
 //	h->iTimeHi =;
 //	h->iTimeLo =;
 
 	if(iReBuildOptions->iHeapMin || iReBuildOptions->iHeapMax)
 	{
-		h->iHeapSizeMin = iReBuildOptions->iHeapMin;
-		h->iHeapSizeMax = iReBuildOptions->iHeapMax;
+		iHdr->iHeapSizeMin = iReBuildOptions->iHeapMin;
+		iHdr->iHeapSizeMax = iReBuildOptions->iHeapMax;
 	}
 
 	if(iReBuildOptions->iPriority)
-		h->iProcessPriority = iReBuildOptions->iPriority;
+		iHdr->iProcessPriority = iReBuildOptions->iPriority;
 
-	h->iUidChecksum = GetUidChecksum(h->iUid1, h->iUid2, h->iUid3);
-	h->iHeaderCrc = KImageCrcInitialiser;
-	uint32_t crc = Crc32(iFile, h->iCodeOffset);
-	h->iHeaderCrc = crc;
-
+	E32ImageHeaderV* v = iParser->GetE32HdrV();
 	if(iReBuildOptions->iSid)
 		v->iS.iSecureId = iReBuildOptions->iSid;
 	if(iReBuildOptions->iVid)
@@ -74,8 +98,7 @@ void E32Rebuilder::EditHeader()
 
 void E32Rebuilder::ReCompress()
 {
-//	if(iReBuildOptions->iCompressionmethod.empty())
-		return;
-	iParser = new E32Parser(iFile, iFileSize);
-	iFileSize = iParser->GetFileSize();
+    return;
+//  compress E32Image if needed
+    iHdr->iCompressionType = iReBuildOptions->iCompressionMethod;
 }

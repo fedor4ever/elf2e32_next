@@ -23,8 +23,9 @@
 
 #include "elf2e32_version.hpp"
 
-uint32_t GetUidChecksum(uint32_t uid1, uint32_t uid2, uint32_t uid3);
+void SetE32ImageCrc(const char* buf);
 uint32_t Crc32(const void* ptr, uint32_t length);
+uint32_t GetUidChecksum(uint32_t uid1, uint32_t uid2, uint32_t uid3);
 
 /** This holds info for entire symbol name lookup section
 

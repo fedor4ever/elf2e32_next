@@ -96,8 +96,7 @@ struct Args
     bool iSmpsafe = false;
     std::string iTargettype;
     std::string iLinkas;
-    bool iUncompressed = false;
-    std::string iCompressionmethod;
+    uint32_t iCompressionMethod = 0;
     bool iUnfrozen = false;
     bool iIgnorenoncallable = false;
     std::string iCapability;

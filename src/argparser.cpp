@@ -194,11 +194,11 @@ bool ArgParser::Parse(Args* arg) const
                 ArgInfo(optname ,optarg);
                 break;
             case OptionsType::EUNCOMPRESSED:
-                arg->iUncompressed = true;
+                arg->iCompressionMethod = 0; //KFormatNotCompressed
                 ArgInfo(optname);
                 break;
             case OptionsType::ECOMPRESSIONMETHOD:
-                arg->iCompressionmethod = optarg;
+                arg->iCompressionMethod = std::stoi(optarg);;
                 ArgInfo(optname ,optarg);
                 break;
             case OptionsType::EUNFROZEN:

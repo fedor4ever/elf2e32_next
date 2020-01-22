@@ -19,6 +19,7 @@
 #include "getopt.h"
 #include "common.hpp"
 #include "argparser.h"
+#include "e32common.h"
 #include "elf2e32_opt.hpp"
 #include "elf2e32_version.hpp"
 
@@ -194,13 +195,20 @@ bool ArgParser::Parse(Args* arg) const
                 ArgInfo(optname ,optarg);
                 break;
             case OptionsType::EUNCOMPRESSED:
-                arg->iCompressionMethod = 0; //KFormatNotCompressed
+                arg->iCompressionMethod = KFormatNotCompressed;
                 ArgInfo(optname);
                 break;
             case OptionsType::ECOMPRESSIONMETHOD:
-                arg->iCompressionMethod = std::stoi(optarg);;
+            {
+                if("none")
+                    arg->iCompressionMethod = KFormatNotCompressed;
+                if("inflate")
+                    arg->iCompressionMethod = KUidCompressionDeflate;
+                if("bytepair")
+                    arg->iCompressionMethod = KUidCompressionBytePair;
                 ArgInfo(optname ,optarg);
                 break;
+            }
             case OptionsType::EUNFROZEN:
                 arg->iUnfrozen = true;
                 ArgInfo(optname);

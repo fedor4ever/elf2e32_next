@@ -24,7 +24,6 @@
 #include "e32common.h"
 #include "e32parser.h"
 #include "e32compressor.h"
-#include "e32imagecompressor.h"
 
 int32_t Adjust(int32_t size);
 

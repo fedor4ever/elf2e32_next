@@ -1,12 +1,48 @@
-#include <vector>
+// Copyright (c) 2020 Strizhniou Fiodar
+// All rights reserved.
+// This component and the accompanying materials are made available
+// under the terms of "Eclipse Public License v1.0"
+// which accompanies this distribution, and is available
+// at the URL "http://www.eclipse.org/legal/epl-v10.html".
+//
+// Initial Contributors:
+// Strizhniou Fiodar - initial contribution.
+//
+// Contributors:
+//
+// Description:
+// functions to (de)compress E32Images with bytepair algorythm
+//
+//
+
 #include <cstdint>
 
 #include "byte_pair.h"
 #include "e32compressor.h"
 
-using std::vector;
-
 #define PAGE_SIZE 4096
+
+/********************************************//**
+ *  ... E32Image compressed with bytepair consists of 3 parts
+ Header part - uncompressed, has size with E32ImageHeader::iCodeOffset
+ Code part - compressed
+ Data part - compressed
+
+ Every compressed section begins with IndexTableHeader
+ Size each of compressed section stored in IndexTableHeader::iSizeOfData
+ Size each of decompressed section stored in IndexTableHeader::iDecompressedSize
+ IndexTableHeader::iNumberOfPages holds number of pages in this block
+ Pages means memory page, or virtual page with size limit 4096 bytes
+
+ After IndexTableHeader begins Page index table as uint16_t array with
+ size IndexTableHeader::iNumberOfPages.
+ This table holds compressed size every page.
+
+ Page table starts after Page index table.
+ It has size calculate by formula:
+   IndexTableHeader::iSizeOfData - sizeof(IndexTableHeader) - IndexTableHeader::iNumberOfPages * sizeof(uint16_t)
+ Every page compressed separately. It size after compression stored in Page index table
+ ***********************************************/
 #pragma pack(push, 1)
 struct IndexTableHeader
 {
@@ -25,23 +61,18 @@ uint32_t DecompressBPE(const char* src, char* dst)
         BPEBlock = src;
 
 	const IndexTableHeader* h = (IndexTableHeader*)BPEBlock;
-	vector<uint16_t> sizeOfCompressedPageData;
-	sizeOfCompressedPageData.reserve(h->iNumberOfPages);
 
-//	iterate over Page index table. Every element contain compressed page size
-	const uint16_t* pageIndexTable = (uint16_t*)(BPEBlock + sizeof(IndexTableHeader));
-	for(int i = 0; i < h->iNumberOfPages; i++)
-	{
-		sizeOfCompressedPageData.push_back(*pageIndexTable++);
-	}
-
-	const uint8_t* pages = (const uint8_t*)pageIndexTable;
 	uint32_t sz = 0;
 	uint8_t* p;
+	const uint16_t* pageIndexTable = (const uint16_t*)(BPEBlock + sizeof(IndexTableHeader));
+	const uint8_t* pages = (const uint8_t*)(pageIndexTable + h->iNumberOfPages);
+
+//	iterate over Page index table and pages.
+// Every element contain compressed page size
 	for(int i = 0; i < h->iNumberOfPages; i++)
 	{
-		sz += Unpak( (dst + i * PAGE_SIZE), (uint8_t*)pages, sizeOfCompressedPageData.at(i), p);
-		pages = pages + sizeOfCompressedPageData.at(i);
+		sz += Unpak( (dst + i * PAGE_SIZE), pages, *pageIndexTable, p);
+		pages = pages + *pageIndexTable++;
 	}
     BPEBlock = BPEBlock + h->iSizeOfData;
 
@@ -64,8 +95,8 @@ uint32_t CompressBPE(const char* src, const uint32_t srcSize, char* dst, uint32_
 
     uint16_t numOfPages = (uint16_t)((srcSize + PAGE_SIZE - 1) / PAGE_SIZE);
 
-    IndexTableHeader* indexHdr = (IndexTableHeader*)outBlock;
-    uint16_t* pageIndexTable = (uint16_t*)(outBlock + sizeof(IndexTableHeader));
+    IndexTableHeader* indexHdr = (const IndexTableHeader*)outBlock;
+    uint16_t* pageIndexTable = (const uint16_t*)(outBlock + sizeof(IndexTableHeader));
     uint8_t* pagesOut = (const uint8_t*)(pageIndexTable + numOfPages);
 
     indexHdr->iNumberOfPages = numOfPages;

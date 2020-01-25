@@ -20,6 +20,7 @@
 #include "e32parser.h"
 #include "e32validator.h"
 #include "e32rebuilder.h"
+#include "e32compressor.h"
 #include "elf2e32_opt.hpp"
 #include "elf2e32_version.hpp"
 
@@ -98,7 +99,30 @@ void E32Rebuilder::EditHeader()
 
 void E32Rebuilder::ReCompress()
 {
-    return;
-//  compress E32Image if needed
     iHdr->iCompressionType = iReBuildOptions->iCompressionMethod;
+    if(!iHdr->iCompressionType)
+        return;
+
+    const char* compressed = new char[iFileSize * 2]();
+    uint32_t offset = iHdr->iCodeOffset;
+    memcpy(compressed, iFile, offset);
+    if(iHdr->iCompressionType == KUidCompressionBytePair)
+    {
+        int32_t BPECodeSize = CompressBPE(iFile + offset, iHdr->iCodeSize, compressed + offset, iFileSize - offset);
+
+        int32_t srcOffset = offset + iHdr->iCodeSize;
+
+        int32_t BPEDataSize = CompressBPE(nullptr, iFileSize - srcOffset,
+                                          nullptr, iFileSize - BPECodeSize);
+
+        uint32_t compressedSize = BPECodeSize + BPEDataSize;
+        delete[] iFile;
+        iFile = nullptr;
+        iFile = compressed;
+        iFileSize = offset + compressedSize;
+    }else if(iHdr->iCompressionType == KUidCompressionDeflate)
+    {
+        ;
+    }
+
 }

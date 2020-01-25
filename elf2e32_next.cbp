@@ -11,7 +11,7 @@
 				<Option object_output="obj/Debug/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
-				<Option parameters='--e32input=tests\tmp\libcrypto-2.4.5.byte.dll --output=&quot;tests\tmp\libcrypto-2.4.5.OUT.dll&quot; --uncompressed' />
+				<Option parameters='--e32input=tests\tmp\libcrypto-2.4.5.byte.dll --output=&quot;tests\tmp\libcrypto-2.4.5.OUT.dll&quot; --compressionmethod=bytepair' />
 				<Compiler>
 					<Add option="-std=c++14" />
 					<Add option="-g -O0" />
@@ -51,8 +51,6 @@
 		<Unit filename="lib/e32/e32capability.h" />
 		<Unit filename="lib/e32/e32common.h" />
 		<Unit filename="lib/e32/e32compressor.h" />
-		<Unit filename="lib/e32/e32imagecompressor.cpp" />
-		<Unit filename="lib/e32/e32imagecompressor.h" />
 		<Unit filename="lib/e32/e32importsprocessor.cpp" />
 		<Unit filename="lib/e32/e32importsprocessor.hpp" />
 		<Unit filename="lib/e32/e32parser.cpp" />

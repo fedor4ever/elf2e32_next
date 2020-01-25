@@ -21,6 +21,7 @@
 class Task
 {
 public:
+    virtual ~Task(){}
     virtual void Run() = 0;
 };
 

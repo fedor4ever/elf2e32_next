@@ -47,8 +47,11 @@ void Elf2E32::Run()
     if(!iCmdParam->iE32input.empty() && iCmdParam->iOutput.empty())
         iTask = new E32Info(iCmdParam);
 
-    if(!iCmdParam->iE32input.empty() && !iCmdParam->iOutput.empty())
+    else if(!iCmdParam->iE32input.empty() && !iCmdParam->iOutput.empty())
         iTask = new E32Rebuilder(iCmdParam);
+
+    else if(!iCmdParam->iElfinput.empty())
+        iTask = new ArtifactBuilder(iCmdParam);
 
     if(iTask)
         iTask->Run();

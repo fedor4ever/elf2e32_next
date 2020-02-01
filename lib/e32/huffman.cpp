@@ -1,5 +1,5 @@
 // Copyright (c) 2004-2009 Nokia Corporation and/or its subsidiary(-ies).
-// Copyright (c) 2017 Strizhniou Fiodar.
+// Copyright (c) 2017-2020 Strizhniou Fiodar.
 // All rights reserved.
 // This component and the accompanying materials are made available
 // under the terms of "Eclipse Public License v1.0"
@@ -147,7 +147,22 @@ Constructor for class TFileOutput
 @released
 */
 TFileOutput::TFileOutput(std::ofstream & os): iOutStream(os)
-{
+{// Copyright (c) 2020 Strizhniou Fiodar
+// All rights reserved.
+// This component and the accompanying materials are made available
+// under the terms of "Eclipse Public License v1.0"
+// which accompanies this distribution, and is available
+// at the URL "http://www.eclipse.org/legal/epl-v10.html".
+//
+// Initial Contributors:
+// Strizhniou Fiodar - initial contribution.
+//
+// Contributors:
+//
+// Description:
+// Edit E32Image header fields and compression type
+//
+//
 	Set(iBuf,KBufSize);
 }
 

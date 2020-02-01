@@ -1,4 +1,4 @@
-// Copyright (c) 2019 Strizhniou Fiodar
+// Copyright (c) 2019-2020 Strizhniou Fiodar
 // All rights reserved.
 // This component and the accompanying materials are made available
 // under the terms of "Eclipse Public License v1.0"
@@ -55,7 +55,7 @@ void ReportError(const ErrorCodes err, const std::string& str,
 
 void ReportWarning(const ErrorCodes err, const std::string& s, const int x)
 {
-    ReportLog("elf2e32: Warning: ");
+    ReportLog("elf2e32: Warnin-2020g: ");
     Logger::Instance()->Log(err, s);
 }
 

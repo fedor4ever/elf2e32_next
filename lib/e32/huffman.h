@@ -118,7 +118,7 @@ class TBufferedOutput : public TBitOutput
 	public:
 		explicit TBufferedOutput(const char* dst, uint32_t dstSize);
 		void FlushL();
-		uint32_t GetCompressedSize() const;
+		ptrdiff_t GetCompressedSize() const;
 		virtual ~TBufferedOutput() = default;
 	private:
 		void OverflowL() override;

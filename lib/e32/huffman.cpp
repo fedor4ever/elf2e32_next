@@ -183,7 +183,7 @@ TBufferedOutput::TBufferedOutput(const char* dst, uint32_t dstSize):
     Set(dst, dstSize);
 }
 
-uint32_t TBufferedOutput::GetCompressedSize() const
+ptrdiff_t TBufferedOutput::GetCompressedSize() const
 {
 	return Ptr() - (const uint8_t*)iOutStream;
 }

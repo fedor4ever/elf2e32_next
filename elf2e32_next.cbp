@@ -16,6 +16,7 @@
 					<Add option="-std=c++14" />
 					<Add option="-g -O0" />
 					<Add option="-g -fno-omit-frame-pointer -ggdb -femit-class-debug-always -D_FORTIFY_SOURCE=2" />
+					<Add option="-D_DEBUG" />
 				</Compiler>
 			</Target>
 			<Target title="Release">
@@ -48,6 +49,7 @@
 		<Unit filename="lib/e32/byte_pair.cpp" />
 		<Unit filename="lib/e32/byte_pair.h" />
 		<Unit filename="lib/e32/checksum.cpp" />
+		<Unit filename="lib/e32/deflatecompress.cpp" />
 		<Unit filename="lib/e32/e32capability.h" />
 		<Unit filename="lib/e32/e32common.h" />
 		<Unit filename="lib/e32/e32compressor.h" />
@@ -57,6 +59,11 @@
 		<Unit filename="lib/e32/e32parser.h" />
 		<Unit filename="lib/e32/e32validator.cpp" />
 		<Unit filename="lib/e32/e32validator.h" />
+		<Unit filename="lib/e32/farray.h" />
+		<Unit filename="lib/e32/huffman.cpp" />
+		<Unit filename="lib/e32/huffman.h" />
+		<Unit filename="lib/e32/inflate.cpp" />
+		<Unit filename="lib/e32/inflate.h" />
 		<Unit filename="lib/elf/elfdefs.h" />
 		<Unit filename="lib/getopt/getopt.c">
 			<Option compilerVar="CC" />

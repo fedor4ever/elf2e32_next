@@ -16,6 +16,7 @@
 //
 
 #include <string>
+#include <string.h>
 #include "getopt.h"
 #include "common.hpp"
 #include "argparser.h"
@@ -200,12 +201,14 @@ bool ArgParser::Parse(Args* arg) const
                 break;
             case OptionsType::ECOMPRESSIONMETHOD:
             {
-                if("none")
+                if(!strcasecmp(optarg, "none"))
                     arg->iCompressionMethod = KFormatNotCompressed;
-                if("inflate")
+                else if(!strcasecmp(optarg, "inflate"))
                     arg->iCompressionMethod = KUidCompressionDeflate;
-                if("bytepair")
+                else if(!strcasecmp(optarg, "bytepair"))
                     arg->iCompressionMethod = KUidCompressionBytePair;
+                else
+                    arg->iCompressionMethod = KUidCompressionDeflate;
                 ArgInfo(optname ,optarg);
                 break;
             }

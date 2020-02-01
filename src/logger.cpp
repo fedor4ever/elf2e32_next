@@ -55,7 +55,11 @@ struct Message Messages[]=
     {ErrorCodes::UNRECOGNIZEDTOKEN, "Unrecognized Token : %s[Line No=%d][%s].\n"},
     {ErrorCodes::EMPTYDATAWRITING, "Got empty data for store in file: %s.\n"},
     {ErrorCodes::E32IMAGEVALIDATIOFAILURE, "Failed to validate E32 image for"
-            " valid %s.\n"}//,
+            " valid %s.\n"},
+    {ErrorCodes::HUFFMANINVALIDCODINGERROR, "Invalid Huffman coding during E32Image compression.\n"},
+    {ErrorCodes::HUFFMANTOOMANYCODESERROR,  "Too many Huffman codes during E32Image compression.\n"},
+    {ErrorCodes::HUFFMANBUFFEROVERFLOWERROR, "Huffman buffer overflow during E32Image compression.\n"},
+    {ErrorCodes::HUFFMANBUFFERUNDERFLOWERROR, "Huffman buffer underflow on deflate.\n"}//,
 //    {ErrorCodes::, ".\n"}//,
 };
 

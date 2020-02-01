@@ -104,6 +104,8 @@ void E32Rebuilder::ReCompress()
         return;
 
     const char* compressed = new char[iFileSize * 2]();
+    uint32_t compressedSize = 0;
+
     uint32_t offset = iHdr->iCodeOffset;
     memcpy(compressed, iFile, offset);
     if(iHdr->iCompressionType == KUidCompressionBytePair)
@@ -115,14 +117,14 @@ void E32Rebuilder::ReCompress()
         int32_t BPEDataSize = CompressBPE(nullptr, iFileSize - srcOffset,
                                           nullptr, iFileSize - BPECodeSize);
 
-        uint32_t compressedSize = BPECodeSize + BPEDataSize;
-        delete[] iFile;
-        iFile = nullptr;
-        iFile = compressed;
-        iFileSize = offset + compressedSize;
+        compressedSize = BPECodeSize + BPEDataSize;
     }else if(iHdr->iCompressionType == KUidCompressionDeflate)
     {
-        ;
+        compressedSize = CompressDeflate(iFile + offset, iFileSize - offset, compressed + offset, iFileSize * 2 - offset);
     }
 
+    delete[] iFile;
+    iFile = nullptr;
+    iFile = compressed;
+    iFileSize = offset + compressedSize;
 }

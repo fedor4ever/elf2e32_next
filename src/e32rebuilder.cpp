@@ -18,8 +18,9 @@
 #include "common.hpp"
 #include "e32common.h"
 #include "e32parser.h"
-#include "e32validator.h"
+#include "symbiantime.h"
 #include "e32rebuilder.h"
+#include "e32validator.h"
 #include "e32compressor.h"
 #include "elf2e32_opt.hpp"
 #include "elf2e32_version.hpp"
@@ -78,8 +79,9 @@ void E32Rebuilder::EditHeader()
 	iHdr->iVersion.iMinor = tool.iMinor;
 	iHdr->iVersion.iBuild = tool.iBuild;
 
-//	h->iTimeHi =;
-//	h->iTimeLo =;
+	SymbianTime t;
+	iHdr->iTimeLo = t.TimeLo();
+	iHdr->iTimeHi = t.TimeHi();
 
 	if(iReBuildOptions->iHeapMin || iReBuildOptions->iHeapMax)
 	{

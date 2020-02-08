@@ -14,6 +14,7 @@
 // Control workflow for the elf2e32 tool
 //
 //
+
 #include <iostream>
 #include "logger.h"
 #include "elf2e32.h"
@@ -22,6 +23,7 @@
 #include "argparser.h"
 #include "e32rebuilder.h"
 #include "elf2e32_opt.hpp"
+#include "artifactbuilder.h"
 
 Elf2E32::Elf2E32(int argc, char** argv)
 {
@@ -50,7 +52,7 @@ void Elf2E32::Run()
     else if(!iCmdParam->iE32input.empty() && !iCmdParam->iOutput.empty())
         iTask = new E32Rebuilder(iCmdParam);
 
-    else if(!iCmdParam->iElfinput.empty())
+    else if(!iCmdParam->iElfinput.empty() || !iCmdParam->iDso.empty())
         iTask = new ArtifactBuilder(iCmdParam);
 
     if(iTask)

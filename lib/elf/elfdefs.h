@@ -28,7 +28,6 @@ typedef uint16_t Elf32_Half;   //Unsigned medium integer
 typedef uint32_t Elf32_Off;    //Unsigned file offset
 typedef int32_t Elf32_Sword;   //Signed large integer
 typedef uint32_t Elf32_Word;   //Unsigned large integer
-typedef unsigned char UChar;   //Unsigned small integer
 
 typedef char* MemAddr;
 /*
@@ -260,7 +259,7 @@ struct Elf32_Shdr{
   // Some sections hold a table of fixed-size entries, such as a
   // symbol table. For such a section, this member gives the size in
   // bytes of each entry. The member contains 0 if the section does
-  // not hold a table of fixedsize entries. A section header's sh_type
+  // not hold a table of fixed-size entries. A section header's sh_type
   // member specifies the section's semantics.
   Elf32_Word sh_entsize;
 };

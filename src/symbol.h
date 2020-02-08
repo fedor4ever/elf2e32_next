@@ -1,5 +1,5 @@
 // Copyright (c) 2004-2009 Nokia Corporation and/or its subsidiary(-ies).
-// Copyright (c) 2017-2019 Strizhniou Fiodar.
+// Copyright (c) 2017-2020 Strizhniou Fiodar.
 // All rights reserved.
 // This component and the accompanying materials are made available
 // under the terms of "Eclipse Public License v1.0"
@@ -76,7 +76,7 @@ public:
 	uint32_t		iSymbolIndex = 0;
 
 private:
-	SymbolStatus    iSymbolStatus = Missing;
+	SymbolStatus    iSymbolStatus = Matching;
 	std::string		iSymbolName;
 	std::string		iExportName;
 	SymbolType	    iSymbolType = SymbolTypeNotDefined;

@@ -155,6 +155,8 @@ void DefFile::Tokenizer(std::string aLine, size_t aIndex)
         iSymbol->R3Unused(true);
     if(aLine.find(" ABSENT") < string::npos)
         iSymbol->SetAbsent(true);
+   if(aLine.find(" MISSING") < string::npos)
+        iSymbol->SetSymbolStatus(Missing);
 
     std::vector<std::string> tokens;
     std::string token;

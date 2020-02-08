@@ -20,8 +20,6 @@
 #include "logger.h"
 #include "common.hpp"
 #include "e32common.h"
-#define INCLUDE_CAPABILITY_NAMES
-#include "e32capability.h"
 
 void ReportError(const ErrorCodes err, const std::string& str,
                  void (*f)())
@@ -55,7 +53,7 @@ void ReportError(const ErrorCodes err, const std::string& str,
 
 void ReportWarning(const ErrorCodes err, const std::string& s, const int x)
 {
-    ReportLog("elf2e32: Warnin-2020g: ");
+    ReportLog("elf2e32: Warning: ");
     Logger::Instance()->Log(err, s);
 }
 

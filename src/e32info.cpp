@@ -24,12 +24,13 @@
 #include "e32info.h"
 #include "common.hpp"
 #include "e32parser.h"
+#include "e32validator.h"
 #include "elf2e32_opt.hpp"
 #include "e32importsprocessor.hpp"
-#include "e32validator.h"
 
-#define REFERENCE_CAPABILITY_NAMES
-//#define INCLUDE_CAPABILITY_NAMES
+#ifndef INCLUDE_CAPABILITY_NAMES
+#define INCLUDE_CAPABILITY_NAMES
+#endif // INCLUDE_CAPABILITY_NAMES
 #include "e32capability.h"
 
 void DumpRelocs(const E32RelocSection* relocs);

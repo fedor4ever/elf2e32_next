@@ -100,14 +100,13 @@ void DefFile::ParseDefFile()
     {
         if(str.find("NONAME") != string::npos)
         {
-            Symbol sym(SymbolTypeCode);
             Trim(str);
             Tokenizer(str, LineNum);
             size_t ordinalNo = iSymbol->OrdNum();
             if (ordinalNo != PreviousOrdinal+1)
             {
                 ReportError(ORDINALSEQUENCE, iFileName,
-                                   sym.SymbolName(), LineNum);
+                                   iSymbol->SymbolName(), LineNum);
             }
 
             PreviousOrdinal = ordinalNo;

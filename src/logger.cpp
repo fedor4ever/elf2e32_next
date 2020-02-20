@@ -59,7 +59,9 @@ struct Message Messages[]=
     {ErrorCodes::HUFFMANINVALIDCODINGERROR, "Invalid Huffman coding during E32Image compression.\n"},
     {ErrorCodes::HUFFMANTOOMANYCODESERROR,  "Too many Huffman codes during E32Image compression.\n"},
     {ErrorCodes::HUFFMANBUFFEROVERFLOWERROR, "Huffman buffer overflow during E32Image compression.\n"},
-    {ErrorCodes::HUFFMANBUFFERUNDERFLOWERROR, "Huffman buffer underflow on deflate.\n"}//,
+    {ErrorCodes::HUFFMANBUFFERUNDERFLOWERROR, "Huffman buffer underflow on deflate.\n"},
+    {ErrorCodes::EMPTYARGUMENT, "Function %s got empty argument for: %s.\n"},
+    {ErrorCodes::VALUEOVERFLOW, "Overflow happens for: %s.\n"}//,
 //    {ErrorCodes::, ".\n"}//,
 };
 

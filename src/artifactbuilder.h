@@ -18,17 +18,26 @@
 #ifndef ARTIFACTBUILDER_H
 #define ARTIFACTBUILDER_H
 
+#include <list>
+
 class Args;
+class Symbol;
+typedef std::list <Symbol*>	Symbols;
 
-
-class ArtifactBuilder : public Task
+class ArtifactBuilder: public Task
 {
     public:
         ArtifactBuilder(Args* param);
         virtual ~ArtifactBuilder();
-
+        void Run() override;
+    private:
+        void PrepareBuild();
+        void MakeDSO();
+        void MakeDef();
+        void MakeE32();
     private:
         Args* iOpts = nullptr;
+        Symbols iSymbols;
 };
 
 #endif // ARTIFACTBUILDER_H

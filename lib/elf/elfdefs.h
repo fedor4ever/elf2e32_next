@@ -18,8 +18,11 @@
 
 #ifndef __ELFDEFS_H__
 #define __ELFDEFS_H__
-#include <cstdint>
+#include <stdint.h>
 
+#ifdef __cplusplus
+extern "C" uint32_t elf_hash(const unsigned char *name);
+#endif // __cplusplus
 
 // ARMELF 3.1.2
 // Data Representation

@@ -11,12 +11,14 @@
 				<Option object_output="obj/Debug/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
-				<Option parameters='--e32input=tests\tmp\libcrypto-2.4.5.byte.dll --output=&quot;tests\tmp\libcrypto-2.4.5.OUT.dll&quot; --compressionmethod=bytepair' />
+				<Option parameters='--definput=&quot;tests\libcryptou.def&quot; --defoutput=&quot;tests\tmp\out.def&quot; --dso=&quot;tests\tmp\libcrypto{000a0000}.dso&quot;' />
 				<Compiler>
 					<Add option="-std=c++14" />
 					<Add option="-g -O0" />
 					<Add option="-g -fno-omit-frame-pointer -ggdb -femit-class-debug-always -D_FORTIFY_SOURCE=2" />
 					<Add option="-D_DEBUG" />
+					<Add directory="lib/e32" />
+					<Add directory="src" />
 				</Compiler>
 			</Target>
 			<Target title="Release">
@@ -27,6 +29,8 @@
 				<Option parameters="--e32input=tests\libcrypto-2.4.5.SDK.dll" />
 				<Compiler>
 					<Add option="-O2" />
+					<Add directory="lib/e32" />
+					<Add directory="src" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -64,6 +68,11 @@
 		<Unit filename="lib/e32/huffman.h" />
 		<Unit filename="lib/e32/inflate.cpp" />
 		<Unit filename="lib/e32/inflate.h" />
+		<Unit filename="lib/e32/symbiantime.cpp" />
+		<Unit filename="lib/e32/symbiantime.h" />
+		<Unit filename="lib/elf/elf_hash.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="lib/elf/elfdefs.h" />
 		<Unit filename="lib/getopt/getopt.c">
 			<Option compilerVar="CC" />
@@ -71,10 +80,14 @@
 		<Unit filename="lib/getopt/getopt.h" />
 		<Unit filename="src/argparser.cpp" />
 		<Unit filename="src/argparser.h" />
+		<Unit filename="src/artifactbuilder.cpp" />
+		<Unit filename="src/artifactbuilder.h" />
 		<Unit filename="src/common.cpp" />
 		<Unit filename="src/common.hpp" />
 		<Unit filename="src/deffile.cpp" />
 		<Unit filename="src/deffile.h" />
+		<Unit filename="src/dsofile.cpp" />
+		<Unit filename="src/dsofile.h" />
 		<Unit filename="src/e32info.cpp" />
 		<Unit filename="src/e32info.h" />
 		<Unit filename="src/e32rebuilder.cpp" />

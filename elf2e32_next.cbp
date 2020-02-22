@@ -11,7 +11,7 @@
 				<Option object_output="obj/Debug/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
-				<Option parameters='--definput=&quot;tests\libcryptou.def&quot; --defoutput=&quot;tests\tmp\out.def&quot; --dso=&quot;tests\tmp\libcrypto{000a0000}.dso&quot;' />
+				<Option parameters='--definput=&quot;tests\libcryptou.def&quot; --defoutput=&quot;tests\tmp\out.def&quot; --dso=&quot;tests\tmp\libcrypto{000a0000}.dso&quot; --linkas=&quot;libcrypto{000a0000}.dll&quot;' />
 				<Compiler>
 					<Add option="-std=c++14" />
 					<Add option="-g -O0" />
@@ -41,6 +41,7 @@
 			<Add option="-Wall" />
 			<Add option="-fexceptions -fpermissive" />
 			<Add option="-D__STDC_FORMAT_MACROS" />
+			<Add option="-DEXPLORE_DSO_BUILD" />
 			<Add directory="include" />
 			<Add directory="src" />
 			<Add directory="lib/elf" />

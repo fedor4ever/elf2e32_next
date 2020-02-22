@@ -53,9 +53,7 @@ void ArtifactBuilder::MakeDSO()
     if(iOpts->iDso.empty())
         return;
     DSOFile* dso = new DSOFile();
-    std::size_t found = iOpts->iDso.find_last_of("/\\");
-    dso->WriteDSOFile(iOpts->iDso.c_str(), iOpts->iDso.substr(found+1).c_str(),
-              iOpts->iLinkas.c_str(), iSymbols);
+    dso->WriteDSOFile(iOpts->iDso, iOpts->iLinkas, iSymbols);
     delete dso;
 }
 

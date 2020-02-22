@@ -772,7 +772,7 @@ struct Elf32_Verdef
 struct Elf32_Verdaux
 {
   Elf32_Word	vda_name;		/* Version or dependency names */
-  Elf32_Word	vda_next;		/* Offset in bytes to next verdaux									entry */
+  Elf32_Word	vda_next;		/* Offset in bytes to next verdaux entry */
 };
 
 
@@ -787,7 +787,8 @@ struct Elf32_Verneed
 					   entry */
 };
 
-struct Elf32_Vernaux{
+struct Elf32_Vernaux
+{
 	Elf32_Word    vna_hash;
 	Elf32_Half    vna_flags;
 	Elf32_Half    vna_other;

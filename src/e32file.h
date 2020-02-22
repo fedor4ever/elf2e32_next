@@ -11,27 +11,25 @@
 // Contributors:
 //
 // Description:
-// Got Symbols from ELF file, Def file and --sysdef option.
+// Create E32Image.
 //
 //
 
-#ifndef SYMBOLPROCESSOR_H
-#define SYMBOLPROCESSOR_H
-
-#include "common.hpp"
+#ifndef E32FILE_H
+#define E32FILE_H
 
 class Args;
 class ElfParser;
 
-class SymbolProcessor
+class E32File
 {
     public:
-        SymbolProcessor(const ElfParser* elfParser, const Args* args);
-        Symbols Process();
-        ~SymbolProcessor();
+        E32File(const Args* args, const ElfParser* elfParser);
+        ~E32File();
+        void WriteE32File();
     private:
-        const ElfParser* iElfParser = nullptr;
-        const Args* iArgs = nullptr;
+        const Args* iE32Opts = nullptr;
+        const ElfParser* iElfSrc = nullptr;
 };
 
-#endif // SYMBOLPROCESSOR_H
+#endif // E32FILE_H

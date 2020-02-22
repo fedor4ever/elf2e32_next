@@ -74,4 +74,5 @@ void ArtifactBuilder::MakeE32()
 {
     if(!iOpts->iOutput.empty())
         return;
+    BuildE32Image(iOpts, iElfParser);
 }

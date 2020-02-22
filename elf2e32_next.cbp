@@ -93,6 +93,8 @@
 		<Unit filename="src/deffile.h" />
 		<Unit filename="src/dsofile.cpp" />
 		<Unit filename="src/dsofile.h" />
+		<Unit filename="src/e32file.cpp" />
+		<Unit filename="src/e32file.h" />
 		<Unit filename="src/e32info.cpp" />
 		<Unit filename="src/e32info.h" />
 		<Unit filename="src/e32rebuilder.cpp" />

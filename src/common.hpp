@@ -21,7 +21,10 @@
 #include <list>
 #include <string>
 
+class Args;
 class Symbol;
+class ElfParser;
+
 typedef std::list <Symbol*>	Symbols;
 
 enum ErrorCodes
@@ -80,5 +83,7 @@ void SaveFile(const char* filename, const char* filebuf, int fsize);
 uint16_t ProcessPriority(const std::string& str);
 
 Symbols SymbolsFromDef(const char *defFile);
+
+void BuildE32Image(const Args* args, const ElfParser* elfParser);
 
 #endif // COMMON_HPP_INCLUDED

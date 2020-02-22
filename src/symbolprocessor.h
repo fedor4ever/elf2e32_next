@@ -11,36 +11,27 @@
 // Contributors:
 //
 // Description:
-// Build E32Image and other companions
+// Got Symbols from ELF file, Def file and --sysdef option.
 //
 //
 
-#ifndef ARTIFACTBUILDER_H
-#define ARTIFACTBUILDER_H
+#ifndef SYMBOLPROCESSOR_H
+#define SYMBOLPROCESSOR_H
 
-#include <list>
+#include "common.hpp"
 
-class Args;
-class Symbol;
 class ElfParser;
+class Args;
 
-typedef std::list <Symbol*>	Symbols;
-
-class ArtifactBuilder: public Task
+class SymbolProcessor
 {
     public:
-        ArtifactBuilder(Args* param);
-        virtual ~ArtifactBuilder();
-        void Run() override;
+        SymbolProcessor(const ElfParser* elfParser, const Args* args);
+        Symbols Process();
+        ~SymbolProcessor();
     private:
-        void PrepareBuild();
-        void MakeDSO();
-        void MakeDef();
-        void MakeE32();
-    private:
-        Args* iOpts = nullptr;
         ElfParser* iElfParser = nullptr;
-        Symbols iSymbols;
+        Args* iArgs = nullptr;
 };
 
-#endif // ARTIFACTBUILDER_H
+#endif // SYMBOLPROCESSOR_H

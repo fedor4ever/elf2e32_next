@@ -11,9 +11,7 @@
 // Contributors:
 //
 // Description:
-// Parse E32 Images for the elf2e32 tool
-// @internalComponent
-// @released
+// Parse E32 Images
 //
 //
 

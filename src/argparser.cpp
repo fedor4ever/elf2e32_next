@@ -92,8 +92,8 @@ ArgParser::~ArgParser()
     //dtor
 }
 
-void ArgInfo(const char *name); // long_opts[optIdx].name
-void ArgInfo(const char *name, const char* opt); // long_opts[optIdx].name, optarg
+void ArgName(const char *name); // long_opts[optIdx].name
+void ArgInfo(const char *name, const char* opt = nullptr); // long_opts[optIdx].name, optarg
 void Help();
 
 bool ArgParser::Parse(Args* arg) const
@@ -395,7 +395,7 @@ void Help()
     ReportLog(ScreenOptions);
 }
 
-void ArgInfo(const char *name) // long_opts[*optIdx].name
+void ArgName(const char *name) // long_opts[*optIdx].name
 {
     #if !_DEBUG
     return;
@@ -414,7 +414,7 @@ void ArgInfo(const char *name, const char* opt) // long_opts[*optIdx].name, opta
     #if !_DEBUG
     return;
     #endif
-    ArgInfo(name);
+    ArgName(name);
     if(name && opt)
     {
         ReportLog("=");

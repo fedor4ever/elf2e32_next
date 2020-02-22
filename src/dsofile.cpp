@@ -485,7 +485,7 @@ void DSOFile::WriteElfContents(const char* dsoFile)
 
     // The ELF header..
     fs.write((const char*)iElfHeader, sizeof(Elf32_Ehdr));
-    InfoPrint("Elf Header starts", pos, sizeof(Elf32_Ehdr));
+    InfoPrint("Elf Header", pos, sizeof(Elf32_Ehdr));
 
     //Section headers
     fs.write((const char*)iSections, (MAX_SECTIONS + 1) * sizeof(Elf32_Shdr));

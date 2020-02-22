@@ -19,8 +19,10 @@
 #include "deffile.h"
 #include "dsofile.h"
 #include "common.hpp"
+#include "elfparser.h"
 #include "elf2e32_opt.hpp"
 #include "artifactbuilder.h"
+#include "symbolprocessor.h"
 
 class Symbol;
 
@@ -44,8 +46,11 @@ void ArtifactBuilder::Run()
 
 void ArtifactBuilder::PrepareBuild()
 {
-    iSymbols = SymbolsFromDef(iOpts->iDefinput.c_str());
-    //TODO: process symbols from elf and DSO too
+    iElfParser = new ElfParser(iOpts->iElfinput);
+    iElfParser->GetElfFileLayout();
+    SymbolProcessor processor(iElfParser, iOpts);
+    //TODO: process symbols from elf and --sysdef
+    iSymbols = processor.Process();
 }
 
 void ArtifactBuilder::MakeDSO()

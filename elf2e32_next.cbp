@@ -79,6 +79,7 @@
 		<Unit filename="lib/elf/elfdefs.h" />
 		<Unit filename="lib/elf/elfparser.cpp" />
 		<Unit filename="lib/elf/elfparser.h" />
+		<Unit filename="lib/elf/staticlibsymbols.h" />
 		<Unit filename="lib/getopt/getopt.c">
 			<Option compilerVar="CC" />
 		</Unit>

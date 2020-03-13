@@ -615,7 +615,7 @@ void E32Info::Run()
                 SymbolInfo();
                 break;
             default:
-                ReportError(INVALIDARGUMENT, iFlags, "--dump");
+                ReportError(INVALIDARGUMENT, "--dump", iFlags);
         }
     }
 }

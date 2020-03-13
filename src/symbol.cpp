@@ -23,16 +23,27 @@
 
 Symbol::Symbol(SymbolType stype): iSymbolType(stype) {}
 
+Symbol::Symbol(const std::string& symbolName, SymbolType type,
+       const Elf32_Sym* symbol, uint32_t ordinal): iElfSym(symbol),
+       iSymbolIndex(ordinal), iSymbolName(symbolName), iSymbolType(type) {}
+
+
 Symbol::~Symbol() {}
 
-bool Symbol::operator==(const Symbol* aSym) const {
-	if(iSymbolName.compare(aSym->iSymbolName) != 0)
+bool Symbol::operator==(const Symbol* s) const {
+	if(this->iSymbolName.compare(s->iSymbolName) != 0)
 		return false;
-	if( iSymbolType != aSym->iSymbolType )
+	if(this->iSymbolType != s->iSymbolType)
 		return false;
 
 	return true;
 }
+
+bool Symbol::operator!=(const Symbol* s) const
+{
+    return !operator==(s);
+}
+
 
 void Symbol::SetSymbolName(const std::string& symbolName){
     iSymbolName = symbolName;

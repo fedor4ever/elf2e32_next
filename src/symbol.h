@@ -43,10 +43,12 @@ class Symbol
 
 public:
 
-    Symbol(SymbolType stype);
+    Symbol(SymbolType type);
+    Symbol(const std::string& symbolName, SymbolType type, const Elf32_Sym* symbol, uint32_t ordinal);
 	~Symbol();
 
 	bool operator==(const Symbol* aSym) const;
+	bool operator!=(const Symbol* aSym) const;
 	const char* SymbolName() const;
 	const char* ExportName();
 	uint32_t OrdNum() const;
@@ -68,6 +70,7 @@ public:
 	void SetSymbolSize(uint32_t size);
 	uint32_t SymbolSize();
 
+private:
     Elf32_Sym	*iElfSym = nullptr;
 	/**
 	 * The index of this symbol in the symbol table(required for the hash table while
@@ -75,7 +78,6 @@ public:
 	 */
 	uint32_t		iSymbolIndex = 0;
 
-private:
 	SymbolStatus    iSymbolStatus = Matching;
 	std::string		iSymbolName;
 	std::string		iExportName;

@@ -16,6 +16,9 @@
 //
 
 #include <fstream>
+#include <string>
+
+using  std::string;
 
 #include "logger.h"
 #include "common.hpp"
@@ -40,6 +43,20 @@ void ReportError(const ErrorCodes err, const int x, const int y)
     throw err;
 }
 
+void ReportError(const ErrorCodes err, std::list<string> ls,
+                const std::string& str, const int x)
+{
+    std::string missedSymbols;
+    for(auto x: ls)
+    {
+        missedSymbols+='\t';
+        missedSymbols+=x;
+        missedSymbols+='\n';
+    }
+    ReportLog("elf2e32: Error: ");
+    Logger::Instance()->Log(err, str, x, missedSymbols);
+}
+
 void ReportError(const ErrorCodes err, const std::string& str,
                  const std::string& s, const int x)
 {
@@ -47,14 +64,26 @@ void ReportError(const ErrorCodes err, const std::string& str,
     if(s.empty())
         Logger::Instance()->Log(err, str);
     else
-        Logger::Instance()->Log(err, str, s);
+        Logger::Instance()->Log(err, str, x, s);
     throw err;
+}
+
+void ReportWarning(const ErrorCodes err, const int x)
+{
+    ReportLog("elf2e32: Warning: ");
+    Logger::Instance()->Log(err, x);
 }
 
 void ReportWarning(const ErrorCodes err, const std::string& s, const int x)
 {
     ReportLog("elf2e32: Warning: ");
     Logger::Instance()->Log(err, s);
+}
+
+void ReportWarning(const ErrorCodes err, const std::string& s1, const std::string& s2)
+{
+    ReportLog("elf2e32: Warning: ");
+    Logger::Instance()->Log(err, s1, s2);
 }
 
 void ReportLog(const std::string& str, int x, int y, int z)

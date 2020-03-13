@@ -56,7 +56,20 @@ enum ErrorCodes
 	HUFFMANBUFFEROVERFLOWERROR,
 	HUFFMANBUFFERUNDERFLOWERROR,
 	EMPTYARGUMENT,
-	VALUEOVERFLOW
+	VALUEOVERFLOW,
+    ELFMAGICERROR,
+    ELFCLASSERROR,
+    ELFABIVERSIONERROR,
+    ELFLEERROR,
+    ELFARMERROR,
+    ELFEXECUTABLEERROR,
+    ELFSHSTRINDEXERROR,
+    SYMBOLCOUNTMISMATCHERROR,
+    ABSENTSYMBOL,
+    ABSENTSYMBOLINELF,
+    UNFROZENSYMBOLS,
+    FROZENSYMBOLS,
+    SYSDEFMERGE
 };
 
 // handy macro for tracing
@@ -70,12 +83,18 @@ enum ErrorCodes
 const std::string empty = std::string();
 
 void ReportError(const ErrorCodes err, const std::string& str,
-                 void (*f)());
+            void (*f)());
 void ReportError(const ErrorCodes err, const int x, const int = 0);
-void ReportError(const ErrorCodes err, const std::string& str = empty,
-                 const std::string& s = empty, const int = 0);
 
+void ReportError(const ErrorCodes err, std::list<std::string> ls,
+            const std::string& str, const int x);
+void ReportError(const ErrorCodes err, const std::string& str = empty,
+            const std::string& s = empty, const int = 0);
+
+void ReportWarning(const ErrorCodes err, const int x);
 void ReportWarning(const ErrorCodes err, const std::string& str = empty, const int = 0);
+void ReportWarning(const ErrorCodes err, const std::string& s1, const std::string& s2);
+
 void ReportLog(const std::string& str, int x = -1, int y = -1, int z = -1);
 
 const char* ReadFile(const char* filename, std::streamsize& fsize);

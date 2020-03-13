@@ -61,7 +61,21 @@ struct Message Messages[]=
     {ErrorCodes::HUFFMANBUFFEROVERFLOWERROR, "Huffman buffer overflow during E32Image compression.\n"},
     {ErrorCodes::HUFFMANBUFFERUNDERFLOWERROR, "Huffman buffer underflow on deflate.\n"},
     {ErrorCodes::EMPTYARGUMENT, "Function %s got empty argument for: %s.\n"},
-    {ErrorCodes::VALUEOVERFLOW, "Overflow happens for: %s.\n"}//,
+    {ErrorCodes::VALUEOVERFLOW, "Overflow happens for: %s.\n"},
+    {ErrorCodes::ELFMAGICERROR, "Invalid ELF magic in file : %s."},
+	{ErrorCodes::ELFCLASSERROR, "ELF file %s is not 32 bit."},
+	{ErrorCodes::ELFABIVERSIONERROR, "ELF file %s is not BPABI conformant."},
+	{ErrorCodes::ELFLEERROR, "ELF file %s is not Little Endian."},
+	{ErrorCodes::ELFARMERROR, "ELF file %s does not target ARM."},
+	{ErrorCodes::ELFEXECUTABLEERROR, "ELF file %s is neither executable (ET_EXEC) or shared (ET_DYN)."},
+	{ErrorCodes::ELFSHSTRINDEXERROR, "Error in ELF Section Header String Index : %s."},
+	{ErrorCodes::SYMBOLCOUNTMISMATCHERROR, "Symbol count provided by DT_ARM_SYMTABSZ is not same as "
+            "that in the Hash Table in %s"},
+    {ErrorCodes::ABSENTSYMBOL, "Attempt to export absent symbol %s found. This can break library ABI.\n"},
+    {ErrorCodes::ABSENTSYMBOLINELF, "%s  absent in the DEF file and --sysdef, but present in the ELF file.\n"},
+    {ErrorCodes::UNFROZENSYMBOLS, "Frozen Export(s): %u missing from the ELF file.\n"},
+    {ErrorCodes::FROZENSYMBOLS, "ELF File %s with frozen export(s) have %u missed symbol(s):\n%s.\n"},
+    {ErrorCodes::SYSDEFMERGE, "Failure when merge symbols from .def file and option --sysdef.\n"}//,
 //    {ErrorCodes::, ".\n"}//,
 };
 
@@ -134,6 +148,14 @@ void Logger::Log(ErrorCodes errcode, const std::string& s1, const std::string& s
         fprintf(iFile, Messages[errcode].str, s1.c_str(), s.c_str());
     printf(Messages[errcode].str, s1.c_str(), s.c_str());
 }
+
+void Logger::Log(ErrorCodes errcode, const std::string& s1, int x, const std::string& s2)
+{
+    if(iFile)
+        fprintf(iFile, Messages[errcode].str, s1.c_str(), x, s2.c_str());
+    printf(Messages[errcode].str, s1.c_str(), x, s2.c_str());
+}
+
 
 void Logger::Log(ErrorCodes errcode)
 {

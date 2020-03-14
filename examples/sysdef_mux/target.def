@@ -1,0 +1,17 @@
+EXPORTS
+	asym2 @ 1 NONAME
+	ACCESS_DESCRIPTION_new @ 2 NONAME
+	AES_cbc_encrypt @ 4 NONAME
+	AES_cfb1_encrypt @ 5 NONAME
+	AES_cfb8_encrypt @ 6 NONAME
+	AES_ctr128_encrypt @ 8 NONAME
+	ASN1_BIT_STRING_asn1_meth @ 16 NONAME ABSENT
+	ASN1_BIT_STRING_free @ 17 NONAME
+	ASN1_BIT_STRING_get_bit @ 18 NONAME
+	ASN1_BIT_STRING_name_print @ 19 NONAME
+	x509_name_ff @ 20 NONAME DATA 28
+	ACCESS_DESCRIPTION_free @ 21 NONAME
+	AES_cfb128_encrypt @ 22 NONAME
+	AES_cfbr_encrypt_block @ 25 NONAME
+	asym3 @ 35 NONAME
+

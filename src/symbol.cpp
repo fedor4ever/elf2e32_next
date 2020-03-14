@@ -19,8 +19,8 @@
 Symbol::Symbol(SymbolType stype): iSymbolType(stype) {}
 
 Symbol::Symbol(const std::string& symbolName, SymbolType type,
-       const Elf32_Sym* symbol, uint32_t ordinal): iElfSym(symbol),
-       iOrdinal(ordinal), iSymbolName(symbolName), iSymbolType(type) {}
+   const Elf32_Sym* symbol, uint32_t ordinal): iElfSym(symbol),
+   iSymbolName(symbolName), iSymbolType(type), iOrdinal(ordinal) {}
 
 
 Symbol::~Symbol() {}

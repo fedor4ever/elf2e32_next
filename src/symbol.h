@@ -77,7 +77,7 @@ public:
 	void SetSymbolSize(uint32_t size);
 
 private:
-    Elf32_Sym	*iElfSym = nullptr;
+    const Elf32_Sym* iElfSym = nullptr;
 
 	SymbolStatus    iSymbolStatus = Matching;
 	std::string		iSymbolName;

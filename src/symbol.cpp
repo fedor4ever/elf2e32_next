@@ -1,5 +1,4 @@
-// Copyright (c) 2004-2009 Nokia Corporation and/or its subsidiary(-ies).
-// Copyright (c) 2017-2020 Strizhniou Fiodar.
+// Copyright (c) 2020 Strizhniou Fiodar.
 // All rights reserved.
 // This component and the accompanying materials are made available
 // under the terms of "Eclipse Public License v1.0"
@@ -7,14 +6,10 @@
 // at the URL "http://www.eclipse.org/legal/epl-v10.html".
 //
 // Initial Contributors:
-// Nokia Corporation - initial contribution.
-//
-// Contributors: Strizhniou Fiodar - fix build and runtime errors, refactoring.
+// Strizhniou Fiodar - initial contribution.
 //
 // Description:
-// Implementation of the Class Symbol for the elf2e32 tool
-// @internalComponent
-// @released
+// This class holds advanced symbol info
 //
 //
 
@@ -25,7 +20,7 @@ Symbol::Symbol(SymbolType stype): iSymbolType(stype) {}
 
 Symbol::Symbol(const std::string& symbolName, SymbolType type,
        const Elf32_Sym* symbol, uint32_t ordinal): iElfSym(symbol),
-       iSymbolIndex(ordinal), iSymbolName(symbolName), iSymbolType(type) {}
+       iOrdinal(ordinal), iSymbolName(symbolName), iSymbolType(type) {}
 
 
 Symbol::~Symbol() {}
@@ -45,56 +40,65 @@ bool Symbol::operator!=(const Symbol* s) const
 }
 
 
-void Symbol::SetSymbolName(const std::string& symbolName){
-    iSymbolName = symbolName;
+void Symbol::SetName(const std::string& s){
+    iSymbolName = s;
 }
 
-const char* Symbol::SymbolName() const {
-	return iSymbolName.c_str();
+std::string Symbol::Name() const {
+	return iSymbolName;
 }
 
-///This function returns the aliased symbol name.
-const char* Symbol::ExportName() {
-	 return iExportName.c_str();
+
+uint32_t Symbol::Ordinal() const {
+	 return iOrdinal;
 }
 
-///This function returns the ordinal number of the symbol.
-uint32_t Symbol::OrdNum() const {
-	 return iOrdinalNumber;
+void Symbol::SetOrdinal(uint32_t ord) {
+	iOrdinal = ord;
 }
 
-SymbolType Symbol::CodeDataType() {
+
+SymbolType Symbol::CodeDataType() const {
 	return iSymbolType;
 }
 
-///This function returns if r3unused is true.
-bool Symbol::R3unused() {
+void Symbol::SetCodeDataType(SymbolType type) {
+	iSymbolType = type;
+}
+
+
+bool Symbol::R3unused() const {
 	return iR3Unused;
 }
 
-///This function returns if the symbol is marked absent in the def file.
-bool Symbol::Absent() {
+void Symbol::SetR3Unused(bool aR3Unused) {
+	iR3Unused = aR3Unused;
+}
+
+
+bool Symbol::Absent() const {
 	return iAbsent;
 }
 
-///This function sets the symbol to be absent.
 void Symbol::SetAbsent(bool aAbsent) {
 	iAbsent = aAbsent;
 }
 
+
 ///This function returns the comment against this def file.
-std::string Symbol::Comment() {
+std::string Symbol::DefFileComment() const {
 	return iComment;
 }
 
-///This function returns the symbol is a matching/missing/new symbol in the def file.
-int Symbol::GetSymbolStatus() {
-	return  iSymbolStatus;
+///This function sets the comment in .def file against the symbol.
+void Symbol::SetDefFileComment(const std::string& s) {
+	iComment = s;
 }
 
-///This function sets the ordinal number for this symbol.
-void Symbol::SetOrdinal(uint32_t aOrdinalNum) {
-	iOrdinalNumber=aOrdinalNum;
+
+///This function returns the symbol is a matching/missing/new symbol in the def file.
+int Symbol::GetSymbolStatus() const {
+	return  iSymbolStatus;
 }
 
 /**
@@ -105,36 +109,23 @@ void Symbol::SetSymbolStatus(SymbolStatus status) {
 	iSymbolStatus = status;
 }
 
-///This function sets the export name of the symbol.
-void Symbol::ExportName(char *exportName)
-{
-	iExportName = exportName;
+// use this function
+std::string Symbol::AliasName() const {
+    if(iAliasName.empty())
+        return iSymbolName;
+    return iAliasName;
 }
 
-///This function sets the comment against the symbol.
-void Symbol::Comment(const std::string &comment)
-{
-	iComment = comment;
+///This function sets the export name of the symbol found in .def file.
+void Symbol::SetAliasName(const std::string& alias) {
+	iAliasName = alias;
 }
 
-///This function sets the symbol type if it is Code or Data symbol.
-void Symbol::CodeDataType(SymbolType aType)
-{
-	iSymbolType = aType;
-}
 
-///This function sets if R3Unused is true for this symbol.
-void Symbol::R3Unused(bool aR3Unused)
-{
-	iR3Unused = aR3Unused;
-}
-
-///This function sets the size of this symbol.
-void Symbol::SetSymbolSize(uint32_t aSize){
-	iSize = aSize;
-}
-
-///This function gets the size of this symbol.
-uint32_t Symbol::SymbolSize(){
+uint32_t Symbol::SymbolSize() const {
 	return iSize;
+}
+
+void Symbol::SetSymbolSize(uint32_t s) {
+	iSize = s;
 }

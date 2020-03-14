@@ -91,32 +91,32 @@ void DSOFile::CreateTablesFromSymbols(const Symbols& s)
     for(auto x: s)
     {
         // Ordinal Number can be upto 0xffff which is 6 digits
-        if(x->OrdNum() > 999999)
+        if(x->Ordinal() > 999999)
             ReportError(ErrorCodes::VALUEOVERFLOW, "absent symbols");
         /* If a symbol is marked as Absent in the DEF file, replace the
          * symbol name with "_._.absent_export_<Ordinal Number>"
          */
         if(x->Absent())
         {
-            char *symName = new char[length]{'0'};
-            sprintf(symName, "_._.absent_export_%d", x->OrdNum());
-            x->SetSymbolName(symName);
+            char *symName = new char[length]();
+            sprintf(symName, "_._.absent_export_%d", x->Ordinal());
+            x->SetName(symName);
             delete[] symName;
         }
         // Update code section data..
-        iCodeSectionData[aPos++] = x->OrdNum();
+        iCodeSectionData[aPos++] = x->Ordinal();
 
         //set symbol info..
         iElfDynSym[aPos].st_name = iDSOSymNameStrTbl.size();
 
-        iDSOSymNameStrTbl += x->SymbolName();
+        iDSOSymNameStrTbl += x->AliasName();
         iDSOSymNameStrTbl.push_back(0);
 
         SetElfSymbols(x, &iElfDynSym[aPos], aPos);
 
         //set version table info...
         iVersionTbl[aPos] = DEFAULT_VERSION;
-        AddToHashTable(x->SymbolName(), aPos);
+        AddToHashTable(x->AliasName().c_str(), aPos);
     }
 }
 

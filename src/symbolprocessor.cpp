@@ -43,14 +43,8 @@ SymbolProcessor::~SymbolProcessor()
     //dtor
 }
 
-struct SymbolPredicat
-{
-    bool operator() (const Symbol* s) {return iSymName == s->SymbolName();};
-    string iSymName;
-};
-
-std::pair<std::string, Symbol*> pairifyByName(Symbol* a) { return std::make_pair(a->SymbolName(), a); }
-std::pair<uint32_t, Symbol*> pairifyByOrdinal(Symbol* a) { return std::make_pair(a->OrdNum()    , a); }
+std::pair<std::string, Symbol*> pairifyByName(Symbol* a) { return std::make_pair(a->AliasName(), a); }
+std::pair<uint32_t, Symbol*> pairifyByOrdinal(Symbol* a) { return std::make_pair(a->Ordinal()  , a); }
 
 typedef std::map<string, Symbol*> StringMap;
 typedef std::map<uint32_t, Symbol*> OrdinalMap;
@@ -66,13 +60,13 @@ Symbols SymbolProcessor::Process()
     std::transform(defSym.begin(), defSym.end(), std::inserter(ordinals, ordinals.end()), pairifyByOrdinal);
 
     auto rt = result.crbegin();
-    uint32_t nextOrdinal = rt->second->OrdNum();
+    uint32_t nextOrdinal = rt->second->Ordinal();
     nextOrdinal++;
 
     for(auto x: sysDefSym)
     {
-        auto defSym = result.find(x->SymbolName());
-        auto ordSym = ordinals.find(x->OrdNum());
+        auto defSym = result.find(x->AliasName());
+        auto ordSym = ordinals.find(x->Ordinal());
 
         bool notFoundByName = (defSym == result.end());
         bool notFoundByOrdinal = (ordSym == ordinals.end());
@@ -85,15 +79,15 @@ Symbols SymbolProcessor::Process()
             //adding completely new symbol
             if(notFoundByName)
             {
-                result.insert(std::pair<string, Symbol*>(x->SymbolName(), x) );
-                ordinals.insert(std::pair<uint32_t, Symbol*>(x->OrdNum(), x) );
+                result.insert(std::pair<string, Symbol*>(x->AliasName(), x) );
+                ordinals.insert(std::pair<uint32_t, Symbol*>(x->Ordinal(), x) );
             }
             //simple set new ordinal
             else if(foundByName)
             {
-                ordinals.insert(std::pair<uint32_t, Symbol*>(x->OrdNum(), x) );
-                ordinals.erase(defSym->second->OrdNum());
-                defSym->second->SetOrdinal(x->OrdNum());
+                ordinals.insert(std::pair<uint32_t, Symbol*>(x->Ordinal(), x) );
+                ordinals.erase(defSym->second->Ordinal());
+                defSym->second->SetOrdinal(x->Ordinal());
             }
         }
 
@@ -101,37 +95,41 @@ Symbols SymbolProcessor::Process()
         else if(foundByOrdinal && notFoundByName)
         {
 // add new symbol to sorted by name std::map
-            result.insert(std::pair<string, Symbol*>(x->SymbolName(), x) );
+            result.insert(std::pair<string, Symbol*>(x->AliasName(), x) );
 // look for symbol with ordinal specified in --sysdef and update sorted by name std::map
-            auto currentSymbol = result.find(ordSym->second->SymbolName());
+            auto currentSymbol = result.find(ordSym->second->AliasName());
             currentSymbol->second->SetOrdinal(nextOrdinal);
 
 // update sorted by ordinals std::map
-            string oldName = ordSym->second->SymbolName();
-            ordSym->second->SetSymbolName(x->SymbolName());
-            ordSym->second->SetOrdinal(x->OrdNum());
+            string oldName = ordSym->second->Name();
+            string oldAliasName = ordSym->second->AliasName();
+            ordSym->second->SetName(x->Name());
+
+            ordSym->second->SetOrdinal(x->Ordinal());
             x->SetOrdinal(nextOrdinal);
-            x->SetSymbolName(oldName);
+            x->SetName(oldName);
+            if(oldAliasName != oldName)
+                x->SetAliasName(oldAliasName);
             ordinals.insert(std::pair<uint32_t, Symbol*>(nextOrdinal++, x) );
         }
         else if(foundByOrdinal && foundByName)
         {
             if(ordSym->second->Absent())
             {
-                ReportWarning(ErrorCodes::ABSENTSYMBOL, ordSym->second->SymbolName());
+                ReportWarning(ErrorCodes::ABSENTSYMBOL, ordSym->second->Name());
                 ordSym->second->SetAbsent(false);
             }
             if(defSym->second->Absent())
             {
-                ReportWarning(ErrorCodes::ABSENTSYMBOL, defSym->second->SymbolName());
+                ReportWarning(ErrorCodes::ABSENTSYMBOL, defSym->second->Name());
                 defSym->second->SetAbsent(false);
             }
             if(defSym->second == ordSym->second)
                 continue;
 
             //update ordinals
-            uint32_t srcOrdinal = ordSym->second->OrdNum();
-            defSym->second->SetOrdinal(x->OrdNum());
+            uint32_t srcOrdinal = ordSym->second->Ordinal();
+            defSym->second->SetOrdinal(x->Ordinal());
             ordSym->second->SetOrdinal(nextOrdinal++);
 
             //update names
@@ -147,24 +145,24 @@ Symbols SymbolProcessor::Process()
     //ordinals in elf symbols not set so we do
     for(auto x: elfSym)
     {
-        if( (iArgs->iExcludeunwantedexports || iArgs->iCustomdlltarget) && UnCallableSymbol(x->SymbolName()))
+        if( (iArgs->iExcludeunwantedexports || iArgs->iCustomdlltarget) && UnCallableSymbol(x->AliasName()))
             continue;
 
-        auto it = result.find(x->SymbolName());
+        auto it = result.find(x->AliasName());
         bool foundByName = (it != result.end());
 
         if(foundByName && it->second->Absent())
         {
             it->second->SetAbsent(false);
-            ReportWarning(ErrorCodes::ABSENTSYMBOLINELF, it->second->SymbolName());
+            ReportWarning(ErrorCodes::ABSENTSYMBOLINELF, it->second->AliasName());
             continue;
         }
 
         if(!foundByName)
-            unfrozen.push_back(x->SymbolName());
+            unfrozen.push_back(x->AliasName());
 
         x->SetOrdinal(nextOrdinal++);
-        result[x->SymbolName()] = x;
+        result[x->AliasName()] = x;
     }
 
     if(!unfrozen.empty())
@@ -258,7 +256,7 @@ Symbols SymbolProcessor::FromSysdef()
             continue;
         }
         Symbol* s = new Symbol(SymbolType::SymbolTypeCode);
-        s->SetSymbolName(funcname);
+        s->SetName(funcname);
         s->SetOrdinal(ordinalnum);
         sysdef.push_back(s);
     }

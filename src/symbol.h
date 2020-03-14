@@ -1,5 +1,4 @@
-// Copyright (c) 2004-2009 Nokia Corporation and/or its subsidiary(-ies).
-// Copyright (c) 2017-2020 Strizhniou Fiodar.
+// Copyright (c) 2020 Strizhniou Fiodar.
 // All rights reserved.
 // This component and the accompanying materials are made available
 // under the terms of "Eclipse Public License v1.0"
@@ -7,25 +6,29 @@
 // at the URL "http://www.eclipse.org/legal/epl-v10.html".
 //
 // Initial Contributors:
-// Nokia Corporation - initial contribution.
-//
-// Contributors: Strizhniou Fiodar - fix build and runtime errors, refactoring.
+// Strizhniou Fiodar - initial contribution.
 //
 // Description:
-// Implementation of the Class Symbol for the elf2e32 tool
-// @internalComponent
-// @released
+// This class holds advanced symbol info
 //
 //
+// This class provides 2 functions to obtain symbol name:
+//   Name() - return it raw name
+//   AliasName() - symbol name used in exports symbol table
+// Therefore use AliasName() where possible.
+//
+// This class provides 2 functions to set symbol name:
+//   SetName() - implicitly set alias name too
+//   SetAliasName() - directly set alias name
+// Therefore use SetName() where possible.
 
-
-#if !defined(_SYMBOL_H_)
-#define _SYMBOL_H_
+#if !defined(SYMBOL_H)
+#define SYMBOL_H
 
 #include <string>
 #include "elfdefs.h"
 
-enum SymbolStatus {Matching,Missing,New};
+enum SymbolStatus {Matching, Missing, New};
 
 enum SymbolType
 {
@@ -34,10 +37,6 @@ enum SymbolType
 	SymbolTypeCode = STT_FUNC
 };
 
-/**
- * This class is shared among all that use the symbol information.
- * To be finalized by DefFile.
- */
 class Symbol
 {
 
@@ -49,44 +48,46 @@ public:
 
 	bool operator==(const Symbol* aSym) const;
 	bool operator!=(const Symbol* aSym) const;
-	const char* SymbolName() const;
-	const char* ExportName();
-	uint32_t OrdNum() const;
-	SymbolType CodeDataType();
 
-	bool R3unused();
-	bool Absent();
-	void SetAbsent(bool absent);
-	std::string Comment();
-	int GetSymbolStatus();
+	uint32_t Ordinal() const;
 	void SetOrdinal(uint32_t ordinalNum);
-	void SetSymbolStatus(SymbolStatus symbolStatus);
-	void SetSymbolName(const std::string& symbolName);
 
-	void Comment(const std::string& comment);
-	void CodeDataType(SymbolType type);
-	void R3Unused(bool R3Unused);
-	void ExportName(char* exportName);
+	bool Absent() const;
+	void SetAbsent(bool absent);
+
+	std::string Name() const;
+	void SetName(const std::string& symbolName);
+
+	std::string AliasName() const;
+	void SetAliasName(const std::string& symbolName);
+
+	int GetSymbolStatus() const;
+	void SetSymbolStatus(SymbolStatus symbolStatus);
+
+	std::string DefFileComment() const;
+	void SetDefFileComment(const std::string& comment);
+
+	SymbolType CodeDataType() const;
+	void SetCodeDataType(SymbolType type);
+
+	bool R3unused() const;
+	void SetR3Unused(bool R3Unused);
+
+	uint32_t SymbolSize() const;
 	void SetSymbolSize(uint32_t size);
-	uint32_t SymbolSize();
 
 private:
     Elf32_Sym	*iElfSym = nullptr;
-	/**
-	 * The index of this symbol in the symbol table(required for the hash table while
-	 * creating the dso).
-	 */
-	uint32_t		iSymbolIndex = 0;
 
 	SymbolStatus    iSymbolStatus = Matching;
 	std::string		iSymbolName;
-	std::string		iExportName;
+	std::string		iAliasName;
 	SymbolType	    iSymbolType = SymbolTypeNotDefined;
-	uint32_t	    iOrdinalNumber  = -1;
+	uint32_t	    iOrdinal  = -1;
 	std::string		iComment;
 	bool		    iAbsent = false;
 	bool		    iR3Unused = false;
 	uint32_t	    iSize = 0;
 };
 
-#endif // !defined(_SYMBOL_H_)
+#endif // !defined(SYMBOL_H)

@@ -102,11 +102,11 @@ void DefFile::ParseDefFile()
         {
             Trim(str);
             Tokenizer(str, LineNum);
-            size_t ordinalNo = iSymbol->OrdNum();
+            size_t ordinalNo = iSymbol->Ordinal();
             if (ordinalNo != PreviousOrdinal+1)
             {
                 ReportError(ORDINALSEQUENCE, iFileName,
-                                   iSymbol->SymbolName(), LineNum);
+                                   iSymbol->AliasName(), LineNum);
             }
 
             PreviousOrdinal = ordinalNo;
@@ -143,15 +143,15 @@ void DefFile::Tokenizer(std::string aLine, size_t aIndex)
     if(pos < string::npos)
     {
         std::string comment = aLine.substr(pos);
-        iSymbol->Comment(comment);
+        iSymbol->SetDefFileComment(comment);
         aLine.erase(pos);
     }
 
 //    check optional arguments
     if(aLine.find(" DATA ") < string::npos)
-        iSymbol->CodeDataType(SymbolTypeData);
+        iSymbol->SetCodeDataType(SymbolTypeData);
     if(aLine.find(" R3UNUSED") < string::npos)
-        iSymbol->R3Unused(true);
+        iSymbol->SetR3Unused(true);
     if(aLine.find(" ABSENT") < string::npos)
         iSymbol->SetAbsent(true);
    if(aLine.find(" MISSING") < string::npos)
@@ -179,7 +179,7 @@ void DefFile::Tokenizer(std::string aLine, size_t aIndex)
 
     /**< Take SymbolName and maybe AliasName  */
     if(tokens[0].find('=') == string::npos)
-        iSymbol->SetSymbolName(tokens[0]);
+        iSymbol->SetName(tokens[0]);
     else
     {
         /**< Symbol name may have alias like SymbolName=AliasName */
@@ -187,10 +187,10 @@ void DefFile::Tokenizer(std::string aLine, size_t aIndex)
             ReportError(UNRECOGNIZEDTOKEN, iFileName, tokens[0],
                     aIndex); /**< Not allowed like SomeName=OtherName=AnotherName */
 
-        std::string sName =tokens[0].substr(0, tokens[0].find('='));
-        std::string eName =tokens[0].substr(tokens[0].find('='));
-        iSymbol->SetSymbolName( (char* )sName.c_str() );
-        iSymbol->ExportName((char* )eName.c_str());
+        std::string sName = tokens[0].substr(0, tokens[0].find('='));
+        std::string eName = tokens[0].substr(tokens[0].find('='));
+        iSymbol->SetName(sName);
+        iSymbol->SetAliasName(eName);
     }
 
     iSymbol->SetOrdinal( atol( tokens[2].c_str() ) );
@@ -251,12 +251,12 @@ void DefFile::WriteDefFile(const char *fileName, const Symbols& newSymbols)
 void WriteDefString(Symbol *sym, std::fstream &fstr)
 {
     fstr << "\t";
-    if((sym->ExportName()) && strcmp(sym->SymbolName(),sym->ExportName())!=0)
-        fstr << sym->ExportName();
+    fstr << sym->Name();
+    if(!sym->AliasName().empty() && (sym->AliasName() != sym->Name()) )
+        fstr << "=" << sym->AliasName();
 
-    fstr << sym->SymbolName();
     fstr << " @ ";
-    fstr << sym->OrdNum();
+    fstr << sym->Ordinal();
     fstr << " NONAME";
 
     if(sym->CodeDataType()==SymbolTypeData)
@@ -270,10 +270,10 @@ void WriteDefString(Symbol *sym, std::fstream &fstr)
     if(sym->Absent())
         fstr << " ABSENT";
 
-    if(!sym->Comment().empty())
+    if(!sym->DefFileComment().empty())
     {
         fstr << " ; ";
-        fstr << sym->Comment();
+        fstr << sym->DefFileComment();
     }
 
     fstr << "\n";

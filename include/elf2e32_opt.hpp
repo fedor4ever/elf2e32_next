@@ -63,6 +63,7 @@ struct OptionsType
         EDSO,
         ELIBPATH,
         EE32INPUT,
+        EHEADER,
         // info for E32 image
         EDUMP,
         // common options
@@ -116,6 +117,7 @@ struct Args
     std::string iDump = "h";
     std::string iLog;
     uint32_t iVersion; // ex: elf2e32.exe --version
+    std::string iHeader;
 };
 
 #endif // ELF2E32_OPT_HPP_INCLUDED

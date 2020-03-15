@@ -75,7 +75,8 @@ struct Message Messages[]=
     {ErrorCodes::ABSENTSYMBOLINELF, "%s  absent in the DEF file and --sysdef, but present in the ELF file.\n"},
     {ErrorCodes::UNFROZENSYMBOLS, "Frozen Export(s): %u missing from the ELF file.\n"},
     {ErrorCodes::FROZENSYMBOLS, "ELF File %s with frozen export(s) have %u missed symbol(s):\n%s.\n"},
-    {ErrorCodes::SYSDEFMERGE, "Failure when merge symbols from .def file and option --sysdef.\n"}//,
+    {ErrorCodes::SYSDEFMERGE, "Failure when merge symbols from .def file and option --sysdef.\n"},
+    {ErrorCodes::UNKNOWNHEADERNAME, "Can't deduce name for header file with exports.\n"}//,
 //    {ErrorCodes::, ".\n"}//,
 };
 

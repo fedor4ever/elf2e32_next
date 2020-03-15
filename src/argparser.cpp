@@ -70,6 +70,7 @@ static struct option long_opts[] =
     {"dso",       required_argument, 0, OptionsType::EDSO},
     {"libpath",   required_argument, 0, OptionsType::ELIBPATH},
     {"e32input",  required_argument, 0, OptionsType::EE32INPUT},
+    {"header",    optional_argument, 0, OptionsType::EHEADER},
     // info for E32 image
     {"dump",      required_argument, 0, OptionsType::EDUMP},
     // common options
@@ -277,6 +278,12 @@ bool ArgParser::Parse(Args* arg) const
                 arg->iE32input = optarg;
                 ArgInfo(optname, optarg);
                 break;
+            case OptionsType::EHEADER:
+                if(optarg)
+                    arg->iHeader = optarg;
+                else arg->iHeader = "not_set";
+                ArgInfo(optname, optarg);
+                break;
         // info for E32 image
             case OptionsType::EDUMP:
                 arg->iDump = optarg;
@@ -382,6 +389,7 @@ const string ScreenOptions =
 "        --namedlookup: Enable named lookup of symbols\n"
 "        --debuggable: Debuggable by run-mode debug subsystem\n"
 "        --smpsafe: SMP Safe\n"
+"        --header: Generate header file for dynamic linking.\n"
 "        --help: This command.\n"
 ;
 

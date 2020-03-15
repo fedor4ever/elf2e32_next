@@ -69,7 +69,8 @@ enum ErrorCodes
     ABSENTSYMBOLINELF,
     UNFROZENSYMBOLS,
     FROZENSYMBOLS,
-    SYSDEFMERGE
+    SYSDEFMERGE,
+    UNKNOWNHEADERNAME
 };
 
 // handy macro for tracing

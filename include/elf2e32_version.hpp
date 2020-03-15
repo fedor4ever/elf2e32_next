@@ -21,8 +21,8 @@
 struct ToolVersion
 {
     uint8_t iMajor = 3;
-    uint8_t iMinor = 1;
-    int16_t iBuild = 3;
+    uint8_t iMinor = 2;
+    int16_t iBuild = 0;
 };
 
 #endif // ELF2E32_VERSION_HPP_INCLUDED

@@ -122,7 +122,7 @@ void MakeImportHeader(Symbols symbols, std::string dllName)
     fstr << "// User::LeaveIfError(library.Load(" << dllName << "));\n";
     fstr << "// TLibraryFunction entry=library.Lookup(" << (*it)->AliasName() << ");\n";
     fstr << "// Call the function to create new CMessenger\n"
-        "// CMessenger* messenger=(CMessenger*) entry();";
+        "// CMessenger* messenger=(CMessenger*) entry();\n";
     fstr << "// library.Close();\n";
 
     fstr << "#ifndef ELF2E32_" << dllName << "\n";

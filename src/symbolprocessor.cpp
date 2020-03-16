@@ -79,6 +79,7 @@ Symbols SymbolProcessor::Process()
             //adding completely new symbol
             if(notFoundByName)
             {
+                x->SetSymbolStatus(New);
                 result.insert(std::pair<string, Symbol*>(x->AliasName(), x) );
                 ordinals.insert(std::pair<uint32_t, Symbol*>(x->Ordinal(), x) );
             }

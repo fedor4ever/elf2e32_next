@@ -57,6 +57,7 @@ void ElfParser::GetElfFileLayout()
 	}
 	ProcessSectionHeaders();
 	ProcessProgHeaders();
+	ProcessDynamicTable();
 }
 
 void ElfParser::ProcessProgHeaders()
@@ -160,6 +161,7 @@ void ElfParser::ProcessDynamicTable()
 			//cout << "Unknown entry in dynamic table Tag=0x%x Value=0x%x",aDyn[i].d_tag, aDyn[i].d_val);
 			break;
         }
+        i++;
     }
 
     if(iHashTbl)
@@ -234,6 +236,41 @@ bool ElfParser::IsRelocationFixRequired()
 
     return true;
 }
+
+ESegmentType ElfParser::SegmentType(Elf32_Addr aAddr) const
+{
+	Elf32_Phdr* phdr = GetSegmentAtAddr(aAddr);
+	if(!phdr)
+		return ESegmentUndefined;
+
+	if(phdr == iCodeSegmentHdr)
+		return ESegmentRO;
+	else if(phdr == iDataSegmentHdr)
+		return ESegmentRW;
+
+	return ESegmentUndefined;
+}
+
+
+Elf32_Phdr* ElfParser::GetSegmentAtAddr(Elf32_Addr addr) const
+{
+    if(iCodeSegmentHdr)
+    {
+		uint32_t base = iCodeSegmentHdr->p_vaddr;
+		if( base <= addr && addr < (base + iCodeSegmentHdr->p_memsz) ) {
+			return iCodeSegmentHdr;
+		}
+	}
+	if(iDataSegmentHdr)
+	{
+		uint32_t base = iDataSegmentHdr->p_vaddr;
+		if( base <= addr && addr < (base + iDataSegmentHdr->p_memsz) ) {
+			return iDataSegmentHdr;
+		}
+	}
+    return nullptr;
+}
+
 
 Elf32_Sym* ElfParser::GetSymbolTableEntity(uint32_t index) const
 {

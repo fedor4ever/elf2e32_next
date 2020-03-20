@@ -30,10 +30,13 @@
 using std::string;
 using std::cout;
 
+bool IsGlobalSymbol(const Elf32_Sym* s);
+bool IsExportedSymbol(const Elf32_Sym* s, const ElfParser* parser);
 bool IsInvalidExport(const char* s);
-uint64_t OrdinalFromString(const string& str);
-SymbolType SymbolTypeCodeOrData(Elf32_Sym* aSym);
 bool UnCallableSymbol(const string& s);
+
+uint64_t OrdinalFromString(const string& str);
+SymbolType SymbolTypeCodeOrData(const Elf32_Sym* s);
 
 SymbolProcessor::SymbolProcessor(const ElfParser* elfParser, const Args* args):
         iElfParser(elfParser), iArgs(args) {}
@@ -138,7 +141,7 @@ Symbols SymbolProcessor::Process()
             ordinals.erase(srcOrdinal);
         }
     }
-#if 0
+
     Symbols elfSym = FromElf();
 
     std::list<string> unfrozen;
@@ -173,7 +176,7 @@ Symbols SymbolProcessor::Process()
         else
             ReportError(ErrorCodes::FROZENSYMBOLS, unfrozen, iArgs->iElfinput, unfrozen.size());
     }
-#endif // 0
+
     Symbols out;
     std::transform(
     ordinals.begin(),
@@ -197,10 +200,15 @@ Symbols SymbolProcessor::FromElf()
         const char* symName = iElfParser->GetSymbolNameFromStringTable(i);
         if(IsInvalidExport(symName))
             continue;
+
         Elf32_Sym* symTableEntity = iElfParser->GetSymbolTableEntity(i);
+        if(!IsExportedSymbol(symTableEntity, iElfParser))
+            continue;
+
         SymbolType type = SymbolTypeCodeOrData(symTableEntity);
         Symbol* sym = new Symbol(symName, type, symTableEntity, i);
         sym->SetSymbolSize(symTableEntity->st_size);
+        sym->SetSymbolStatus(SymbolStatus::New);
         elf.push_back(sym);
     }
     return elf;
@@ -277,7 +285,48 @@ bool IsInvalidExport(const char* s)
 	return (strncmp(s, "_ZTS", strlen("_ZTS")) == 0);
 }
 
-SymbolType SymbolTypeCodeOrData(Elf32_Sym* s)
+bool IsGlobalSymbol(const Elf32_Sym* s)
+{
+	return (ELF32_ST_BIND(s->st_info) == STB_GLOBAL);
+}
+
+bool IsDefinedSymbol(const Elf32_Sym* s, const ElfParser* parser)
+{
+	if(s->st_shndx == SHN_UNDEF)
+		return false;
+	ESegmentType aType = parser->SegmentType(s->st_value);
+	return ((aType == ESegmentRO) || (aType == ESegmentRW));
+}
+
+bool HasSymbolDefaultVisibility(const Elf32_Sym* s)
+{
+	return (STV_DEFAULT == ELF32_ST_VISIBILITY(s->st_other) ||
+         STV_PROTECTED == ELF32_ST_VISIBILITY(s->st_other));
+}
+
+bool IsFunctionSymbol(const Elf32_Sym* s)
+{
+	return (STT_FUNC == ELF32_ST_TYPE(s->st_info));
+}
+
+bool IsDataSymbol(const Elf32_Sym* s)
+{
+	return (STT_OBJECT == ELF32_ST_TYPE(s->st_info));
+}
+
+bool IsExportedSymbol(const Elf32_Sym* sym, const ElfParser* parser)
+{
+    uint32_t index = sym->st_shndx;
+    if( (index < SHN_ABS) && (index != SHN_UNDEF) &&
+       IsGlobalSymbol(sym) && HasSymbolDefaultVisibility(sym) && IsDefinedSymbol(sym, parser) &&
+       (IsFunctionSymbol(sym) || IsDataSymbol(sym) ) )
+    {
+        return true;
+    }
+    return false;
+}
+
+SymbolType SymbolTypeCodeOrData(const Elf32_Sym* s)
 {
     if(STT_FUNC == ELF32_ST_TYPE(s->st_info))
         return SymbolType::SymbolTypeCode;

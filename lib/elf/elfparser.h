@@ -20,11 +20,7 @@
 
 #include <string>
 
-struct Elf32_Sym;
-struct Elf32_Ehdr;
-struct Elf32_Phdr;
-struct Elf32_Shdr;
-struct Elf32_HashTable;
+#include "elfdefs.h"
 
 class ElfParser
 {
@@ -38,6 +34,8 @@ class ElfParser
         uint32_t ImportsCount() const;
         const char* GetSymbolNameFromStringTable(uint32_t index) const;
         Elf32_Sym* GetSymbolTableEntity(uint32_t index) const;
+        Elf32_Phdr* GetSegmentAtAddr(Elf32_Addr addr) const;
+        ESegmentType SegmentType(Elf32_Addr addr) const;
     private:
         void ValidateElfImage();
         void ProcessSectionHeaders();

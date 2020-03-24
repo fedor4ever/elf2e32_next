@@ -41,7 +41,7 @@ class SymbolProcessor
 {
     public:
         SymbolProcessor(const ElfParser* elfParser, const Args* args);
-        Symbols Process();
+        Symbols GetExports();
         ~SymbolProcessor();
     private:
         Symbols FromElf();

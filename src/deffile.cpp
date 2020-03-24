@@ -222,28 +222,13 @@ void DefFile::WriteDefFile(const char *fileName, const Symbols& newSymbols)
     for(auto x: newSymbols)
     {
         if(x->GetSymbolStatus()==New)
-        {
-            newSymbol = true;
-            continue;
-        }
+            fs << "; NEW:\n";
 
         if(x->GetSymbolStatus()==Missing)
             fs << "; MISSING:";
         WriteDefString(x, fs);
     }
 
-//This is for writing new def entry in DEF File
-    if(newSymbol)
-    {
-        fs << "; NEW:\n";
-        for(auto x: newSymbols)
-        {
-            if(x->GetSymbolStatus() != New)
-                continue;
-
-            WriteDefString(x, fs);
-        }
-    }
     fs << "\n";
     fs.close();
 }

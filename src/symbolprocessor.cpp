@@ -46,12 +46,14 @@ SymbolProcessor::~SymbolProcessor()
     //dtor
 }
 
+bool SortSymbolsByName(Symbol* first, Symbol* second){ return first->AliasName() < second->AliasName();}
+
 std::pair<std::string, Symbol*> pairifyByName(Symbol* a) { return std::make_pair(a->AliasName(), a); }
 std::pair<uint32_t, Symbol*> pairifyByOrdinal(Symbol* a) { return std::make_pair(a->Ordinal()  , a); }
 
 typedef std::map<string, Symbol*> StringMap;
 typedef std::map<uint32_t, Symbol*> OrdinalMap;
-Symbols SymbolProcessor::Process()
+Symbols SymbolProcessor::GetExports()
 {
     StringMap result;
     OrdinalMap ordinals;
@@ -144,7 +146,37 @@ Symbols SymbolProcessor::Process()
 
     Symbols elfSym = FromElf();
 
-    std::list<string> unfrozen;
+    //look for absent symbols and add them
+    Symbols toCompare, missedSymbols, absentSymbols;
+    toCompare.insert(toCompare.end(), sysDefSym.begin(), sysDefSym.end());
+    toCompare.insert(toCompare.end(), defSym.begin(), defSym.end());
+    toCompare.sort(SortSymbolsByName);
+    auto itDef = std::set_difference(toCompare.begin(), toCompare.end(),
+        elfSym.begin(), elfSym.end(), missedSymbols.begin(), SortSymbolsByName);
+
+    std::list<string> ls;
+    for(auto x: missedSymbols)
+    {
+        if(x->Absent())
+            continue;
+        auto it = result.find(x->AliasName());
+        it->second->SetAbsent(true);
+        absentSymbols.push_back(x);
+        ls.push_back(x->AliasName());
+    }
+    if(!absentSymbols.empty())
+    {
+        if(iArgs->iUnfrozen)
+            ReportWarning(ErrorCodes::MISSEDFROZENSYMBOLS ,absentSymbols.size());
+        else
+            ReportError(ErrorCodes::MISSEDFROZENSYMBOLSERROR, ls, iArgs->iElfinput, absentSymbols.size());
+    }
+
+    for(auto x: absentSymbols)
+    {
+        auto it = result.find(x->AliasName());
+        it->second->SetAbsent(true);
+    }
 
     //ordinals in elf symbols not set so we do
     for(auto x: elfSym)
@@ -158,23 +190,12 @@ Symbols SymbolProcessor::Process()
         if(foundByName && it->second->Absent())
         {
             it->second->SetAbsent(false);
-            ReportWarning(ErrorCodes::ABSENTSYMBOLINELF, it->second->AliasName());
+            ReportWarning(ErrorCodes::ABSENTSYMBOL, it->second->AliasName());
             continue;
         }
 
-        if(!foundByName)
-            unfrozen.push_back(x->AliasName());
-
         x->SetOrdinal(nextOrdinal++);
         result[x->AliasName()] = x;
-    }
-
-    if(!unfrozen.empty())
-    {
-        if(iArgs->iUnfrozen)
-            ReportWarning(ErrorCodes::UNFROZENSYMBOLS, unfrozen.size());
-        else
-            ReportError(ErrorCodes::FROZENSYMBOLS, unfrozen, iArgs->iElfinput, unfrozen.size());
     }
 
     Symbols out;
@@ -211,6 +232,7 @@ Symbols SymbolProcessor::FromElf()
         sym->SetSymbolStatus(SymbolStatus::New);
         elf.push_back(sym);
     }
+    elf.sort([](auto first, auto second){ return first->AliasName() < second->AliasName();});
     return elf;
 }
 

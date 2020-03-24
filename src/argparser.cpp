@@ -356,7 +356,7 @@ const string ScreenOptions =
 "                bytepair compress image with BytePair Pak algorithm.\n"
 "        --heap=Heap committed and reserved size in bytes(.EXEs only), comma separated.\n"
 "        --stack=Stack size in bytes(.EXEs only)\n"
-"        --unfrozen: Don't treat input dot-def file as frozen\n"
+"        --unfrozen: Dot-def file preserve stable library ABI. Breaks ABI if used.\n"
 "        --ignorenoncallable: Generate exports for functions only\n"
 "        --capability=Capability option\n"
 "        --libpath=A semi-colon separated search path list to locate import DSOs\n"

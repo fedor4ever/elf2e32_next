@@ -76,7 +76,8 @@ struct Message Messages[]=
     {ErrorCodes::MISSEDFROZENSYMBOLS, "Frozen Export(s): %u missing from the ELF file.\n"},
     {ErrorCodes::MISSEDFROZENSYMBOLSERROR, "ELF File %s with frozen export(s) have %u missed symbol(s):\n%s.\n"},
     {ErrorCodes::SYSDEFMERGE, "Failure when merge symbols from .def file and option --sysdef.\n"},
-    {ErrorCodes::UNKNOWNHEADERNAME, "Can't deduce name for header file with exports.\n"}//,
+    {ErrorCodes::UNKNOWNHEADERNAME, "Can't deduce name for header file with exports.\n"},
+    {ErrorCodes::ELFPIEERROR, "Found elf file %s builded with -pie option. Symbian has no support for it.\n"}//,
 //    {ErrorCodes::, ".\n"}//,
 };
 

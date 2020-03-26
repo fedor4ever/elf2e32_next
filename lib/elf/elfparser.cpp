@@ -56,7 +56,7 @@ void ElfParser::GetElfFileLayout()
 	if(iElfHeader->e_shstrndx != SHN_UNDEF)
     {
 		if(iElfHeader->e_shstrndx > iElfHeader->e_shnum)
-			ReportError(ELFSHSTRINDEXERROR, iFile);
+			ReportError(ErrorCodes::ELFSHSTRINDEXERROR, iFile);
 
 		iSectionHdrStrTbl = ELF_ENTRY_PTR(char, iElfHeader, iSections[iElfHeader->e_shstrndx].sh_offset);
 	}
@@ -148,6 +148,9 @@ void ElfParser::ProcessDynamicTable()
     Elf32_Dyn* aDyn = ELF_ENTRY_PTR(Elf32_Dyn, iElfHeader, iDynSegmentHdr->p_offset);
     while( aDyn[i].d_tag != DT_NULL )
     {
+        if(aDyn[i].d_val & DF_1_PIE)
+            ReportError(ErrorCodes::ELFPIEERROR, iFile);
+
         switch (aDyn[i].d_tag)
         {
 		case DT_ARM_SYMTABSZ:
@@ -173,7 +176,7 @@ void ElfParser::ProcessDynamicTable()
 	{
 		//The number of symbols should be same as the number of chains in hashtable
 		if (nSymbols && (nSymbols != iHashTbl->nChains))
-			ReportError(SYMBOLCOUNTMISMATCHERROR, iFile);
+			ReportError(ErrorCodes::SYMBOLCOUNTMISMATCHERROR, iFile);
 	}
 }
 
@@ -196,20 +199,20 @@ void ElfParser::ValidateElfImage()
 		(iElfHeader->e_ident[EI_MAG2] == ELFMAG2) &&
 		(iElfHeader->e_ident[EI_MAG3] == ELFMAG3) )
     {
-        ReportError(ELFMAGICERROR, iFile);
+        ReportError(ErrorCodes::ELFMAGICERROR, iFile);
 	}
 
 	/* 32-bit ELF file*/
 	if(iElfHeader->e_ident[EI_CLASS] != ELFCLASS32)
-		ReportError(ELFCLASSERROR, iFile);
+		ReportError(ErrorCodes::ELFCLASSERROR, iFile);
 
 	/* Is the ELF file in Little endian format*/
 	if(iElfHeader->e_ident[EI_DATA] != ELFDATA2LSB)
-		ReportError(ELFLEERROR, iFile);
+		ReportError(ErrorCodes::ELFLEERROR, iFile);
 
 	/* The ELF executable must be a DLL or an EXE*/
 	if(iElfHeader->e_type != ET_EXEC && iElfHeader->e_type != ET_DYN)
-		ReportError(ELFEXECUTABLEERROR, iFile);
+		ReportError(ErrorCodes::ELFEXECUTABLEERROR, iFile);
 }
 
 // ARM linker prior version ARM linker 2.2 build 616 doesn't generate

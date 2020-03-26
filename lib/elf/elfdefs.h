@@ -748,6 +748,12 @@ struct Elf32_Dyn
 #define DT_ARM_PLTGOTBASE  0x70000004
 #define DT_ARM_PLTGOTLIMIT 0x70000005
 
+/* These were chosen by Sun.  */
+#define DT_FLAGS_1	0x6ffffffb	/* State flags, see DF_1_* below.  */
+/* State flags selectable in the `.d_val' element of the DT_FLAGS_1
+   entry in the dynamic section.  */
+#define	DF_1_PIE   0x08000000
+
 // What the hash table looks like in the dynamic segment
 struct Elf32_HashTable
 {

@@ -55,6 +55,9 @@ typedef std::map<string, Symbol*> StringMap;
 typedef std::map<uint32_t, Symbol*> OrdinalMap;
 Symbols SymbolProcessor::GetExports()
 {
+    if(iArgs->iDSODump)
+        return GetDSOSymbols();
+
     StringMap result;
     OrdinalMap ordinals;
 
@@ -209,6 +212,29 @@ Symbols SymbolProcessor::GetExports()
     return out;
 }
 
+Symbols SymbolProcessor::GetDSOSymbols()
+{
+    Symbols result;
+    uint32_t numOfImports = iElfParser->ImportsCount();
+    uint32_t* ordinals =  iElfParser->GetDSOImportsOrdinals();
+    for(uint32_t i = 0; i < numOfImports; i++)
+    {
+        const char* symName = iElfParser->GetSymbolNameFromStringTable(i);
+        if(IsInvalidExport(symName))
+            continue;
+
+        Elf32_Sym* symTableEntity = iElfParser->GetSymbolTableEntity(i);
+        if(!IsExportedSymbol(symTableEntity, iElfParser))
+            continue;
+
+        SymbolType type = SymbolTypeCodeOrData(symTableEntity);
+        Symbol* sym = new Symbol(symName, type, symTableEntity, ordinals[i - 1]);
+        sym->SetSymbolSize(symTableEntity->st_size);
+        result.push_back(sym);
+    }
+    return result;
+}
+
 Symbols SymbolProcessor::FromElf()
 {
     Symbols elf;
@@ -232,7 +258,7 @@ Symbols SymbolProcessor::FromElf()
         sym->SetSymbolStatus(SymbolStatus::New);
         elf.push_back(sym);
     }
-    elf.sort([](auto first, auto second){ return first->AliasName() < second->AliasName();});
+    elf.sort(SortSymbolsByName);
     return elf;
 }
 

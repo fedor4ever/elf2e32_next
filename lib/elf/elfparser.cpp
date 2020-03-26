@@ -33,6 +33,11 @@ ElfParser::~ElfParser()
     delete[] iFileBuf;
 }
 
+uint32_t* ElfParser::GetDSOImportsOrdinals() const
+{
+    return (uint32_t*)iCodeSegment;
+}
+
 void ElfParser::GetElfFileLayout()
 {
     iFileBuf = ReadFile(iFile.c_str(), iFileBufSize);

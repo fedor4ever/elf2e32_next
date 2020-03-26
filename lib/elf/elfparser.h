@@ -36,6 +36,7 @@ class ElfParser
         Elf32_Sym* GetSymbolTableEntity(uint32_t index) const;
         Elf32_Phdr* GetSegmentAtAddr(Elf32_Addr addr) const;
         ESegmentType SegmentType(Elf32_Addr addr) const;
+        uint32_t* GetDSOImportsOrdinals() const;
     private:
         void ValidateElfImage();
         void ProcessSectionHeaders();

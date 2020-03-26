@@ -44,6 +44,7 @@ class SymbolProcessor
         Symbols GetExports();
         ~SymbolProcessor();
     private:
+        Symbols GetDSOSymbols();
         Symbols FromElf();
         Symbols FromSysdef();
     private:

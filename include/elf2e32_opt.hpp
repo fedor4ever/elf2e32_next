@@ -59,6 +59,7 @@ struct OptionsType
         EDEFINPUT,
         EDEFOUTPUT,
         EELFINPUT,
+        EDSODUMP,
         EOUTPUT,
         EDSO,
         ELIBPATH,
@@ -112,6 +113,7 @@ struct Args
     std::string iElfinput;
     std::string iOutput;
     std::string iDso;
+    bool iDSODump = false;
     std::string iLibpath; //holds path to DSO separated by ';'
     std::string iE32input;
     std::string iDump = "h";

@@ -66,6 +66,7 @@ static struct option long_opts[] =
     {"definput",  required_argument, 0, OptionsType::EDEFINPUT},
     {"defoutput", required_argument, 0, OptionsType::EDEFOUTPUT},
     {"elfinput",  required_argument, 0, OptionsType::EELFINPUT},
+    {"dsodump",         no_argument, 0, OptionsType::EDSODUMP},
     {"output",    required_argument, 0, OptionsType::EOUTPUT},
     {"dso",       required_argument, 0, OptionsType::EDSO},
     {"libpath",   required_argument, 0, OptionsType::ELIBPATH},
@@ -262,6 +263,10 @@ bool ArgParser::Parse(Args* arg) const
                 arg->iElfinput = optarg;
                 ArgInfo(optname, optarg);
                 break;
+            case OptionsType::EDSODUMP:
+                arg->iDSODump = true;
+                ArgInfo(optname, optarg);
+                break;
             case OptionsType::EOUTPUT:
                 arg->iOutput = optarg;
                 ArgInfo(optname, optarg);
@@ -339,6 +344,7 @@ const string ScreenOptions =
 "        --definput=Input DEF File\n"
 "        --defoutput=Output DEF\n"
 "        --elfinput=Input ELF File\n"
+"           --dsodump: Get symbols from DSO\n"
 "        --output=Output E32 Image\n"
 "        --dso=Output import DSO File\n"
 "        --targettype=Target Type\n"

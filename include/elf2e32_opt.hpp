@@ -76,6 +76,13 @@ struct OptionsType
     };
 };
 
+enum Paging
+{
+    PAGED,
+    UNPAGED,
+    DEFAULT
+};
+
 struct Args
 {
     uint32_t iUid1 = 0;
@@ -89,11 +96,8 @@ struct Args
     bool iFixedaddress = false;
     bool iCallentry = false;
     std::string iFpu;
-    bool iCodepaging = false;
-    bool iDatapaging = false;
-    bool iPaged = false;
-    bool iUnpaged = false;
-    bool iDefaultpaged = false;
+    Paging iCodePaging = Paging::DEFAULT;
+    Paging iDataPaging = Paging::DEFAULT;
     bool iDebuggable = false;
     bool iSmpsafe = false;
     std::string iTargettype;

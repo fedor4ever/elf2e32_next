@@ -27,6 +27,7 @@
 using std::string;
 
 uint32_t SetToolVersion(const char* str);
+Paging GetPaging(string fromArgument);
 
 static struct option long_opts[] =
 {
@@ -161,23 +162,23 @@ bool ArgParser::Parse(Args* arg) const
                 ArgInfo(optname ,optarg);
                 break;
             case OptionsType::ECODEPAGING:
-                arg->iCodepaging = true;
-                ArgInfo(optname);
+                arg->iCodePaging = GetPaging(optarg);
+                ArgInfo(optname, optarg);
                 break;
             case OptionsType::EDATAPAGING:
-                arg->iDatapaging = true;
-                ArgInfo(optname);
+                arg->iDataPaging = GetPaging(optarg);
+                ArgInfo(optname, optarg);
                 break;
             case OptionsType::EPAGED:
-                arg->iPaged = true;
+                arg->iCodePaging = Paging::PAGED;
                 ArgInfo(optname);
                 break;
             case OptionsType::EUNPAGED:
-                arg->iUnpaged = true;
+                arg->iCodePaging = Paging::UNPAGED;
                 ArgInfo(optname);
                 break;
             case OptionsType::EDEFAULTPAGED:
-                arg->iDefaultpaged = true;
+                arg->iCodePaging = Paging::DEFAULT;
                 ArgInfo(optname);
                 break;
             case OptionsType::EDEBUGGABLE:
@@ -407,6 +408,17 @@ void Help()
     ReportLog("Usage:  elf2e32 [options] [filename]\n\n");
     ReportLog("Options:\n");
     ReportLog(ScreenOptions);
+}
+
+Paging GetPaging(string fromArgument)
+{
+    if(fromArgument == "paged")
+        return Paging::PAGED;
+    else if(fromArgument == "unpaged")
+        return Paging::UNPAGED;
+    else if(fromArgument == "default")
+        return Paging::DEFAULT;
+    ReportError(ErrorCodes::ARGUMENTNAME, fromArgument);
 }
 
 void ArgName(const char *name) // long_opts[*optIdx].name

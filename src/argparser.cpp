@@ -17,6 +17,8 @@
 
 #include <string>
 #include <string.h>
+#include <algorithm>
+
 #include "getopt.h"
 #include "common.hpp"
 #include "argparser.h"
@@ -28,6 +30,8 @@ using std::string;
 
 uint32_t SetToolVersion(const char* str);
 Paging GetPaging(string fromArgument);
+TargetType GetTarget(string fromArgument);
+void VarningForDeprecatedUID(uint32_t UID2);
 
 static struct option long_opts[] =
 {
@@ -122,6 +126,7 @@ bool ArgParser::Parse(Args* arg) const
                 break;
             case OptionsType::EUID2:
                 arg->iUid2 = std::stoi(optarg);
+                VarningForDeprecatedUID(arg->iUid2);
                 ArgInfo(optname, optarg);
                 break;
             case OptionsType::EUID3:
@@ -191,7 +196,7 @@ bool ArgParser::Parse(Args* arg) const
                 break;
         // for image generation
             case OptionsType::ETARGETTYPE:
-                arg->iTargettype = optarg;
+                arg->iTargettype = GetTarget(optarg);
                 ArgInfo(optname, optarg);
                 break;
             case OptionsType::ELINKAS:
@@ -412,13 +417,86 @@ void Help()
 
 Paging GetPaging(string fromArgument)
 {
-    if(fromArgument == "paged")
+    std::string data = fromArgument;
+    std::transform(data.begin(), data.end(), data.begin(),
+    [](unsigned char c){ return std::tolower(c); });
+
+    if(data == "paged")
         return Paging::PAGED;
-    else if(fromArgument == "unpaged")
+    else if(data == "unpaged")
         return Paging::UNPAGED;
-    else if(fromArgument == "default")
+    else if(data == "default")
         return Paging::DEFAULT;
     ReportError(ErrorCodes::ARGUMENTNAME, fromArgument);
+}
+
+TargetType GetTarget(string fromArgument)
+{
+    std::string data = fromArgument;
+    std::transform(data.begin(), data.end(), data.begin(),
+    [](unsigned char c){ return std::tolower(c); });
+
+    if(data == "ani")
+        return TargetType::EAni;
+    else if(data == "fsy")
+        return TargetType::EFsy;
+    else if(data == "plugin")
+        return TargetType::EPlugin;
+    else if(data == "plugin3")
+        return TargetType::EPlugin3;    else if(data == "fep")
+        return TargetType::EFep;    else if(data == "textnotifier2")
+        return TargetType::ETextNotifier2;
+    else if(data == "pdl")
+        return TargetType::EPdl;
+    else if(data == "dll")
+        return TargetType::EDll;    else if(data == "kdll")
+        return TargetType::EDll; //revisit
+    else if(data == "kext")
+        return TargetType::EDll; //revisit
+    else if(data == "epocexe")
+        return TargetType::EExe;
+    else if(data == "exedll")
+        return TargetType::EExe;
+    else if(data == "exexp")
+        return TargetType::EExexp;    else if(data == "implib")
+        return TargetType::EImportLib;
+    else if((data == "klib") || (data == "lib"))
+        return TargetType::EFalseTartget;
+    else if(data == "none")
+        return TargetType::EFalseTartget;    else if(data == "ldd")
+        return TargetType::ELdd;    else if(data == "pdd")
+        return TargetType::EPdd;
+    else if(data == "stdexe")
+        return TargetType::EStdExe;
+    else if(data == "stddll")
+        return TargetType::EStdDll;
+    else if(data == "var")
+        return TargetType::EVar;
+    else if(data == "var2")
+        return TargetType::EVar2;
+// deprecated tarfets
+    else if((data == "app") || (data == "ctl") ||
+            (data == "ecomiic") || (data == "mda") ||
+            (data == "mdl") || (data == "notifier") ||
+            (data == "rdl") || (data == "opx") )
+        ReportError(ErrorCodes::DEPRECATEDTARGET, fromArgument);
+    else
+        ReportError(ErrorCodes::ARGUMENTNAME, fromArgument);
+}
+
+void VarningForDeprecatedUID(uint32_t UID2)
+{
+    if(UID2 == 0x10005e32)
+        ReportLog("Unmigrated FEP detected from use of UID 0x10005e32\n");
+    if(UID2 == 0x10004cc1)
+        ReportLog("Unmigrated Application Initaliser (CEikLibrary deriver) detected from use of UID 0x10004cc1\n");
+    if(UID2 == 0x10003a30)
+        ReportLog("Unmigrated Conarc plugin detected from use of UID 0x10003a30\n");
+    if(UID2 == 0x10003a19)
+        ReportLog("Unmigrated Recogniser detected from use of UID 0x10003a19\n");
+    if(UID2 == 0x10003a37)        ReportLog("Unmigrated Recogniser detected from use of UID 0x10003a37\n");
+    if(UID2 == 0x10003a34)
+        ReportLog("Unmigrated CTL detected from use of UID 0x10003a34\n");
 }
 
 void ArgName(const char *name) // long_opts[*optIdx].name
@@ -448,4 +526,3 @@ void ArgInfo(const char *name, const char* opt) // long_opts[*optIdx].name, opta
     }
     ReportLog("\n");
 }
-

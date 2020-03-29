@@ -77,7 +77,8 @@ struct Message Messages[]=
     {ErrorCodes::MISSEDFROZENSYMBOLSERROR, "ELF File %s with frozen export(s) have %u missed symbol(s):\n%s.\n"},
     {ErrorCodes::SYSDEFMERGE, "Failure when merge symbols from .def file and option --sysdef.\n"},
     {ErrorCodes::UNKNOWNHEADERNAME, "Can't deduce name for header file with exports.\n"},
-    {ErrorCodes::ELFPIEERROR, "Found elf file %s builded with -pie option. Symbian has no support for it.\n"}//,
+    {ErrorCodes::ELFPIEERROR, "Found elf file %s builded with -pie option. Symbian has no support for it.\n"},
+    {ErrorCodes::DEPRECATEDTARGET, "This target deprecated at v9.0. Application must be converted to EXE or PLUGIN (ECOM).\n"}//,
 //    {ErrorCodes::, ".\n"}//,
 };
 

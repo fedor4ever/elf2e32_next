@@ -71,7 +71,8 @@ enum ErrorCodes
     MISSEDFROZENSYMBOLSERROR,
     SYSDEFMERGE,
     UNKNOWNHEADERNAME,
-    ELFPIEERROR
+    ELFPIEERROR,
+    DEPRECATEDTARGET
 };
 
 // handy macro for tracing

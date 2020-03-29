@@ -28,14 +28,6 @@ struct Args;
 struct E32ImageHeader;
 typedef std::vector<char> E32SectionUnit;
 
-
-enum TargetType
-{
-    EXE = 0,
-    DLL = 1,
-    FIXEDADDRESEXE = 2
-};
-
 /// Sections for E32Image chunks in sorted order
 enum class E32Sections
 {

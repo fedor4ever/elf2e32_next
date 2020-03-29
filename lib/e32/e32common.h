@@ -81,6 +81,8 @@ const uint32_t KUidCompressionBytePair=0x102822AA;
 const uint32_t KDynamicLibraryUidValue=0x10000079;
 const uint32_t KExecutableImageUidValue=0x1000007a; //All executable targets have
 
+const uint32_t KSTDTargetUid2Value = 0x20004C45;
+
 const uint32_t KImageCrcInitialiser  = 0xc90fdaa2u;
 
 const int32_t KHeapCommittedSize = 0x1000;

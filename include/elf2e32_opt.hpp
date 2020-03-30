@@ -72,6 +72,11 @@ struct OptionsType
         EMESSAGEFILE,
         EDUMPMESSAGEFILE,
         EVERSION,
+        EMAN,
+        EMANEDIT,
+        EMANBUILD,
+        EMANDSODUMP,
+        EMANARTIFACTS,
         EHELP
     };
 };
@@ -152,7 +157,7 @@ struct Args
     std::string iE32input;
     std::string iDump = "h";
     std::string iLog;
-    uint32_t iVersion; // ex: elf2e32.exe --version
+    uint32_t iVersion = 0; // ex: elf2e32.exe --version
     std::string iHeader;
 };
 

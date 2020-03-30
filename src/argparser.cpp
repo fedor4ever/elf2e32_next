@@ -82,6 +82,11 @@ static struct option long_opts[] =
     // common options
     {"log",             required_argument, 0, OptionsType::ELOG},
     {"version",               no_argument, 0, OptionsType::EVERSION},
+    {"man",                   no_argument, 0, OptionsType::EMAN},
+    {"man-edit",              no_argument, 0, OptionsType::EMANEDIT},
+    {"man-build",             no_argument, 0, OptionsType::EMANBUILD},
+    {"man-build-dsodump",     no_argument, 0, OptionsType::EMANDSODUMP},
+    {"man-build-artifacts",   no_argument, 0, OptionsType::EMANARTIFACTS},
     {"help",                  no_argument, 0, OptionsType::EHELP},
     // ignored options
     {"messagefile",     required_argument, 0, OptionsType::EMESSAGEFILE},
@@ -102,6 +107,62 @@ ArgParser::~ArgParser()
 void ArgName(const char *name); // long_opts[optIdx].name
 void ArgInfo(const char *name, const char* opt = nullptr); // long_opts[optIdx].name, optarg
 void Help();
+
+//const string man =
+//"Эта программа предназначена для создания E32Image и сопутствующих файлов"
+//" (--man-build). Помимо этого программа может изменять некоторые свойства.\n"
+const string man =
+"This program is designed to create E32Image and related files (--man-build)."
+" In addition, the program can change some properties of E32Image (--man-edit).\n"
+;
+
+//const string manBuild =
+//"Создание E32Image, def, dso and import header(далее - артефакты) представлена 2 режимами:"
+//"\t* получение списка экспортируемых символов из dso и создание def, import header(--man-build-dsodump)"
+//"\t* создание артефактов из def, sysdef, elf(--man-build-artifacts).\n";
+const string manBuild =
+"Creating E32Image, def, dso and import header (hereinafter referred "
+"to as artifacts) is represented by 2 modes:\n"
+"\t* receiving a list of exported symbols from dso and creating def, import header (--man-build-dsodump)\n"
+"\t* creating artifacts from def, sysdef, elf (--man-build-artifacts).\n"
+;
+
+//const string manDsoDump =
+//"Для включения режима создания артефактов из .dso используется опция --dsodump, для"
+//" загрузки данных используется --elfinput, артефакты сборки задаются через --header и --defoutput\n";
+const string manDsoDump =
+"--dsodump option is used to enable the creation of artifacts from .dso mode,"
+" --elfinput is used to load data, assembly artifacts are specified via --header and --defoutput\n"
+;
+//const string manArtifacts =
+//"Создание E32Image и прочих артефактов управляется соответствующими флагами."
+//" Для создания некоторых артефактов требуются задать определенные парараметры командной строки:\n"
+//"\t* --output и --elfinput требуются для создания E32Image, для dll и exedll могут заданы"
+//" следующие параметры --sysdef, --definput.\n"
+//"\t* требуется хотя бы один из следующих параметров: --elfinput, --sysdef, --definput,"
+//" для создания любого из них: .def, .dso, import header.\n";
+const string manArtifacts =
+"The creation of E32Image and other artifacts is controlled by the corresponding flags."
+" To create some artifacts, you need to set certain command line parameters:\n"
+"\t* --output and --elfinput are required to create an E32Image, for dll and exedll the"
+" following parameters can be specified --sysdef, --definput.\n"
+"\t* At least one of the following parameters is required: --elfinput, --sysdef,"
+" --definput, to create any of them: .def, .dso, import header.\n"
+;
+//const string manEdit =
+//"Для изменения E32Image требуется два флага: --e32input и --output."
+//" Можно изменять следующие свойства файла: алгоритм сжатия, UIDs, Heap committed and"
+//" reserved size, specify the process priority for your executable EXE,"
+//" при этом время сохранении файла станет временем создания файла, "
+//"а версией утидиты создавшей файл станет текущая версия elf2e32.\n";
+const string manEdit =
+"Two flags are required to modify E32Image: --e32input and --output."
+" You can change the following file properties: compression algorithm, UIDs,"
+" Heap committed and reserved size, specify the process priority for your"
+" executable EXE, while the file save time will become the file creation"
+" time, and the current version of elf2e32 will become the version of the"
+" utility that created the file.\n"
+;
 
 bool ArgParser::Parse(Args* arg) const
 {
@@ -306,11 +367,29 @@ bool ArgParser::Parse(Args* arg) const
                 ArgInfo(optname, optarg);
                 break;
             case OptionsType::EVERSION:
-
                 arg->iVersion = SetToolVersion(optarg);
                 ArgInfo(optname);
                 break;
-
+            case OptionsType::EMAN:
+                ReportLog(man);
+                ArgInfo(optname);
+                break;
+            case OptionsType::EMANEDIT:
+                ReportLog(manEdit);
+                ArgInfo(optname);
+                break;
+            case OptionsType::EMANBUILD:
+                ReportLog(manBuild);
+                ArgInfo(optname);
+                break;
+            case OptionsType::EMANDSODUMP:
+                ReportLog(manDsoDump);
+                ArgInfo(optname);
+                break;
+            case OptionsType::EMANARTIFACTS:
+                ReportLog(manArtifacts);
+                ArgInfo(optname);
+                break;
             case ':':
                 //optind always point to next argv instead current                ReportError(MISSEDARGUMENT, iArgv[optind-1], Help);
                 return false;
@@ -387,7 +466,7 @@ const string ScreenOptions =
 "                i Import table\n"
 "                t Symbol Info\n"
 "        --e32input=Input E32 Image file name\n"
-"        --priority=Input Priority\n"
+"        --priority=Specify the process priority for your executable EXE\n"
 "        --version=Module Version\n"
 "        --callentry=Call Entry Point\n"
 "        --fpu=FPU type [softvfp|vfpv2]\n"
@@ -402,6 +481,7 @@ const string ScreenOptions =
 "        --debuggable: Debuggable by run-mode debug subsystem\n"
 "        --smpsafe: SMP Safe\n"
 "        --header: Generate header file for dynamic linking.\n"
+"        --man: Describe advanced usage new features.\n"
 "        --help: This command.\n"
 ;
 

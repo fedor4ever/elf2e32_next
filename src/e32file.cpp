@@ -19,6 +19,11 @@
 #include "argparser.h"
 #include "elfparser.h"
 
+bool CmpSections(E32Section first, E32Section second)
+{
+    return first.type < second.type;
+}
+
 E32File::E32File(const Args* args, const ElfParser* elfParser):
     iE32Opts(args), iElfSrc(elfParser)
 {

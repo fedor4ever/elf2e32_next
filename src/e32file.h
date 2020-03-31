@@ -18,8 +18,34 @@
 #ifndef E32FILE_H
 #define E32FILE_H
 
-class Args;
+#include <list>
+#include <vector>
+
+struct Args;
 class ElfParser;
+struct E32ImageHeader;
+typedef std::vector<char> E32SectionUnit;
+
+/// Sections for E32Image chunks in sorted order
+enum class E32Sections
+{
+    HEADER,
+    CODE,
+    EXPORTS,
+    SYMLOOK,
+    DATA,
+    IMPORTS,
+    CODERELOCKS,
+    DATARELOCKS
+};
+
+struct E32Section
+{
+    E32Sections type;
+    E32SectionUnit section;
+};
+
+typedef std::list<E32Section> E32image;
 
 class E32File
 {
@@ -30,6 +56,8 @@ class E32File
     private:
         const Args* iE32Opts = nullptr;
         const ElfParser* iElfSrc = nullptr;
+    private:
+        E32image iE32image;
 };
 
 #endif // E32FILE_H

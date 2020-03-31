@@ -130,7 +130,7 @@ struct Args
     uint32_t iStack = 0;
     bool iFixedaddress = false;
     bool iCallentry = false;
-    std::string iFpu;
+    uint32_t iFpu;
     Paging iCodePaging = Paging::DEFAULT;
     Paging iDataPaging = Paging::DEFAULT;
     bool iDebuggable = false;

@@ -106,6 +106,10 @@ void E32Info::HeaderInfo()
         printf("Image FPU support : Soft VFP\n");
     else if (FPU == KImageHWFloat_VFPv2)
         printf("Image FPU support : VFPv2\n");
+    else if (FPU == KImageHWFloat_VFPv3)
+        printf("Image FPU support : VFPv3\n");
+    else if (FPU == KImageHWFloat_VFPv3D16)
+        printf("Image FPU support : VFPv3D16\n");
     else
         printf("Image FPU support : Unknown\n");
 

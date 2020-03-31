@@ -28,8 +28,9 @@
 
 using std::string;
 
-uint32_t SetToolVersion(const char* str);
 Paging GetPaging(string fromArgument);
+uint32_t GetFpuType(string fromArgument);
+uint32_t SetToolVersion(const char* str);
 TargetType GetTarget(string fromArgument);
 void VarningForDeprecatedUID(uint32_t UID2);
 
@@ -224,7 +225,7 @@ bool ArgParser::Parse(Args* arg) const
                 ArgInfo(optname);
                 break;
             case OptionsType::EFPU:
-                arg->iFpu = optarg;
+                arg->iFpu = GetFpuType(optarg);
                 ArgInfo(optname ,optarg);
                 break;
             case OptionsType::ECODEPAGING:
@@ -469,7 +470,7 @@ const string ScreenOptions =
 "        --priority=Specify the process priority for your executable EXE\n"
 "        --version=Module Version\n"
 "        --callentry=Call Entry Point\n"
-"        --fpu=FPU type [softvfp|vfpv2]\n"
+"        --fpu=FPU type [softvfp|vfpv2|vfpv3|vfpv3D16]\n"
 "        --codepaging=Code Paging Strategy [paged|unpaged|default]\n"
 "        --datapaging=Data Paging Strategy [paged|unpaged|default]\n"
 "        --paged: This option is deprecated. Use --codepaging=paged instead.\n"
@@ -495,12 +496,31 @@ void Help()
     ReportLog(ScreenOptions);
 }
 
-Paging GetPaging(string fromArgument)
+string ToLower(string fromArgument)
 {
-    std::string data = fromArgument;
+    string data = fromArgument;
     std::transform(data.begin(), data.end(), data.begin(),
     [](unsigned char c){ return std::tolower(c); });
+    return data;
+}
 
+uint32_t GetFpuType(string fromArgument)
+{
+    string data = ToLower(fromArgument);
+    if(data == "softvfp")
+        return TFloatingPointType::EFpTypeNone;
+    else if(data == "vfpv2")
+        return TFloatingPointType::EFpTypeVFPv2;
+    else if(data == "vfpv3")
+        return TFloatingPointType::EFpTypeVFPv3;
+    else if(data == "vfpv3D16")
+        return TFloatingPointType::EFpTypeVFPv3D16;
+    else
+        ReportError(ErrorCodes::ARGUMENTNAME, fromArgument);
+}
+Paging GetPaging(string fromArgument)
+{
+    string data = ToLower(fromArgument);
     if(data == "paged")
         return Paging::PAGED;
     else if(data == "unpaged")
@@ -512,10 +532,7 @@ Paging GetPaging(string fromArgument)
 
 TargetType GetTarget(string fromArgument)
 {
-    std::string data = fromArgument;
-    std::transform(data.begin(), data.end(), data.begin(),
-    [](unsigned char c){ return std::tolower(c); });
-
+    string data = ToLower(fromArgument);
     if(data == "ani")
         return TargetType::EAni;
     else if(data == "fsy")

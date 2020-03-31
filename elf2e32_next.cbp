@@ -11,7 +11,7 @@
 				<Option object_output="obj/Debug/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
-				<Option parameters="--man-build-artifacts" />
+				<Option parameters='--e32input=&quot;tests\tmp\libcrypto-2.4.5.dll&quot;' />
 				<Compiler>
 					<Add option="-std=c++14" />
 					<Add option="-g -O0" />
@@ -96,12 +96,14 @@
 		<Unit filename="src/dsofile.h" />
 		<Unit filename="src/e32file.cpp" />
 		<Unit filename="src/e32file.h" />
+		<Unit filename="src/e32flags.cpp" />
+		<Unit filename="src/e32flags.h" />
+		<Unit filename="src/e32headerbuilder.cpp" />
+		<Unit filename="src/e32headerbuilder.h" />
 		<Unit filename="src/e32info.cpp" />
 		<Unit filename="src/e32info.h" />
 		<Unit filename="src/e32rebuilder.cpp" />
 		<Unit filename="src/e32rebuilder.h" />
-		<Unit filename="src/e32target.cpp" />
-		<Unit filename="src/e32target.h" />
 		<Unit filename="src/elf2e32.cpp" />
 		<Unit filename="src/elf2e32.h" />
 		<Unit filename="src/logger.cpp" />

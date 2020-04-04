@@ -62,16 +62,11 @@ enum TProcessPriority
     EPrioritySupervisor=950
 };
 
-struct SCapabilitySet
-{
-    uint32_t iSet[2] = {};
-};
-
 struct SSecurityInfo
 {
     uint32_t iSecureId;
     uint32_t iVendorId;
-    SCapabilitySet iCaps;   // Capabilities for e32image
+    uint64_t iCaps;   // Capabilities for e32image
 };
 
 const uint32_t KFormatNotCompressed=0;

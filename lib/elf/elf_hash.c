@@ -9,7 +9,7 @@ uint32_t elf_hash(const unsigned char *name)
     while(*name)
     {
         h =(h << 4) + *name++;
-        if (g = h & 0xf0000000)
+        if((g = h & 0xf0000000))
             h ^= g >> 24;
         h &= ~g;
     }

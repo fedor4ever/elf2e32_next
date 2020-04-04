@@ -25,13 +25,9 @@
 #include "common.hpp"
 #include "e32parser.h"
 #include "e32validator.h"
+#include "e32capability.h"
 #include "elf2e32_opt.hpp"
 #include "e32importsprocessor.hpp"
-
-#ifndef INCLUDE_CAPABILITY_NAMES
-#define INCLUDE_CAPABILITY_NAMES
-#endif // INCLUDE_CAPABILITY_NAMES
-#include "e32capability.h"
 
 void DumpRelocs(const E32RelocSection* relocs);
 void GenerateAsmFile(Args* param);
@@ -315,16 +311,22 @@ void E32Info::SecurityInfo(bool aCapNames)
     // because this is relied on by used by "Symbian Signed".
     //
     const E32ImageHeaderV* v = iE32->GetE32HdrV();
+    uint64_t caps = v->iS.iCaps;
     printf("Secure ID: %08x\n", v->iS.iSecureId);
     printf("Vendor ID: %08x\n", v->iS.iVendorId);
-    printf("Capabilities: %08x %08x\n", v->iS.iCaps.iSet[1], v->iS.iCaps.iSet[0]);
+    printf("Capabilities: %08x %08x\n", caps<<32, caps>>32);
 
     if(!aCapNames)
         return;
 
-    for(int32_t i=0; i<ECapability_Limit; i++)
-        if(v->iS.iCaps.iSet[i>>5]&(1<<(i&31)))
-            printf("\t\t%s\n", CapabilityNames[i]);
+    const Property* p = capabilities;
+    while(p->name != nullptr)
+    {
+        if(caps&p->flag)
+            printf("\t\t%s\n", p->name);
+        p++;
+    }
+
     printf("\n");
 }
 

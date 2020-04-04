@@ -257,41 +257,39 @@ enum TCapability
 	};
 
 
-extern const char* const CapabilityNames[ECapability_Limit];
+struct Property
+{
+    TCapability cap;
+    uint64_t flag;
+    const char* name;
+};
 
+constexpr uint64_t AllSupportedCapabilities = ((1u<<TCapability::ECapability_Limit) - 1u +
+                                    ECapability_Limit>=32 ? 0xffffffffu : 0u);
 
-/** Define this macro to include the names of the capabilities. This is here so
-	that ROMBUILD can accept capability names.
-*/
-#ifdef INCLUDE_CAPABILITY_NAMES
-
-/** List of names of all supported capabilities
-	Must be in the same order as the enumerators in TCapability
-*/
-extern const char* const CapabilityNames[ECapability_Limit] =
-	{
-	"TCB",
-	"CommDD",
-	"PowerMgmt",
-	"MultimediaDD",
-	"ReadDeviceData",
-	"WriteDeviceData",
-	"DRM",
-	"TrustedUI",
-	"ProtServ",
-	"DiskAdmin",
-	"NetworkControl",
-	"AllFiles",
-	"SwEvent",
-	"NetworkServices",
-	"LocalServices",
-	"ReadUserData",
-	"WriteUserData",
-	"Location",
-	"SurroundingsDD",
-	"UserEnvironment"
-	};
-
-#endif	// INCLUDE_CAPABILITY_NAMES
+static struct Property capabilities[] =
+{
+    {TCapability::ECapabilityTCB,       1<<TCapability::ECapabilityTCB,       "TCB"},
+    {TCapability::ECapabilityCommDD,    1<<TCapability::ECapabilityCommDD,    "CommDD"},
+    {TCapability::ECapabilityPowerMgmt, 1<<TCapability::ECapabilityPowerMgmt, "PowerMgmt"},
+    {TCapability::ECapabilityMultimediaDD,    1<<TCapability::ECapabilityMultimediaDD,    "MultimediaDD"},
+    {TCapability::ECapabilityReadDeviceData,  1<<TCapability::ECapabilityReadDeviceData,  "ReadDeviceData"},
+    {TCapability::ECapabilityWriteDeviceData, 1<<TCapability::ECapabilityWriteDeviceData, "WriteDeviceData"},
+    {TCapability::ECapabilityDRM,       1<<TCapability::ECapabilityDRM,       "DRM"},
+    {TCapability::ECapabilityTrustedUI, 1<<TCapability::ECapabilityTrustedUI, "TrustedUI"},
+    {TCapability::ECapabilityProtServ,  1<<TCapability::ECapabilityProtServ,  "ProtServ"},
+    {TCapability::ECapabilityDiskAdmin, 1<<TCapability::ECapabilityDiskAdmin, "DiskAdmin"},
+    {TCapability::ECapabilityNetworkControl,  1<<TCapability::ECapabilityNetworkControl,  "NetworkControl"},
+    {TCapability::ECapabilityAllFiles,        1<<TCapability::ECapabilityAllFiles,        "AllFiles"},
+    {TCapability::ECapabilitySwEvent,         1<<TCapability::ECapabilitySwEvent,         "SwEvent"},
+    {TCapability::ECapabilityNetworkServices, 1<<TCapability::ECapabilityNetworkServices, "NetworkServices"},
+    {TCapability::ECapabilityLocalServices,   1<<TCapability::ECapabilityLocalServices,   "LocalServices"},
+    {TCapability::ECapabilityReadUserData,    1<<TCapability::ECapabilityReadUserData,    "ReadUserData"},
+    {TCapability::ECapabilityWriteUserData,   1<<TCapability::ECapabilityWriteUserData,   "WriteUserData"},
+    {TCapability::ECapabilityLocation,        1<<TCapability::ECapabilityLocation,        "Location"},
+    {TCapability::ECapabilitySurroundingsDD,  1<<TCapability::ECapabilitySurroundingsDD,  "SurroundingsDD"},
+    {TCapability::ECapabilityUserEnvironment, 1<<TCapability::ECapabilityUserEnvironment, "UserEnvironment"},
+    {TCapability::ECapability_Denied,         1<<TCapability::ECapability_Denied, nullptr}
+};
 
 #endif	// __E32CAPABILITY_H__

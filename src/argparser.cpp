@@ -17,22 +17,16 @@
 
 #include <string>
 #include <string.h>
-#include <algorithm>
 
 #include "getopt.h"
 #include "common.hpp"
 #include "argparser.h"
 #include "e32common.h"
 #include "elf2e32_opt.hpp"
+#include "cmdlineprocessor.h"
 #include "elf2e32_version.hpp"
 
 using std::string;
-
-Paging GetPaging(string fromArgument);
-uint32_t GetFpuType(string fromArgument);
-uint32_t SetToolVersion(const char* str);
-TargetType GetTarget(string fromArgument);
-void VarningForDeprecatedUID(uint32_t UID2);
 
 static struct option long_opts[] =
 {
@@ -154,14 +148,14 @@ const string manArtifacts =
 //"Для изменения E32Image требуется два флага: --e32input и --output."
 //" Можно изменять следующие свойства файла: алгоритм сжатия, UIDs, Heap committed and"
 //" reserved size, specify the process priority for your executable EXE,"
-//" при этом время сохранении файла станет временем создания файла, "
+//" задать новые capability при этом время сохранения файла станет временем создания файла, "
 //"а версией утидиты создавшей файл станет текущая версия elf2e32.\n";
 const string manEdit =
 "Two flags are required to modify E32Image: --e32input and --output."
 " You can change the following file properties: compression algorithm, UIDs,"
 " Heap committed and reserved size, specify the process priority for your"
-" executable EXE, while the file save time will become the file creation"
-" time, and the current version of elf2e32 will become the version of the"
+" executable EXE, set new capabilities while the file save time will become"
+" the file creation time, and the current version of elf2e32 will become the version of the"
 " utility that created the file.\n"
 ;
 
@@ -413,19 +407,6 @@ bool ArgParser::Parse(Args* arg) const
     return true;
 }
 
-uint32_t SetToolVersion(const char* str)
-{
-	ReportLog("!!! check input param for SetToolVersion():\n");
-	ReportLog(str);
-	ReportLog("!!!********!!!\n");
-
-	uint32_t hi, lo;
-	hi = std::stoi(str);
-    string t(str);
-    lo = std::stoi(t.substr( t.find_first_of(".,;") + 1 ));
-    return ((hi & 0xFFFF) << 16) | (lo & 0xFFFF);
-}
-
 const string ScreenOptions =
 "        --definput=Input DEF File\n"
 "        --defoutput=Output DEF\n"
@@ -494,106 +475,6 @@ void Help()
     ReportLog("Usage:  elf2e32 [options] [filename]\n\n");
     ReportLog("Options:\n");
     ReportLog(ScreenOptions);
-}
-
-string ToLower(string fromArgument)
-{
-    string data = fromArgument;
-    std::transform(data.begin(), data.end(), data.begin(),
-    [](unsigned char c){ return std::tolower(c); });
-    return data;
-}
-
-uint32_t GetFpuType(string fromArgument)
-{
-    string data = ToLower(fromArgument);
-    if(data == "softvfp")
-        return TFloatingPointType::EFpTypeNone;
-    else if(data == "vfpv2")
-        return TFloatingPointType::EFpTypeVFPv2;
-    else if(data == "vfpv3")
-        return TFloatingPointType::EFpTypeVFPv3;
-    else if(data == "vfpv3D16")
-        return TFloatingPointType::EFpTypeVFPv3D16;
-    else
-        ReportError(ErrorCodes::ARGUMENTNAME, fromArgument);
-}
-Paging GetPaging(string fromArgument)
-{
-    string data = ToLower(fromArgument);
-    if(data == "paged")
-        return Paging::PAGED;
-    else if(data == "unpaged")
-        return Paging::UNPAGED;
-    else if(data == "default")
-        return Paging::DEFAULT;
-    ReportError(ErrorCodes::ARGUMENTNAME, fromArgument);
-}
-
-TargetType GetTarget(string fromArgument)
-{
-    string data = ToLower(fromArgument);
-    if(data == "ani")
-        return TargetType::EAni;
-    else if(data == "fsy")
-        return TargetType::EFsy;
-    else if(data == "plugin")
-        return TargetType::EPlugin;
-    else if(data == "plugin3")
-        return TargetType::EPlugin3;    else if(data == "fep")
-        return TargetType::EFep;    else if(data == "textnotifier2")
-        return TargetType::ETextNotifier2;
-    else if(data == "pdl")
-        return TargetType::EPdl;
-    else if(data == "dll")
-        return TargetType::EDll;    else if(data == "kdll")
-        return TargetType::EDll; //revisit
-    else if(data == "kext")
-        return TargetType::EDll; //revisit
-    else if(data == "epocexe")
-        return TargetType::EExe;
-    else if(data == "exedll")
-        return TargetType::EExe;
-    else if(data == "exexp")
-        return TargetType::EExexp;    else if(data == "implib")
-        return TargetType::EImportLib;
-    else if((data == "klib") || (data == "lib"))
-        return TargetType::EFalseTartget;
-    else if(data == "none")
-        return TargetType::EFalseTartget;    else if(data == "ldd")
-        return TargetType::ELdd;    else if(data == "pdd")
-        return TargetType::EPdd;
-    else if(data == "stdexe")
-        return TargetType::EStdExe;
-    else if(data == "stddll")
-        return TargetType::EStdDll;
-    else if(data == "var")
-        return TargetType::EVar;
-    else if(data == "var2")
-        return TargetType::EVar2;
-// deprecated tarfets
-    else if((data == "app") || (data == "ctl") ||
-            (data == "ecomiic") || (data == "mda") ||
-            (data == "mdl") || (data == "notifier") ||
-            (data == "rdl") || (data == "opx") )
-        ReportError(ErrorCodes::DEPRECATEDTARGET, fromArgument);
-    else
-        ReportError(ErrorCodes::ARGUMENTNAME, fromArgument);
-}
-
-void VarningForDeprecatedUID(uint32_t UID2)
-{
-    if(UID2 == 0x10005e32)
-        ReportLog("Unmigrated FEP detected from use of UID 0x10005e32\n");
-    if(UID2 == 0x10004cc1)
-        ReportLog("Unmigrated Application Initaliser (CEikLibrary deriver) detected from use of UID 0x10004cc1\n");
-    if(UID2 == 0x10003a30)
-        ReportLog("Unmigrated Conarc plugin detected from use of UID 0x10003a30\n");
-    if(UID2 == 0x10003a19)
-        ReportLog("Unmigrated Recogniser detected from use of UID 0x10003a19\n");
-    if(UID2 == 0x10003a37)        ReportLog("Unmigrated Recogniser detected from use of UID 0x10003a37\n");
-    if(UID2 == 0x10003a34)
-        ReportLog("Unmigrated CTL detected from use of UID 0x10003a34\n");
 }
 
 void ArgName(const char *name) // long_opts[*optIdx].name

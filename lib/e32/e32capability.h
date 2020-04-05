@@ -289,7 +289,7 @@ static struct Property capabilities[] =
     {TCapability::ECapabilityLocation,        1<<TCapability::ECapabilityLocation,        "Location"},
     {TCapability::ECapabilitySurroundingsDD,  1<<TCapability::ECapabilitySurroundingsDD,  "SurroundingsDD"},
     {TCapability::ECapabilityUserEnvironment, 1<<TCapability::ECapabilityUserEnvironment, "UserEnvironment"},
-    {TCapability::ECapability_Denied,         1<<TCapability::ECapability_Denied, nullptr}
+    {TCapability::ECapability_Denied,         0, nullptr}
 };
 
 #endif	// __E32CAPABILITY_H__

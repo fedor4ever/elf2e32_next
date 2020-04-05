@@ -26,7 +26,7 @@ class E32HeaderBuilder
 {
     public:
         E32HeaderBuilder(const Args* opts);
-        ~E32HeaderBuilder();
+        ~E32HeaderBuilder() {}
         E32SectionUnit MakeE32Header();
 
     private:

@@ -22,14 +22,7 @@
 #include "e32headerbuilder.h"
 
 E32HeaderBuilder::E32HeaderBuilder(const Args* opts): iHeaderData(opts)
-{
-    //ctor
-}
-
-E32HeaderBuilder::~E32HeaderBuilder()
-{
-    //dtor
-}
+{}
 
 E32SectionUnit E32HeaderBuilder::MakeE32Header()
 {
@@ -58,7 +51,7 @@ E32SectionUnit E32HeaderBuilder::MakeE32Header()
     E32ImageHeaderV* v = (E32ImageHeaderV*)iHeader[sizeof(E32ImageHeader) + sizeof(E32ImageHeaderJ)];
     v->iS.iSecureId = iHeaderData->iSid;
     v->iS.iVendorId = iHeaderData->iVid;
-   // v->iS.iCaps = iHeaderData->iCapability;
+    v->iS.iCaps = ProcessCapabilities(iHeaderData->iCapability);
     // ends with full bitmap or sparse bitmap
     return iHeader;
 }

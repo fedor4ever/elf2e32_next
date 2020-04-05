@@ -37,7 +37,7 @@ class Logger
         void Log(ErrorCodes errcode, const std::string& s);
         void Log(ErrorCodes errcode, const std::string& s1, const std::string& s2);
 
-        void Log(ErrorCodes errcode, const std::string& s1, int x, const std::string& s2);
+        void Log(ErrorCodes errcode, const std::string& s1, int x, const std::string& s2 = empty);
 
         void Log(ErrorCodes errcode, int x);
         void Log(ErrorCodes errcode, int x, int y);

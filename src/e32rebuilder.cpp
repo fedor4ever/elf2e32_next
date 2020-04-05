@@ -97,6 +97,8 @@ void E32Rebuilder::EditHeader()
 		v->iS.iSecureId = iReBuildOptions->iSid;
 	if(iReBuildOptions->iVid)
 		v->iS.iVendorId = iReBuildOptions->iVid;
+    if(!iReBuildOptions->iCapability.empty())
+        v->iS.iCaps = ProcessCapabilities(iReBuildOptions->iCapability);
 }
 
 void E32Rebuilder::ReCompress()

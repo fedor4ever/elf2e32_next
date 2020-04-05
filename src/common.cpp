@@ -18,16 +18,18 @@
 #include <fstream>
 #include <string>
 
-using  std::string;
+using std::string;
 
 #include "logger.h"
 #include "common.hpp"
 #include "e32common.h"
 
+const char e32Error[] = "elf2e32: Error: ";
+const char e32Warning[] = "elf2e32: Warning: ";
 void ReportError(const ErrorCodes err, const std::string& str,
                  void (*f)())
 {
-    ReportLog("elf2e32: Error: ");
+    ReportLog(e32Error);
     Logger::Instance()->Log(err, str);
     (*f)();
     throw err;
@@ -35,7 +37,7 @@ void ReportError(const ErrorCodes err, const std::string& str,
 
 void ReportError(const ErrorCodes err, const int x, const int y)
 {
-    ReportLog("elf2e32: Error: ");
+    ReportLog(e32Error);
     if(y)
         Logger::Instance()->Log(err, x, y);
     else
@@ -53,14 +55,14 @@ void ReportError(const ErrorCodes err, std::list<string> ls,
         missedSymbols+=x;
         missedSymbols+='\n';
     }
-    ReportLog("elf2e32: Error: ");
+    ReportLog(e32Error);
     Logger::Instance()->Log(err, str, x, missedSymbols);
 }
 
 void ReportError(const ErrorCodes err, const std::string& str,
                  const std::string& s, const int x)
 {
-    ReportLog("elf2e32: Error: ");
+    ReportLog(e32Error);
     if(s.empty())
         Logger::Instance()->Log(err, str);
     else
@@ -70,19 +72,24 @@ void ReportError(const ErrorCodes err, const std::string& str,
 
 void ReportWarning(const ErrorCodes err, const int x)
 {
-    ReportLog("elf2e32: Warning: ");
+    ReportLog(e32Warning);
     Logger::Instance()->Log(err, x);
 }
 
 void ReportWarning(const ErrorCodes err, const std::string& s, const int x)
 {
-    ReportLog("elf2e32: Warning: ");
-    Logger::Instance()->Log(err, s);
+    ReportLog(e32Warning);
+    if(s.empty())
+        Logger::Instance()->Log(err);
+    else if(!x)
+        Logger::Instance()->Log(err, s);
+    else
+        Logger::Instance()->Log(err, s, x);
 }
 
 void ReportWarning(const ErrorCodes err, const std::string& s1, const std::string& s2)
 {
-    ReportLog("elf2e32: Warning: ");
+    ReportLog(e32Warning);
     Logger::Instance()->Log(err, s1, s2);
 }
 
@@ -129,25 +136,4 @@ void SaveFile(const char* filename, const char* filebuf, int fsize)
     if(!fs)
     	ReportError(FILESTORERROR, filename);
 	fs.close();
-}
-
-uint16_t ProcessPriority(const std::string& str)
-{
-	if(str == "low")
-		return (uint16_t)TProcessPriority::EPriorityLow;
-	if(str == "background")
-		return (uint16_t)TProcessPriority::EPriorityBackground;
-	if(str == "foreground")
-		return (uint16_t)TProcessPriority::EPriorityForeground;
-	if(str == "high")
-		return (uint16_t)TProcessPriority::EPriorityHigh;
-	if(str == "windowserver")
-		return (uint16_t)TProcessPriority::EPriorityWindowServer;
-	if(str == "fileserver")
-		return (uint16_t)TProcessPriority::EPriorityFileServer;
-	if(str == "realtimeserver")
-		return (uint16_t)TProcessPriority::EPriorityRealTimeServer;
-	if(str == "supervisor")
-		return (uint16_t)TProcessPriority::EPrioritySupervisor;
-	return 0;
 }

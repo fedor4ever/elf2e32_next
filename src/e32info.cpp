@@ -585,6 +585,18 @@ void E32Info::Run()
     if(!iE32File)
         ReportError(ErrorCodes::FILEOPENERROR, iParam->iE32input);
 
+    //for decompression purpose we provide memory buffer large enough to hold uncompressed data
+	if( ((E32ImageHeader*)(iE32File))->iCompressionType)
+    {
+        uint32_t extracted = ((E32ImageHeader*)(iE32File))->iCodeOffset;
+        extracted += ((E32ImageHeaderJ*)(iE32File + sizeof(E32ImageHeader) ))->iUncompressedSize;
+        const char* newfile = new char[extracted]();
+        memcpy(newfile, iE32File, s);
+        delete[] iE32File;
+        iE32File = nullptr;
+        iE32File = newfile;
+        s = extracted;
+    }
     printf("E32ImageFile \'%s\'\n", iParam->iE32input.c_str());
 
     iE32 = new E32Parser(iE32File, s);

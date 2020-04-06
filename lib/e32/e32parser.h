@@ -12,8 +12,19 @@
 //
 // Description:
 // Parse E32 Images for the elf2e32 tool
-// For decompression purpose clients should provide memory buffer large
-// enough to hold uncompressed data
+// For decompression purpose clients should use that code
+// before creation E32Parser instance:
+//    if( ((E32ImageHeader*)(iFile))->iCompressionType)
+//    {
+//        uint32_t extracted = ((E32ImageHeader*)(iFile))->iCodeOffset;
+//        extracted += ((E32ImageHeaderJ*)(iFile + sizeof(E32ImageHeader) ))->iUncompressedSize;
+//        const char* newfile = new char[extracted]();
+//        memcpy(newfile, iFile, iFileSize);
+//        delete[] iFile;
+//        iFile = nullptr;
+//        iFile = newfile;
+//        iFileSize = extracted;
+//    }
 //
 //
 

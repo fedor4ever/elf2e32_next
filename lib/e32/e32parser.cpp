@@ -269,16 +269,17 @@ void E32Parser::ParseExportBitMap()
 	iExportBitMap = new uint8_t[memsz];
 	memset(iExportBitMap, 0xff, memsz);
 	uint32_t* exports = (uint32_t*)(iBufferedFile + iHdr->iExportDirOffset);
-	uint32_t absoluteEntryPoint = iHdr->iEntryPoint + iHdr->iCodeBase;
 	uint32_t impfmt = ImpFmtFromFlags(iHdr->iFlags);
 	uint32_t hdrfmt = HdrFmtFromFlags(iHdr->iFlags);
-	uint32_t absentVal = (impfmt == KImageImpFmt_ELF) ? absoluteEntryPoint : iHdr->iEntryPoint;
+
+	uint32_t entryPointOffset = (impfmt == KImageImpFmt_ELF) ? iHdr->iCodeBase : 0;
+	uint32_t entryPoint = iHdr->iEntryPoint + entryPointOffset;
 
 	iMissingExports = 0;
 
 	for (int32_t i=0; i<nexp; i++)
 	{
-		if (exports[i] == absentVal)
+		if (exports[i] == entryPoint)
 		{
 			iExportBitMap[i>>3] &= ~(1u << (i & 7));
 			++iMissingExports;

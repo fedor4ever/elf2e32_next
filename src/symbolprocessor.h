@@ -45,7 +45,7 @@ class SymbolProcessor
         ~SymbolProcessor();
     private:
         Symbols GetDSOSymbols();
-        Symbols FromElf();
+        Symbols GetElfExports();
         Symbols FromSysdef();
     private:
         const ElfParser* iElfParser = nullptr;

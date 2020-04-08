@@ -147,7 +147,7 @@ Symbols SymbolProcessor::GetExports()
         }
     }
 
-    Symbols elfSym = FromElf();
+    Symbols elfSym = GetElfExports();
 
     //look for absent symbols and add them
     Symbols toCompare, missedSymbols, absentSymbols;
@@ -235,7 +235,7 @@ Symbols SymbolProcessor::GetDSOSymbols()
     return result;
 }
 
-Symbols SymbolProcessor::FromElf()
+Symbols SymbolProcessor::GetElfExports()
 {
     Symbols elf;
     if(!iElfParser)

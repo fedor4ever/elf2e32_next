@@ -11,7 +11,7 @@
 // Contributors:
 //
 // Description:
-// Creates and fills E32Image header fields
+// Creates and fills E32Image header fields from command line arguments.
 //
 //
 
@@ -28,12 +28,13 @@ E32SectionUnit E32HeaderBuilder::MakeE32Header()
 {
     // set CRC, compression type after E32Image done
     iHeader.reserve(sizeof(E32ImageHeader) + sizeof(E32ImageHeaderJ) +
-                    sizeof(E32ImageHeaderV));
+                    sizeof(E32ImageHeaderV) - 1);
     E32ImageHeader* hdr = (E32ImageHeader*)iHeader.data();
     hdr->iUid1 = iHeaderData->iUid1;
     hdr->iUid2 = iHeaderData->iUid2;
     hdr->iUid3 = iHeaderData->iUid3;
     hdr->iModuleVersion = iHeaderData->iVersion;
+    iHdr->iCompressionType = iHeaderData->iCompressionMethod;
 
     SymbianTime t;
     hdr->iTimeLo = t.TimeLo();
@@ -52,6 +53,6 @@ E32SectionUnit E32HeaderBuilder::MakeE32Header()
     v->iS.iSecureId = iHeaderData->iSid;
     v->iS.iVendorId = iHeaderData->iVid;
     v->iS.iCaps = ProcessCapabilities(iHeaderData->iCapability);
-    // ends with full bitmap or sparse bitmap
+    // ends before E32ImageHeaderV::iExportDesc[0]
     return iHeader;
 }

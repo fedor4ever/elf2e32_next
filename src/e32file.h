@@ -30,6 +30,7 @@ typedef std::vector<char> E32SectionUnit;
 enum class E32Sections
 {
     HEADER,
+    BITMAP,
     CODE,
     EXPORTS,
     SYMLOOK,
@@ -58,6 +59,7 @@ class E32File
         const ElfParser* iElfSrc = nullptr;
     private:
         E32image iE32image;
+        E32SectionUnit iHeader;
 };
 
 #endif // E32FILE_H

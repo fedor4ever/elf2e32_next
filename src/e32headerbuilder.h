@@ -11,7 +11,11 @@
 // Contributors:
 //
 // Description:
-// Creates and fills E32Image header fields
+// Creates and fills E32Image header fields from command line arguments.
+//
+// These sections allocated: E32ImageHeader, E32ImageHeaderJ and
+// E32ImageHeaderV without field E32ImageHeaderV::iExportDesc
+// because it allocates later.
 //
 //
 

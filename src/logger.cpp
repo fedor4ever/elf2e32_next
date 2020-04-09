@@ -78,7 +78,13 @@ struct Message Messages[]=
     {ErrorCodes::SYSDEFMERGE, "Failure when merge symbols from .def file and option --sysdef.\n"},
     {ErrorCodes::UNKNOWNHEADERNAME, "Can't deduce name for header file with exports.\n"},
     {ErrorCodes::ELFPIEERROR, "Found elf file %s builded with -pie option. Symbian has no support for it.\n"},
-    {ErrorCodes::DEPRECATEDTARGET, "This target deprecated at v9.0. Application must be converted to EXE or PLUGIN (ECOM).\n"}//,
+    {ErrorCodes::DEPRECATEDTARGET, "This target deprecated at v9.0. Application must be converted to EXE or PLUGIN (ECOM).\n"},
+    {ErrorCodes::UNDEFINEDENTRYPOINT, "Entry point and Text segment base both 0, can't tell if entry point set for elf.\n"},
+    {ErrorCodes::ENTRYPOINTNOTSET, "Entry point is not set for elf\n"},
+    {ErrorCodes::MISSEDEXCEPTIONDESCRIPTOR, "Input ELF File has not found(or missed) exception descriptor.\n"},
+    {ErrorCodes::OUTOFBOUNDSEXCEPTIONDESCRIPTOR, "Input ELF File has invalid exception descriptor.\n"},
+    {ErrorCodes::NOSTATICSYMBOLS, "Input ELF File contains no static symbols.\n"},
+    {ErrorCodes::UNKNOWNSECTION, "Detected unknown section while building E32Image.\n"}//,
 //    {ErrorCodes::, ".\n"}//,
 };
 

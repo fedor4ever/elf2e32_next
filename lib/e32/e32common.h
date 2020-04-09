@@ -64,9 +64,9 @@ enum TProcessPriority
 
 struct SSecurityInfo
 {
-    uint32_t iSecureId;
-    uint32_t iVendorId;
-    uint64_t iCaps;   // Capabilities for e32image
+    uint32_t iSecureId = 0;
+    uint32_t iVendorId = 0;
+    uint64_t iCaps = 0;   // Capabilities for e32image
 };
 
 const uint32_t KFormatNotCompressed=0;
@@ -90,36 +90,36 @@ enum TCpu
 
 struct E32ImageHeader
 {
-    uint32_t iUid1;
-    uint32_t iUid2;
-    uint32_t iUid3;
+    uint32_t iUid1 = 0;
+    uint32_t iUid2 = 0;
+    uint32_t iUid3 = 0;
     uint32_t iUidChecksum;
     const char iSignature[4] = {'E', 'P', 'O', 'C'};
-    uint32_t iHeaderCrc = KImageCrcInitialiser;  // CRC-32 of entire header
-    uint32_t iModuleVersion;     // Version number for this executable (used in link resolution)
+    uint32_t iHeaderCrc = KImageCrcInitialiser; // CRC-32 of entire header
+    uint32_t iModuleVersion = 0x00010000u;      // Version number for this executable (used in link resolution)
     uint32_t iCompressionType = KUidCompressionDeflate;   // Type of compression used (UID or 0 for none)
     ToolVersion iVersion;        // Version of PETRAN/ELFTRAN which generated this file
     uint32_t iTimeLo;
     uint32_t iTimeHi;
     uint32_t iFlags;             // 0 = exe, 1 = dll, 2 = fixed address exe
-    uint32_t iCodeSize;          // size of code, import address table, constant data and export dir
-    uint32_t iDataSize;          // size of initialised data
+    uint32_t iCodeSize = 0;      // size of code, import address table, constant data and export dir
+    uint32_t iDataSize = 0;      // size of initialised data
     int32_t iHeapSizeMin = KHeapCommittedSize;
     int32_t iHeapSizeMax = KHeapReservedSize;
     int32_t iStackSize = 0x2000;
-    int32_t iBssSize;
-    uint32_t iEntryPoint;        // offset into code of entry point
+    int32_t iBssSize = 0;
+    uint32_t iEntryPoint = 0;    // offset into code of entry point
     uint32_t iCodeBase;          // where the code is linked for
     uint32_t iDataBase;          // where the data is linked for
     int32_t iDllRefTableCount;   // filling this in enables E32ROM to leave space for it
-    uint32_t iExportDirOffset;   // offset into the file of the export address table
+    uint32_t iExportDirOffset = 0;  // offset into the file of the export address table
     uint32_t iExportDirCount;
     uint32_t iTextSize;          // size of just the text section, also doubles as the offset for the iat w.r.t. the code section
-    uint32_t iCodeOffset;        // file offset to code section, also doubles as header size
-    uint32_t iDataOffset;        // file offset to data section
-    uint32_t iImportOffset;      // file offset to import section
-    uint32_t iCodeRelocOffset;   // relocations for code and const
-    uint32_t iDataRelocOffset;   // relocations for data
+    uint32_t iCodeOffset = 0;    // file offset to code section, also doubles as header size
+    uint32_t iDataOffset = 0;    // file offset to data section
+    uint32_t iImportOffset = 0;  // file offset to import section
+    uint32_t iCodeRelocOffset = 0; // relocations for code and const
+    uint32_t iDataRelocOffset = 0; // relocations for data
     uint16_t iProcessPriority;   // executables priority
     uint16_t iCpuIdentifier = (uint16_t)TCpu::ECpuArmV5;     // 0x1000 = X86, 0x2000 = ARM;
 };
@@ -127,7 +127,7 @@ struct E32ImageHeader
 /**< In e32 binary take place after E32Header */
 struct E32ImageHeaderJ
 {
-	uint32_t iUncompressedSize;	///< Uncompressed size of file data after the header, or zero if file not compressed.
+	uint32_t iUncompressedSize = 0;	///< Uncompressed size of file data after the header, or zero if file not compressed.
 };
 
 /**< In e32 binary take place after E32ImageHeaderJ */
@@ -135,11 +135,11 @@ struct E32ImageHeaderV
 {
     SSecurityInfo iS;
     // Use iSpare1 as offset to Exception Descriptor
-    uint32_t iExceptionDescriptor;   // Offset in bytes from start of code section to Exception Descriptor, bit 0 set if valid
-    uint32_t iSpare2;
-    uint16_t iExportDescSize;    // size of bitmap section
-    uint8_t  iExportDescType;    // type of description of holes in export table
-    uint8_t  iExportDesc[1];     // description of holes in export table - extend
+    uint32_t iExceptionDescriptor = 0; // Offset in bytes from start of code section to Exception Descriptor, bit 0 set if valid
+    uint32_t iSpare2 = 0;
+    uint16_t iExportDescSize = 0;  // size of bitmap section
+    uint8_t  iExportDescType = 0;  // type of description of holes in export table
+    uint8_t  iExportDesc[1];       // description of holes in export table - extend
 };
 
 enum E32HdrFmt

@@ -27,14 +27,17 @@ E32HeaderBuilder::E32HeaderBuilder(const Args* opts): iHeaderData(opts)
 E32SectionUnit E32HeaderBuilder::MakeE32Header()
 {
     // set CRC, compression type after E32Image done
-    iHeader.reserve(sizeof(E32ImageHeader) + sizeof(E32ImageHeaderJ) +
-                    sizeof(E32ImageHeaderV) - 1);
+    const uint32_t headersize = sizeof(E32ImageHeader) + sizeof(E32ImageHeaderJ) +
+                    sizeof(E32ImageHeaderV) - 1;
+    iHeader.reserve(headersize);
+    iHeader.insert(iHeader.begin(), headersize, 0);
+
     E32ImageHeader* hdr = (E32ImageHeader*)iHeader.data();
     hdr->iUid1 = iHeaderData->iUid1;
     hdr->iUid2 = iHeaderData->iUid2;
     hdr->iUid3 = iHeaderData->iUid3;
     hdr->iModuleVersion = iHeaderData->iVersion;
-    iHdr->iCompressionType = iHeaderData->iCompressionMethod;
+    hdr->iCompressionType = iHeaderData->iCompressionMethod;
 
     SymbianTime t;
     hdr->iTimeLo = t.TimeLo();
@@ -49,7 +52,8 @@ E32SectionUnit E32HeaderBuilder::MakeE32Header()
     hdr->iStackSize = iHeaderData->iStack;
     hdr->iProcessPriority = iHeaderData->iPriority;
 
-    E32ImageHeaderV* v = (E32ImageHeaderV*)iHeader[sizeof(E32ImageHeader) + sizeof(E32ImageHeaderJ)];
+//    E32ImageHeaderV* v = (E32ImageHeaderV*)iHeader[sizeof(E32ImageHeader) + sizeof(E32ImageHeaderJ)];
+    E32ImageHeaderV* v = (E32ImageHeaderV*)(iHeader.data() + sizeof(E32ImageHeader) + sizeof(E32ImageHeaderJ));
     v->iS.iSecureId = iHeaderData->iSid;
     v->iS.iVendorId = iHeaderData->iVid;
     v->iS.iCaps = ProcessCapabilities(iHeaderData->iCapability);

@@ -20,6 +20,7 @@
 
 #include <list>
 #include <vector>
+#include "common.hpp"
 
 struct Args;
 class ElfParser;
@@ -27,7 +28,7 @@ struct E32ImageHeader;
 typedef std::vector<char> E32SectionUnit;
 
 /// Sections for E32Image chunks in sorted order
-enum class E32Sections
+enum class E32Sections: uint16_t
 {
     HEADER,
     BITMAP,
@@ -51,12 +52,13 @@ typedef std::list<E32Section> E32image;
 class E32File
 {
     public:
-        E32File(const Args* args, const ElfParser* elfParser);
+        E32File(const Args* args, const ElfParser* elfParser, const Symbols& s);
         ~E32File();
         void WriteE32File();
     private:
         const Args* iE32Opts = nullptr;
         const ElfParser* iElfSrc = nullptr;
+        const Symbols& iSymbols;
     private:
         E32image iE32image;
         E32SectionUnit iHeader;

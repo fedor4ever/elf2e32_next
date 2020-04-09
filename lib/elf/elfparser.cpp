@@ -26,6 +26,18 @@ using std::string;
 #define ELF_ENTRY_PTR(ptype, base, offset) \
 	((ptype*)((char*)base + offset))
 
+Elf32_Word SegmentSize(const Elf32_Phdr* h)
+{
+    if(h)return h->p_filesz;
+    return 0;
+}
+
+Elf32_Word VirtualAddress(const Elf32_Phdr* p)
+{
+	if(p) return p->p_vaddr;
+	return 0;
+}
+
 ElfParser::ElfParser(string elf): iFile(elf) {}
 
 ElfParser::~ElfParser()
@@ -99,16 +111,45 @@ void ElfParser::ProcessProgHeaders()
     }
 }
 
-uint32_t ElfParser::CodeSegmentSize()
+uint32_t ElfParser::BssSegmentSize() const
 {
-    return iCodeSegmentHdr->p_filesz;
+	if (iDataSegmentHdr)
+		return iDataSegmentHdr->p_memsz - iDataSegmentHdr->p_filesz;
+	return 0;
 }
 
-uint32_t ElfParser::DataSegmentSize()
+uint32_t ElfParser::CodeSegmentSize() const
 {
-    return iDataSegmentHdr->p_filesz;
+    return SegmentSize(iCodeSegmentHdr);
 }
 
+uint32_t ElfParser::DataSegmentSize() const
+{
+    return SegmentSize(iDataSegmentHdr);
+}
+
+uint32_t ElfParser::ROVirtualAddress() const
+{
+    return VirtualAddress(iCodeSegmentHdr);
+}
+
+uint32_t ElfParser::RWVirtualAddress() const
+{
+    return VirtualAddress(iDataSegmentHdr);
+}
+
+uint32_t ElfParser::EntryPointOffset() const
+{
+	if (!(iElfHeader->e_entry) && !(iCodeSegmentHdr->p_vaddr))
+	{
+	    ReportWarning(ErrorCodes::UNDEFINEDENTRYPOINT);
+		return 0;
+	}
+	else if (!(iElfHeader->e_entry))
+        ReportError(ErrorCodes::ENTRYPOINTNOTSET);
+	else
+		return iElfHeader->e_entry - iCodeSegmentHdr->p_vaddr;
+}
 
 void ElfParser::ProcessSectionHeaders()
 {
@@ -219,7 +260,7 @@ void ElfParser::ValidateElfImage()
 // relocation entries for Long ARM to Thumb veneers.
 // The linker problem is resolved in ARM Linker version RVCT 2.2 Build 616.
 // This method check linker name and version.
-bool ElfParser::IsRelocationFixRequired()
+bool ElfParser::IsRelocationFixRequired() const
 {
     // no comment section - no fix
     if(!iCommentSection)
@@ -285,11 +326,42 @@ Elf32_Sym* ElfParser::GetSymbolTableEntity(uint32_t index) const
     return &iElfDynSym[index];
 }
 
+uint32_t ElfParser::ExceptionDescriptor() const
+{
+    const char aExDescName[] = "Symbian$$CPP$$Exception$$Descriptor";
+    Elf32_Sym* sym = LookupStaticSymbol(aExDescName);
+    if(!sym)
+        ReportError(ErrorCodes::MISSEDEXCEPTIONDESCRIPTOR);
 
+    uint32_t symAddr = sym->st_value;
+    uint32_t codeSegmentAddr = ROVirtualAddress();
+    uint32_t codeSegmentSize = CodeSegmentSize() + codeSegmentAddr;
+    //check its in RO segment
+    if((symAddr < codeSegmentAddr) || (symAddr >= codeSegmentSize))
+        ReportError(ErrorCodes::OUTOFBOUNDSEXCEPTIONDESCRIPTOR);
 
+    // Set bottom bit so 0 in header slot means an old binary.
+    // The decriptor is always aligned on a 4 byte boundary.
+    return((symAddr - codeSegmentAddr) | 0x00000001);
+}
 
+Elf32_Sym* ElfParser::LookupStaticSymbol(const char* aName)
+{
+	if (!iElfHeader->e_shnum)
+        ReportError(ErrorCodes::NOSTATICSYMBOLS);
 
+	if(!iSymTab || !iStrTab)
+        ReportError(ErrorCodes::NOSTATICSYMBOLS);
 
+	while(iSymTab++ < iLim)
+	{
+		if (!iSymTab->st_name) continue;
+		char* aSymName = iStrTab + iSymTab->st_name;
+		if (!strcmp(aSymName, aName))
+			return iSymTab;
+	}
+    return nullptr;
+}
 
 
 

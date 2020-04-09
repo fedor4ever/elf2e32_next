@@ -80,9 +80,9 @@ void ArtifactBuilder::MakeDef()
 
 void ArtifactBuilder::MakeE32()
 {
-    if(!iOpts->iOutput.empty())
+    if(iOpts->iOutput.empty())
         return;
-    BuildE32Image(iOpts, iElfParser);
+    BuildE32Image(iOpts, iElfParser, iSymbols);
 }
 
 void FixHeaderName(Args* fix)

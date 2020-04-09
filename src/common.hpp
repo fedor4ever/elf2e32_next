@@ -72,7 +72,13 @@ enum ErrorCodes
     SYSDEFMERGE,
     UNKNOWNHEADERNAME,
     ELFPIEERROR,
-    DEPRECATEDTARGET
+    DEPRECATEDTARGET,
+    UNDEFINEDENTRYPOINT,
+    ENTRYPOINTNOTSET,
+    MISSEDEXCEPTIONDESCRIPTOR,
+    OUTOFBOUNDSEXCEPTIONDESCRIPTOR,
+    NOSTATICSYMBOLS,
+    UNKNOWNSECTION
 };
 
 // handy macro for tracing
@@ -106,6 +112,6 @@ uint16_t ProcessPriority(const std::string& str);
 
 Symbols SymbolsFromDef(const char *defFile);
 
-void BuildE32Image(const Args* args, const ElfParser* elfParser);
+void BuildE32Image(const Args* args, const ElfParser* elfParser, const Symbols& s);
 
 #endif // COMMON_HPP_INCLUDED

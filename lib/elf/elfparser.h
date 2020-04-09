@@ -28,15 +28,22 @@ class ElfParser
         ElfParser(std::string elf);
         void GetElfFileLayout();
         ~ElfParser();
-        bool IsRelocationFixRequired();
-        uint32_t CodeSegmentSize();
-        uint32_t DataSegmentSize();
+        bool IsRelocationFixRequired() const;
+        uint32_t BssSegmentSize() const;
+        uint32_t CodeSegmentSize() const;
+        uint32_t DataSegmentSize() const;
         uint32_t ImportsCount() const;
+        uint32_t ROVirtualAddress() const;
+        uint32_t RWVirtualAddress() const;
+        uint32_t ExceptionDescriptor() const;
+    public:
         const char* GetSymbolNameFromStringTable(uint32_t index) const;
         Elf32_Sym* GetSymbolTableEntity(uint32_t index) const;
+        Elf32_Sym* LookupStaticSymbol(const char* aName);
         Elf32_Phdr* GetSegmentAtAddr(Elf32_Addr addr) const;
         ESegmentType SegmentType(Elf32_Addr addr) const;
         uint32_t* GetDSOImportsOrdinals() const;
+        uint32_t EntryPointOffset() const;
     private:
         void ValidateElfImage();
         void ProcessSectionHeaders();

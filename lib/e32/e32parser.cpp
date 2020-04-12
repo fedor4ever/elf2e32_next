@@ -269,11 +269,9 @@ void E32Parser::ParseExportBitMap()
 	iExportBitMap = new uint8_t[memsz];
 	memset(iExportBitMap, 0xff, memsz);
 	uint32_t* exports = (uint32_t*)(iBufferedFile + iHdr->iExportDirOffset);
-	uint32_t impfmt = ImpFmtFromFlags(iHdr->iFlags);
 	uint32_t hdrfmt = HdrFmtFromFlags(iHdr->iFlags);
 
-	uint32_t entryPointOffset = (impfmt == KImageImpFmt_ELF) ? iHdr->iCodeBase : 0;
-	uint32_t entryPoint = iHdr->iEntryPoint + entryPointOffset;
+	uint32_t entryPoint = EntryPoint();
 
 	iMissingExports = 0;
 
@@ -289,6 +287,16 @@ void E32Parser::ParseExportBitMap()
 	if (hdrfmt < KImageHdrFmt_V && iMissingExports)
 	    ReportError(BADEXPORTS);
 }
+
+//! Calculate entry point and value for all absent symbols st_value also.
+// That is all absent symbols st_value share same value.
+uint32_t E32Parser::EntryPoint() const
+{
+    uint32_t impfmt = ImpFmtFromFlags(iHdr->iFlags);
+    uint32_t entryPointOffset = (impfmt == KImageImpFmt_ELF) ? iHdr->iCodeBase : 0;
+	return(iHdr->iEntryPoint + entryPointOffset);
+}
+
 
 int32_t Adjust(int32_t size)
 {

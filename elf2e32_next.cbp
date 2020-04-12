@@ -107,6 +107,8 @@
 		<Unit filename="src/e32rebuilder.h" />
 		<Unit filename="src/elf2e32.cpp" />
 		<Unit filename="src/elf2e32.h" />
+		<Unit filename="src/exportbitmapprocessor.cpp" />
+		<Unit filename="src/exportbitmapprocessor.h" />
 		<Unit filename="src/logger.cpp" />
 		<Unit filename="src/logger.h" />
 		<Unit filename="src/main.cpp" />

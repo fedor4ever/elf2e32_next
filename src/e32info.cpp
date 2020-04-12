@@ -358,13 +358,13 @@ void E32Info::ExportTable()
 {
     printf("\nNumber of exports = %u\n", iHdr->iExportDirCount);
     uint32_t* exports = (uint32_t*)(iE32->GetBufferedImage() + iHdr->iExportDirOffset);
-    uint32_t absoluteEntryPoint = iHdr->iEntryPoint + iHdr->iCodeBase;
-    uint32_t impfmt = ImpFmtFromFlags(iHdr->iFlags);
-    uint32_t absentVal = (impfmt == KImageImpFmt_ELF) ? absoluteEntryPoint : iHdr->iEntryPoint;
+
+    uint32_t absentVal = iE32->EntryPoint();
+
     for (uint32_t i = 0; i < iHdr->iExportDirCount; ++i)
     {
         uint32_t exp = exports[i];
-        if (exp == absentVal)
+        if(exp == absentVal)
             printf("\tOrdinal %5u:\tABSENT\n", i+1);
         else
             printf("\tOrdinal %5u:\t%08x\n", i+1, exp);

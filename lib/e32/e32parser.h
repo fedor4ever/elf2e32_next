@@ -69,6 +69,8 @@ class E32Parser
         int32_t UncompressedFileSize() const;
         size_t GetFileSize() const;
         const E32RelocSection* GetRelocSection(uint32_t offSet) const;
+
+        uint32_t EntryPoint() const;
     private:
         void ParseExportBitMap();
         void DecompressImage();

@@ -21,12 +21,18 @@
 //   SetName() - implicitly set alias name too
 //   SetAliasName() - directly set alias name
 // Therefore use SetName() where possible.
+//
+// Symbol::SetElfSymbol() delete for it's Elf32_Sym::iElfSym
+// if symbol missing in elf imports symbols.
+// Therefore no need to clean previously allocated Elf32_Sym.
 
 #if !defined(SYMBOL_H)
 #define SYMBOL_H
 
 #include <string>
 #include "elfdefs.h"
+
+struct Elf32_Sym;
 
 enum SymbolStatus {Matching, Missing, New};
 
@@ -76,8 +82,11 @@ public:
 	uint32_t SymbolSize() const;
 	void SetSymbolSize(uint32_t size);
 
+	void SetElfSymbol(const Elf32_Sym* symbol);
+	Elf32_Sym* GetElf32_Sym() const;
+	uint32_t Elf_st_value() const;
 private:
-    const Elf32_Sym* iElfSym = nullptr;
+    Elf32_Sym* iElfSym = nullptr;
 
 	SymbolStatus    iSymbolStatus = Matching;
 	std::string		iSymbolName;

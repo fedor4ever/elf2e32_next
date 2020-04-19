@@ -22,8 +22,28 @@ Symbol::Symbol(const std::string& symbolName, SymbolType type,
    const Elf32_Sym* symbol, uint32_t ordinal): iElfSym(symbol),
    iSymbolName(symbolName), iSymbolType(type), iOrdinal(ordinal) {}
 
+Symbol::~Symbol()
+{
+    if(iElfSym && iAbsent)
+        delete iElfSym;
+}
 
-Symbol::~Symbol() {}
+void Symbol::SetElfSymbol(const Elf32_Sym* symbol)
+{
+    if(iElfSym && iAbsent)
+        delete iElfSym;
+    iElfSym = symbol;
+}
+
+uint32_t Symbol::Elf_st_value() const
+{
+    return iElfSym->st_value;
+}
+
+Elf32_Sym* Symbol::GetElf32_Sym() const
+{
+    return iElfSym;
+}
 
 bool Symbol::operator==(const Symbol* s) const {
 	if(this->iSymbolName.compare(s->iSymbolName) != 0)

@@ -45,6 +45,11 @@ ElfParser::~ElfParser()
     delete[] iFileBuf;
 }
 
+const char* ElfParser::CodeSegment() const
+{
+    return iCodeSegment;
+}
+
 uint32_t* ElfParser::GetDSOImportsOrdinals() const
 {
     return (uint32_t*)iCodeSegment;
@@ -147,8 +152,19 @@ uint32_t ElfParser::EntryPointOffset() const
 	}
 	else if (!(iElfHeader->e_entry))
         ReportError(ErrorCodes::ENTRYPOINTNOTSET);
-	else
-		return iElfHeader->e_entry - iCodeSegmentHdr->p_vaddr;
+    return iElfHeader->e_entry - iCodeSegmentHdr->p_vaddr;
+}
+
+uint32_t ElfParser::EntryPoint() const
+{
+	if (!(iElfHeader->e_entry) && !(iCodeSegmentHdr->p_vaddr))
+	{
+	    ReportWarning(ErrorCodes::UNDEFINEDENTRYPOINT);
+		return 0;
+	}
+	else if (!(iElfHeader->e_entry))
+        ReportError(ErrorCodes::ENTRYPOINTNOTSET);
+    return iElfHeader->e_entry;
 }
 
 void ElfParser::ProcessSectionHeaders()

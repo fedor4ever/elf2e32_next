@@ -56,7 +56,10 @@ void ReportError(const ErrorCodes err, std::list<string> ls,
         missedSymbols+='\n';
     }
     ReportLog(e32Error);
-    Logger::Instance()->Log(err, str, x, missedSymbols);
+    if(!str.empty())
+        Logger::Instance()->Log(err, str, x, missedSymbols);
+    else
+        Logger::Instance()->Log(err, missedSymbols);
 }
 
 void ReportError(const ErrorCodes err, const std::string& str,

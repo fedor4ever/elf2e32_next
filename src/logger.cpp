@@ -72,10 +72,10 @@ struct Message Messages[]=
 	{ErrorCodes::SYMBOLCOUNTMISMATCHERROR, "Symbol count provided by DT_ARM_SYMTABSZ is not same as "
             "that in the Hash Table in %s"},
     {ErrorCodes::ABSENTSYMBOL, "Attempt to export absent symbol %s found. This can break library ABI.\n"},
-    {ErrorCodes::ABSENTSYMBOLINELF, "%s  absent in the DEF file and --sysdef, but present in the ELF file.\n"},
+    {ErrorCodes::ABSENTSYMBOLINELF, "%s absent in the DEF file and --sysdef, but present in the ELF file.\n"},
     {ErrorCodes::MISSEDFROZENSYMBOLS, "Frozen Export(s): %u missing from the ELF file.\n"},
     {ErrorCodes::MISSEDFROZENSYMBOLSERROR, "ELF File %s with frozen export(s) have %u missed symbol(s):\n%s.\n"},
-    {ErrorCodes::SYSDEFMERGE, "Failure when merge symbols from .def file and option --sysdef.\n"},
+    {ErrorCodes::SYSDEFMERGE, "Failure when merge symbols from .def file and option --sysdef for symbol(s): %s.\n"},
     {ErrorCodes::UNKNOWNHEADERNAME, "Can't deduce name for header file with exports.\n"},
     {ErrorCodes::ELFPIEERROR, "Found elf file %s builded with -pie option. Symbian has no support for it.\n"},
     {ErrorCodes::DEPRECATEDTARGET, "This target deprecated at v9.0. Application must be converted to EXE or PLUGIN (ECOM).\n"},
@@ -90,22 +90,22 @@ struct Message Messages[]=
 
 Logger::Logger(const std::string& s)
 {
-    if(!s.empty())
+    if(s.empty())
+        return;
+
+    iFile = fopen(s.c_str(), "w");
+    if(!iFile)
     {
-        iFile = fopen(s.c_str(), "w");
-        if(!iFile)
-        {
-            printf("Cannot open file %s.\n", s.c_str());
-            throw ErrorCodes::FILEOPENERROR;
-        }
+        printf("Cannot open file %s.\n", s.c_str());
+        throw ErrorCodes::FILEOPENERROR;
     }
+
 }
 
 Logger::~Logger()
 {
     if(iFile)
         fclose(iFile);
-    delete _self;
 }
 
 Logger* Logger::Instance(const std::string& s)

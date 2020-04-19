@@ -96,7 +96,7 @@ void ReportError(const ErrorCodes err, const std::string& str,
 void ReportError(const ErrorCodes err, const int x, const int = 0);
 
 void ReportError(const ErrorCodes err, std::list<std::string> ls,
-            const std::string& str, const int x);
+            const std::string& str = empty, const int = 0);
 void ReportError(const ErrorCodes err, const std::string& str = empty,
             const std::string& s = empty, const int = 0);
 

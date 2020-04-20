@@ -203,7 +203,7 @@ uint64_t ProcessCapabilities(const std::string& fromArgument)
 
     uint64_t flag = 0;
     string tmp;
-    const char* token = strtok(str.c_str(), "+");
+    char* token = strtok(str.c_str(), "+");
 
     while(token)
     {

@@ -22,9 +22,6 @@
 //   SetAliasName() - directly set alias name
 // Therefore use SetName() where possible.
 //
-// Symbol::SetElfSymbol() delete for it's Elf32_Sym::iElfSym
-// if symbol missing in elf imports symbols.
-// Therefore no need to clean previously allocated Elf32_Sym.
 
 #if !defined(SYMBOL_H)
 #define SYMBOL_H
@@ -88,7 +85,7 @@ public:
 private:
     Elf32_Sym* iElfSym = nullptr;
 
-	SymbolStatus    iSymbolStatus = Matching;
+	SymbolStatus    iSymbolStatus = SymbolStatus::Missing;
 	std::string		iSymbolName;
 	std::string		iAliasName;
 	SymbolType	    iSymbolType = SymbolTypeNotDefined;

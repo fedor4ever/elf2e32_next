@@ -1,4 +1,4 @@
-// Copyright (c) 2018-2019 Strizhniou Fiodar
+// Copyright (c) 2018-2020 Strizhniou Fiodar
 // All rights reserved.
 // This component and the accompanying materials are made available
 // under the terms of "Eclipse Public License v1.0"
@@ -18,18 +18,18 @@
 //
 
 //
-#include <iostream>
 #include <fstream>
+#include <sstream>
+#include <iostream>
 #include <stdlib.h>
 #include <string.h>
-#include <sstream>
 
-#include "deffile.h"
 #include "symbol.h"
+#include "deffile.h"
 #include "common.hpp"
 
-using std::fstream;
 using std::string;
+using std::fstream;
 
 void WriteDefString(Symbol *sym, std::fstream &fstr);
 void TokensChecker(const std::vector<std::string> &tokens);
@@ -137,6 +137,7 @@ void TokensChecker(const std::vector<std::string> &tokens)
 void DefFile::Tokenizer(std::string aLine, size_t aIndex)
 {
     iSymbol = new Symbol(SymbolTypeCode);
+    iSymbol->SetSymbolStatus(SymbolStatus::Matching);
 
 //    take comments
     std::size_t pos = aLine.find_first_of(';');
@@ -216,9 +217,7 @@ void DefFile::WriteDefFile(const char *fileName, const Symbols& newSymbols)
     if(!fs.is_open())
         ReportError(FILEOPENERROR,fileName);
 
-    bool newSymbol = false;
     fs << "EXPORTS\n";
-
     for(auto x: newSymbols)
     {
         if(x->GetSymbolStatus()==New)

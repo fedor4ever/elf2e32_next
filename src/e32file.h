@@ -25,6 +25,7 @@
 struct Args;
 class ElfParser;
 struct E32ImageHeader;
+class ExportBitmapProcessor;
 typedef std::vector<char> E32SectionUnit;
 
 /// Sections for E32Image chunks in sorted order
@@ -56,12 +57,17 @@ class E32File
         ~E32File();
         void WriteE32File();
     private:
+        void PrepareData();
+    private:
         const Args* iE32Opts = nullptr;
         const ElfParser* iElfSrc = nullptr;
         const Symbols& iSymbols;
     private:
+        uint16_t iExportDescSize = 0;
+        uint8_t  iExportDescType = 0;
         E32image iE32image;
         E32SectionUnit iHeader;
+        ExportBitmapProcessor* iExportBitmap;
 };
 
 #endif // E32FILE_H

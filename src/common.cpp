@@ -15,8 +15,8 @@
 //
 //
 
-#include <fstream>
 #include <string>
+#include <fstream>
 
 using std::string;
 
@@ -60,6 +60,7 @@ void ReportError(const ErrorCodes err, std::list<string> ls,
         Logger::Instance()->Log(err, str, x, missedSymbols);
     else
         Logger::Instance()->Log(err, missedSymbols);
+    throw err;
 }
 
 void ReportError(const ErrorCodes err, const std::string& str,

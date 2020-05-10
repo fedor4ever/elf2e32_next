@@ -14,25 +14,46 @@
 //
 
 #include <cstring>
+#include <iostream>
 #include "symbol.h"
+#include "common.hpp"
+
+using namespace std;
+
+Elf32_Sym* Dup(const Elf32_Sym* symbol)
+{
+    Elf32_Sym* tmp = new Elf32_Sym();
+    tmp->st_name = symbol->st_name;
+    tmp->st_value = symbol->st_value;
+    tmp->st_size = symbol->st_size;
+    tmp->st_info = symbol->st_info;
+    tmp->st_other = symbol->st_other;
+    tmp->st_shndx = symbol->st_shndx;
+    return tmp;
+}
 
 Symbol::Symbol(SymbolType stype): iSymbolType(stype) {}
 
 Symbol::Symbol(const std::string& symbolName, SymbolType type,
-   const Elf32_Sym* symbol, uint32_t ordinal): iElfSym(symbol),
-   iSymbolName(symbolName), iSymbolType(type), iOrdinal(ordinal) {}
+   const Elf32_Sym* symbol, uint32_t ordinal):
+   iSymbolName(symbolName), iSymbolType(type), iOrdinal(ordinal)
+{
+    iElfSym = Dup(symbol);
+}
 
 Symbol::~Symbol()
 {
-    if(iElfSym && iAbsent)
-        delete iElfSym;
+    delete iElfSym;
 }
 
 void Symbol::SetElfSymbol(const Elf32_Sym* symbol)
 {
-    if(iElfSym && iAbsent)
+    if(iElfSym)
+    {
         delete iElfSym;
-    iElfSym = symbol;
+        iElfSym = nullptr;
+    }
+    iElfSym = Dup(symbol);
 }
 
 uint32_t Symbol::Elf_st_value() const
@@ -138,6 +159,10 @@ std::string Symbol::AliasName() const {
 
 ///This function sets the export name of the symbol found in .def file.
 void Symbol::SetAliasName(const std::string& alias) {
+    ReportLog("autor: I never see such file ");
+    ReportLog("which has alias name. Please\n");
+    ReportLog("open issue at https://github.com/fedor4ever/elf2e32_next\n");
+    ReportLog("and give me that file. Thanks.");
 	iAliasName = alias;
 }
 

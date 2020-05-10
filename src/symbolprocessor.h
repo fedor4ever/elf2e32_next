@@ -27,10 +27,14 @@
 //   sysdef symbols freely change def symbols.
 //   in case 2) new symbol adds and other symbol gets new ordinal with next value after last ordinal
 //   in case 4) already defined symbol gets new ordinal with next value after last ordinal
+//
+// In any case .def should be created because original elf2e32 does so.
 
 #ifndef SYMBOLPROCESSOR_H
 #define SYMBOLPROCESSOR_H
 
+#include <list>
+#include <string>
 #include "common.hpp"
 
 class Args;
@@ -40,16 +44,22 @@ class ElfParser;
 class SymbolProcessor
 {
     public:
-        SymbolProcessor(const ElfParser* elfParser, const Args* args);
+        SymbolProcessor(const Args* args, const ElfParser* elfParser = nullptr);
         Symbols GetExports();
         ~SymbolProcessor();
     private:
+        void ProcessPredefinedSymbols();
+        void ProcessElfSymbols();
+        bool SimpleSymbolsProcessing();
         Symbols GetDSOSymbols();
         Symbols GetElfExports();
         Symbols FromSysdef();
+        void SetElf_st_value(const Symbols& fromElf);
+        void CheckForErrors(bool unfrozen, std::list<std::string> missedSymbols, const std::string& src);
     private:
-        const ElfParser* iElfParser = nullptr;
         const Args* iArgs = nullptr;
+        const ElfParser* iElfParser = nullptr;
+        Symbols iSymbols;
 };
 
 #endif // SYMBOLPROCESSOR_H

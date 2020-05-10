@@ -55,9 +55,12 @@ void ArtifactBuilder::Run()
 void ArtifactBuilder::PrepareBuild()
 {
     ValidateOptions(iOpts);
-    iElfParser = new ElfParser(iOpts->iElfinput);
-    iElfParser->GetElfFileLayout();
-    SymbolProcessor processor(iElfParser, iOpts);
+    if(!iOpts->iElfinput.empty())
+    {
+        iElfParser = new ElfParser(iOpts->iElfinput);
+        iElfParser->GetElfFileLayout();
+    }
+    SymbolProcessor processor(iOpts, iElfParser);
     iSymbols = processor.GetExports();
 }
 

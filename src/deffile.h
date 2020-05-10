@@ -1,4 +1,4 @@
-// Copyright (c) 2018-2019 Strizhniou Fiodar
+// Copyright (c) 2018-2020 Strizhniou Fiodar
 // All rights reserved.
 // This component and the accompanying materials are made available
 // under the terms of "Eclipse Public License v1.0"
@@ -37,11 +37,14 @@
 #define _DEF_FILE_
 
 #include <list>
+#include <memory>
 #include <string>
 #include <vector>
 
 class Symbol;
 typedef std::list <Symbol*>	Symbols;
+/// TODO (Administrator#9#05/08/20): Use smartpointers to prevent memory leaks
+//typedef std::list <std::shared_ptr<Symbol*>> Symbols;
 
 /**
 Class for DEF File operations.

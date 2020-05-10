@@ -30,6 +30,9 @@ E32SectionUnit ExportBitmapProcessor::CreateExportBitmap()
     if(iMissingExports == 0)
     {
         iExportBitMap.clear();
+        iExportBitMap.push_back(0);
+        iExportDescType = 0;
+        iExportDescSize = 0;
 		return iExportBitMap;
     }
 

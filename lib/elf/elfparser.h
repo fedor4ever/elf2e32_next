@@ -19,7 +19,6 @@
 #define ELFPARSER_H
 
 #include <string>
-
 #include "elfdefs.h"
 
 struct Elf32_Sym;

@@ -51,7 +51,9 @@ Properties of each section:
 #define DSOFILE_H
 
 #include <list>
+#include <memory>
 #include <string>
+#include <vector>
 #include "elfdefs.h"
 
 struct Elf32_Ehdr;
@@ -60,6 +62,8 @@ struct Elf32_Ehdr;
 
 class Symbol;
 typedef std::list<Symbol*> Symbols;
+/// TODO (Administrator#9#05/08/20): Use smartpointers to prevent memory leaks
+//typedef std::list   <std::shared_ptr<Symbol*>> Symbols;
 
 //enum for DYN entries
 enum DYN_ENTRIES {

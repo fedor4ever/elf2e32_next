@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="Symbolprocessor" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug">
+				<Option output="bin/Debug/Symbolprocessor" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Debug/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-g" />
+				</Compiler>
+			</Target>
+			<Target title="Release">
+				<Option output="bin/Release/Symbolprocessor" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Release/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O2" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-std=c++14" />
+			<Add option="-Wall" />
+			<Add option="-fexceptions" />
+		</Compiler>
+		<Unit filename="cmdlineprocessor.h" />
+		<Unit filename="common.cpp" />
+		<Unit filename="common.hpp" />
+		<Unit filename="deffile.cpp" />
+		<Unit filename="deffile.h" />
+		<Unit filename="dsofile.cpp" />
+		<Unit filename="dsofile.h" />
+		<Unit filename="e32capability.h" />
+		<Unit filename="e32common.h" />
+		<Unit filename="elf2e32_opt.hpp" />
+		<Unit filename="elf_hash.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="elfdefs.h" />
+		<Unit filename="elfparser.cpp" />
+		<Unit filename="elfparser.h" />
+		<Unit filename="logger.cpp" />
+		<Unit filename="logger.h" />
+		<Unit filename="main.cpp" />
+		<Unit filename="staticlibsymbols.h" />
+		<Unit filename="symbol.cpp" />
+		<Unit filename="symbol.h" />
+		<Unit filename="symbolprocessor.cpp" />
+		<Unit filename="symbolprocessor.h" />
+		<Extensions>
+			<code_completion />
+			<envvars />
+			<debugger />
+			<lib_finder disable_auto="1" />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

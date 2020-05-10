@@ -15,31 +15,31 @@
 //
 //
 
-#include <iostream>
-#include <map>
-#include <string>
+#include <memory>
 #include <string.h>
 #include <algorithm>
 
 #include "symbol.h"
+#include "deffile.h"
 #include "elfparser.h"
 #include "elf2e32_opt.hpp"
 #include "symbolprocessor.h"
 #include "staticlibsymbols.h"
 
+using std::list;
 using std::string;
-using std::cout;
 
 bool IsGlobalSymbol(const Elf32_Sym* s);
 bool IsExportedSymbol(const Elf32_Sym* s, const ElfParser* parser);
 bool IsInvalidExport(const char* s);
 bool UnCallableSymbol(const string& s);
+bool UnWantedSymbol(const char* aSymbol);
 
 uint64_t OrdinalFromString(const string& str);
 SymbolType SymbolTypeCodeOrData(const Elf32_Sym* s);
 
-SymbolProcessor::SymbolProcessor(const ElfParser* elfParser, const Args* args):
-        iElfParser(elfParser), iArgs(args) {}
+SymbolProcessor::SymbolProcessor(const Args* args, const ElfParser* elfParser):
+        iArgs(args), iElfParser(elfParser) {}
 
 SymbolProcessor::~SymbolProcessor()
 {
@@ -47,169 +47,273 @@ SymbolProcessor::~SymbolProcessor()
 }
 
 bool SortSymbolsByName(Symbol* first, Symbol* second){ return first->AliasName() < second->AliasName();}
+bool SortSymbolsByOrdinal(Symbol* first, Symbol* second){ return first->Ordinal() < second->Ordinal();}
 
-std::pair<std::string, Symbol*> pairifyByName(Symbol* a) { return std::make_pair(a->AliasName(), a); }
-std::pair<uint32_t, Symbol*> pairifyByOrdinal(Symbol* a) { return std::make_pair(a->Ordinal()  , a); }
+typedef Symbols::iterator Iterator;
+void SymbolProcessor::ProcessPredefinedSymbols()
+{
+    if(iArgs->iDefinput.empty() && iArgs->iSysdef.empty())
+        return;
+    if(iArgs->iDefinput.empty())
+    {
+        iSymbols = FromSysdef();
+        return;
+    }
 
-typedef std::map<string, Symbol*> StringMap;
-typedef std::map<uint32_t, Symbol*> OrdinalMap;
+    if(iArgs->iSysdef.empty())
+    {
+        iSymbols = SymbolsFromDef(iArgs->iDefinput.c_str());
+        return;
+    }
+
+    Symbols sysDefSym = FromSysdef();
+    iSymbols = SymbolsFromDef(iArgs->iDefinput.c_str());
+
+    uint32_t lastOrdinal = 0;
+    if( (*iSymbols.crbegin())->Ordinal() > (*sysDefSym.crbegin())->Ordinal() )
+        lastOrdinal = (*iSymbols.crbegin())->Ordinal();
+    else
+        lastOrdinal = (*sysDefSym.crbegin())->Ordinal();
+    lastOrdinal++;
+
+    Iterator nameIt = iSymbols.end(), ordIt = iSymbols.end(), lastIt = iSymbols.end();
+    bool eqSymbols = false;
+    for(auto x: sysDefSym)
+    {
+        nameIt = iSymbols.end(), ordIt = iSymbols.end(), lastIt = iSymbols.end();
+        for(auto y = iSymbols.begin(); y != lastIt; y++)
+        {
+            if(*y == x)
+            {
+                eqSymbols = true;
+                break;
+            }
+            if( (*y)->Ordinal() == x->Ordinal())
+                ordIt = y;
+            if( (*y)->AliasName() == x->AliasName())
+                nameIt = y;
+        }
+
+        if(eqSymbols)
+        {
+            eqSymbols = false;
+            continue;
+        }
+
+        if(*iSymbols.crbegin() == x)
+            continue;
+
+        if( (*iSymbols.crbegin())->AliasName() == x->AliasName() )
+        {
+            (*iSymbols.crbegin())->SetOrdinal(x->Ordinal());
+            continue;
+        }
+
+        else if( (nameIt == ordIt) && (nameIt == lastIt) )
+            iSymbols.push_back(x);
+
+        else if((nameIt != ordIt) && (x != *lastIt))
+        {
+            if(nameIt == lastIt)
+            {
+                (*ordIt)->SetOrdinal(lastOrdinal);
+                (*ordIt)->SetSymbolStatus(SymbolStatus::New);
+                iSymbols.push_back(x);
+            }
+            else if(ordIt == lastIt) //simple set new ordinal
+            {
+                (*nameIt)->SetOrdinal(x->Ordinal());
+                (*nameIt)->SetSymbolStatus(SymbolStatus::New);
+            }
+            else
+            {
+                (*nameIt)->SetOrdinal(x->Ordinal());
+                (*nameIt)->SetSymbolStatus(SymbolStatus::New);
+
+                (*ordIt)->SetOrdinal(lastOrdinal);
+                (*ordIt)->SetSymbolStatus(SymbolStatus::New);
+            }
+            lastOrdinal++;
+        }
+    }
+
+    if(iArgs->iElfinput.empty())
+    {
+        list<string> ls;
+        for(auto s: iSymbols)
+        {
+            if(s->GetSymbolStatus() == SymbolStatus::New)
+                ls.push_back(s->AliasName());
+        }
+
+        string name = iArgs->iDefinput;
+        if(name.empty())
+            name = "--sysdef";
+        CheckForErrors(iArgs->iUnfrozen, ls, name);
+    }
+}
+
+bool SymbolProcessor::SimpleSymbolsProcessing()
+{
+    if(iArgs->iDefinput.empty() && iArgs->iSysdef.empty())
+    {
+        iSymbols = GetElfExports();
+        iSymbols.sort(SortSymbolsByName);
+        uint32_t ord = 1;
+        for(auto x: iSymbols)
+        {
+            x->SetOrdinal(ord++);
+        }
+        return true;
+    }
+    if(iArgs->iDefinput.empty() && iArgs->iElfinput.empty())
+    {
+        iSymbols = FromSysdef();
+        return true;
+    }
+    if(iArgs->iSysdef.empty() && iArgs->iElfinput.empty())
+    {
+        iSymbols = SymbolsFromDef(iArgs->iDefinput.c_str());
+        return true;
+    }
+    return false;
+}
+
+
+void SymbolProcessor::ProcessElfSymbols()
+{
+    if(iArgs->iElfinput.empty())
+        return;
+
+    Symbols elfSym = GetElfExports();
+    //look for absent symbols and add them
+    Symbols absentSymbols, newsymbols;
+    iSymbols.sort(SortSymbolsByOrdinal);
+    uint32_t lastOrdinal = (*iSymbols.crbegin())->Ordinal();
+    lastOrdinal++;
+
+    iSymbols.sort(SortSymbolsByName);
+
+    auto itDef1 = std::set_difference(iSymbols.begin(), iSymbols.end(),
+                        elfSym.begin(), elfSym.end(),
+                        std::inserter(absentSymbols, absentSymbols.begin()),
+                        SortSymbolsByName);
+
+    auto itDef2 = std::set_difference(elfSym.begin(), elfSym.end(),
+                        iSymbols.begin(), iSymbols.end(),
+                        std::inserter(newsymbols, newsymbols.begin()),
+                        SortSymbolsByName);
+
+    // dealing with new symbols
+    std::list<string> ls;
+    for(auto x: newsymbols)
+    {
+        if(UnCallableSymbol(x->AliasName()))
+            continue;
+
+        if( (iArgs->iCustomdlltarget || iArgs->iExcludeunwantedexports) &&
+           UnWantedSymbol(x->AliasName().c_str()) )
+            continue;
+
+        x->SetOrdinal(lastOrdinal++);
+        ReportWarning(ErrorCodes::UNFROZENSYMBOLADDED, x->AliasName());
+        ls.push_back(x->AliasName());
+    }
+
+    // dealing with absent symbols
+    auto m = std::make_unique<Elf32_Sym>();
+    Elf32_Sym* dummy = m.get();
+    dummy->st_value = iElfParser->EntryPoint();
+
+    auto it = iSymbols.begin();
+    for(auto x: absentSymbols)
+    {
+        while(it != iSymbols.end())
+        {
+            if(x == *it)
+            {
+                (*it)->SetElfSymbol(dummy);
+                if((*it)->Absent())
+                    break;
+
+                (*it)->SetAbsent(true);
+                ls.push_back((*it)->AliasName()); // new absent symbols
+                break;
+            }
+            it++;
+        }
+    }
+
+    SetElf_st_value(elfSym);
+    CheckForErrors(iArgs->iUnfrozen, ls, iArgs->iElfinput);
+    ls.clear();
+    iSymbols.merge(newsymbols);
+}
+
+void SymbolProcessor::CheckForErrors(bool unfrozen, list<string> missedSymbols, const string& src)
+{
+    if(!missedSymbols.empty())
+    {
+        if(unfrozen)
+            ReportWarning(ErrorCodes::MISSEDFROZENSYMBOLS, missedSymbols.size());
+        else
+        {
+            if(!iArgs->iDefoutput.empty())
+            {
+                DefFile def;
+                def.WriteDefFile(iArgs->iDefoutput.c_str(), iSymbols);
+            }
+            ReportError(ErrorCodes::MISSEDFROZENSYMBOLSERROR, missedSymbols, src, missedSymbols.size());
+        }
+    }
+}
+
+void SymbolProcessor::SetElf_st_value(const Symbols& fromElf)
+{
+    auto it1 = iSymbols.begin();
+    auto it2 = fromElf.begin();
+    while((it1 != iSymbols.end()) || (it2 != fromElf.end()))
+    {
+        if((*it1)->AliasName() > (*it2)->AliasName())
+            it2++;
+        if((*it1)->AliasName() < (*it2)->AliasName())
+            it1++;
+        if((*it1)->AliasName() == (*it2)->AliasName())
+        {
+            (*it1)->SetElfSymbol( (*it2)->GetElf32_Sym());
+            if( (*it1)->Absent() )
+            {
+                ReportWarning(ErrorCodes::ABSENTSYMBOLINELF, (*it1)->AliasName());
+                (*it1)->SetAbsent(false);
+            }
+            it1++, it2++;
+        }
+    }
+
+    while(it1 != iSymbols.end())
+    {
+        if(!(*it1)->Absent())
+            break;
+        it1++;
+    }
+
+    if(it1 != iSymbols.end())
+        ReportError(ErrorCodes::ELF_ST_VALUE);
+}
+
+
 Symbols SymbolProcessor::GetExports()
 {
     if(iArgs->iDSODump)
         return GetDSOSymbols();
 
-    StringMap result;
-    OrdinalMap ordinals;
+    if(SimpleSymbolsProcessing())
+        return iSymbols;
 
-    Symbols sysDefSym = FromSysdef();
-    Symbols defSym = SymbolsFromDef(iArgs->iDefinput.c_str());
-
-    std::transform(defSym.begin(), defSym.end(), std::inserter(result,   result.end())  , pairifyByName);
-    std::transform(defSym.begin(), defSym.end(), std::inserter(ordinals, ordinals.end()), pairifyByOrdinal);
-
-    auto rt = result.crbegin();
-    uint32_t nextOrdinal = rt->second->Ordinal();
-    nextOrdinal++;
-
-    for(auto x: sysDefSym)
-    {
-        auto defSym = result.find(x->AliasName());
-        auto ordSym = ordinals.find(x->Ordinal());
-
-        bool notFoundByName = (defSym == result.end());
-        bool notFoundByOrdinal = (ordSym == ordinals.end());
-
-        bool foundByName = (defSym != result.end());
-        bool foundByOrdinal = (ordSym != ordinals.end());
-//        Symbol may set symbol with new ordinal
-        if(notFoundByOrdinal)
-        {
-            //adding completely new symbol
-            if(notFoundByName)
-            {
-                x->SetSymbolStatus(New);
-                result.insert(std::pair<string, Symbol*>(x->AliasName(), x) );
-                ordinals.insert(std::pair<uint32_t, Symbol*>(x->Ordinal(), x) );
-            }
-            //simple set new ordinal
-            else if(foundByName)
-            {
-                ordinals.insert(std::pair<uint32_t, Symbol*>(x->Ordinal(), x) );
-                ordinals.erase(defSym->second->Ordinal());
-                defSym->second->SetOrdinal(x->Ordinal());
-            }
-        }
-
-//      new symbol added as is, symbol with ordinal we found take new ordinal as next after last ordinal
-        else if(foundByOrdinal && notFoundByName)
-        {
-// add new symbol to sorted by name std::map
-            result.insert(std::pair<string, Symbol*>(x->AliasName(), x) );
-// look for symbol with ordinal specified in --sysdef and update sorted by name std::map
-            auto currentSymbol = result.find(ordSym->second->AliasName());
-            currentSymbol->second->SetOrdinal(nextOrdinal);
-
-// update sorted by ordinals std::map
-            string oldName = ordSym->second->Name();
-            string oldAliasName = ordSym->second->AliasName();
-            ordSym->second->SetName(x->Name());
-
-            ordSym->second->SetOrdinal(x->Ordinal());
-            x->SetOrdinal(nextOrdinal);
-            x->SetName(oldName);
-            if(oldAliasName != oldName)
-                x->SetAliasName(oldAliasName);
-            ordinals.insert(std::pair<uint32_t, Symbol*>(nextOrdinal++, x) );
-        }
-        else if(foundByOrdinal && foundByName)
-        {
-            if(ordSym->second->Absent())
-            {
-                ReportWarning(ErrorCodes::ABSENTSYMBOL, ordSym->second->Name());
-                ordSym->second->SetAbsent(false);
-            }
-            if(defSym->second->Absent())
-            {
-                ReportWarning(ErrorCodes::ABSENTSYMBOL, defSym->second->Name());
-                defSym->second->SetAbsent(false);
-            }
-            if(defSym->second == ordSym->second)
-                continue;
-
-            //update ordinals
-            uint32_t srcOrdinal = ordSym->second->Ordinal();
-            defSym->second->SetOrdinal(x->Ordinal());
-            ordSym->second->SetOrdinal(nextOrdinal++);
-
-            //update names
-            ordinals.insert(std::pair<uint32_t, Symbol*>(nextOrdinal, ordSym->second) );
-            ordinals.erase(srcOrdinal);
-        }
-    }
-
-    Symbols elfSym = GetElfExports();
-
-    //look for absent symbols and add them
-    Symbols toCompare, missedSymbols, absentSymbols;
-    toCompare.insert(toCompare.end(), sysDefSym.begin(), sysDefSym.end());
-    toCompare.insert(toCompare.end(), defSym.begin(), defSym.end());
-    toCompare.sort(SortSymbolsByName);
-    auto itDef = std::set_difference(toCompare.begin(), toCompare.end(),
-        elfSym.begin(), elfSym.end(), missedSymbols.begin(), SortSymbolsByName);
-
-    std::list<string> ls;
-    for(auto x: missedSymbols)
-    {
-        if(x->Absent())
-            continue;
-        auto it = result.find(x->AliasName());
-        it->second->SetAbsent(true);
-        absentSymbols.push_back(x);
-        ls.push_back(x->AliasName());
-    }
-    if(!absentSymbols.empty())
-    {
-        if(iArgs->iUnfrozen)
-            ReportWarning(ErrorCodes::MISSEDFROZENSYMBOLS ,absentSymbols.size());
-        else
-            ReportError(ErrorCodes::MISSEDFROZENSYMBOLSERROR, ls, iArgs->iElfinput, absentSymbols.size());
-    }
-
-    for(auto x: absentSymbols)
-    {
-        auto it = result.find(x->AliasName());
-        it->second->SetAbsent(true);
-    }
-
-    //ordinals in elf symbols not set so we do
-    for(auto x: elfSym)
-    {
-        if( (iArgs->iExcludeunwantedexports || iArgs->iCustomdlltarget) && UnCallableSymbol(x->AliasName()))
-            continue;
-
-        auto it = result.find(x->AliasName());
-        bool foundByName = (it != result.end());
-
-        if(foundByName && it->second->Absent())
-        {
-            it->second->SetAbsent(false);
-            ReportWarning(ErrorCodes::ABSENTSYMBOL, it->second->AliasName());
-            continue;
-        }
-
-        x->SetOrdinal(nextOrdinal++);
-        result[x->AliasName()] = x;
-    }
-
-    Symbols out;
-    std::transform(
-    ordinals.begin(),
-    ordinals.end(),
-    std::back_inserter(out),
-    [](auto &kv){ return kv.second;}
-    );
-
-    return out;
+    ProcessPredefinedSymbols();
+    ProcessElfSymbols();
+    iSymbols.sort(SortSymbolsByOrdinal);
+    return iSymbols;
 }
 
 Symbols SymbolProcessor::GetDSOSymbols()
@@ -277,6 +381,7 @@ Symbols SymbolProcessor::FromSysdef()
 
         string funcname(line.substr(0, argpos));
         string ordnum(line.substr(argpos+1, endpos-argpos-1));
+        string ord(line.substr(argpos, endpos-argpos + 1)); // ,(ordinal);
         line.erase(0, endpos+1);
 
         if(line.find(funcname) != string::npos)
@@ -289,7 +394,7 @@ Symbols SymbolProcessor::FromSysdef()
             ReportLog(tmp);
             continue;
         }
-        if(line.find(ordnum) != string::npos)
+        if(line.find(ord) != string::npos)
         {
             string tmp("Find duplicate function ordinal: ");
             tmp += ordnum;
@@ -307,7 +412,7 @@ Symbols SymbolProcessor::FromSysdef()
             msg += funcname;
             msg += ": ";
             msg += ordnum;
-            msg += ". Ignored because symbols ordinals starts from 1\n";
+            msg += ". Ignored because symbols ordinals should starts from 1\n";
             ReportWarning(ErrorCodes::INVALIDARGUMENT, "--sysdef", iArgs->iSysdef);
             ReportLog(msg);
             continue;
@@ -315,8 +420,10 @@ Symbols SymbolProcessor::FromSysdef()
         Symbol* s = new Symbol(SymbolType::SymbolTypeCode);
         s->SetName(funcname);
         s->SetOrdinal(ordinalnum);
+        s->SetSymbolStatus(SymbolStatus::New);
         sysdef.push_back(s);
     }
+    sysdef.sort(SortSymbolsByOrdinal);
     return sysdef;
 }
 

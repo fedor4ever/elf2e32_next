@@ -1,4 +1,4 @@
-// Copyright (c) 2019 Strizhniou Fiodar
+// Copyright (c) 2019-2020 Strizhniou Fiodar
 // All rights reserved.
 // This component and the accompanying materials are made available
 // under the terms of "Eclipse Public License v1.0"
@@ -19,6 +19,7 @@
 #define COMMON_HPP_INCLUDED
 
 #include <list>
+#include <memory>
 #include <string>
 
 class Args;
@@ -26,6 +27,9 @@ class Symbol;
 class ElfParser;
 
 typedef std::list <Symbol*>	Symbols;
+/// TODO (Administrator#9#05/08/20): Use smartpointers to prevent memory leaks
+//typedef std::list <std::shared_ptr<Symbol*>> Symbols;
+
 
 enum ErrorCodes
 {
@@ -69,7 +73,6 @@ enum ErrorCodes
     ABSENTSYMBOLINELF,
     MISSEDFROZENSYMBOLS,
     MISSEDFROZENSYMBOLSERROR,
-    SYSDEFMERGE,
     UNKNOWNHEADERNAME,
     ELFPIEERROR,
     DEPRECATEDTARGET,
@@ -78,7 +81,9 @@ enum ErrorCodes
     MISSEDEXCEPTIONDESCRIPTOR,
     OUTOFBOUNDSEXCEPTIONDESCRIPTOR,
     NOSTATICSYMBOLS,
-    UNKNOWNSECTION
+    UNKNOWNSECTION,
+    UNFROZENSYMBOLADDED,
+    ELF_ST_VALUE
 };
 
 // handy macro for tracing

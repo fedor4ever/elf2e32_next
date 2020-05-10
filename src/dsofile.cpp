@@ -24,8 +24,8 @@
 #include "dsofile.h"
 #include "common.hpp"
 
-using std::fstream;
 using std::string;
+using std::fstream;
 
 Elf32_Ehdr* CreateElfHeader();
 void AlignString(std::string& aStr);

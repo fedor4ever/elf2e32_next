@@ -114,6 +114,8 @@
 		<Unit filename="src/main.cpp" />
 		<Unit filename="src/symbol.cpp" />
 		<Unit filename="src/symbol.h" />
+		<Unit filename="src/symbollookupprocessor.cpp" />
+		<Unit filename="src/symbollookupprocessor.h" />
 		<Unit filename="src/symbolprocessor.cpp" />
 		<Unit filename="src/symbolprocessor.h" />
 		<Extensions>

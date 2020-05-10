@@ -1,5 +1,5 @@
 // Copyright (c) 2001-2009 Nokia Corporation and/or its subsidiary(-ies).
-// Copyright (c) 2017-2019 Strizhniou Fiodar
+// Copyright (c) 2017-2020 Strizhniou Fiodar
 // All rights reserved.
 // This component and the accompanying materials are made available
 // under the terms of "Eclipse Public License v1.0"
@@ -18,6 +18,7 @@
 
 #ifndef __ELFDEFS_H__
 #define __ELFDEFS_H__
+
 #include <stdint.h>
 
 #ifdef __cplusplus

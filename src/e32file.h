@@ -31,20 +31,22 @@ typedef std::vector<char> E32SectionUnit;
 /// Sections for E32Image chunks in sorted order
 enum class E32Sections: uint16_t
 {
-    HEADER,
-    BITMAP,
-    CODE,
-    EXPORTS,
-    SYMLOOK,
-    DATA,
-    IMPORTS,
-    CODERELOCKS,
-    DATARELOCKS
+    EMPTY_SECTION = 0,
+    HEADER  = 1,
+    BITMAP  = 2,
+    CODE    = 3,
+    EXPORTS = 4,
+    SYMLOOK = 5,
+    DATA    = 6,
+    IMPORTS = 7,
+    CODERELOCKS = 8,
+    DATARELOCKS = 9
 };
 
 struct E32Section
 {
-    E32Sections type;
+    E32Sections type = E32Sections::EMPTY_SECTION;
+    std::string info;
     E32SectionUnit section;
 };
 

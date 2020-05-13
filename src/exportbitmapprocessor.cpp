@@ -10,36 +10,40 @@ ExportBitmapProcessor::~ExportBitmapProcessor()
     //dtor
 }
 
-E32SectionUnit ExportBitmapProcessor::CreateExportBitmap()
+E32Section ExportBitmapProcessor::CreateExportBitmap()
 {
+    E32Section exportBitMap;
+    exportBitMap.info = "EXPORTS";
+    exportBitMap.type = E32Sections::EXPORTS;
+
     size_t memsz = (iExportsCount + 7) >> 3;  // size of complete bitmap
 	size_t mbs = (memsz + 7) >> 3;	// size of meta-bitmap
 
-    iExportBitMap.insert(iExportBitMap.begin(), memsz, 0xff);
+    exportBitMap.section.insert(exportBitMap.section.begin(), memsz, 0xff);
     uint32_t* exports = ((uint32_t*)iExportTable.data()) + 1;
 
     for(int i = 0; i < iExportsCount; ++i)
     {
         if (exports[i] == iAbsentVal)
         {
-            iExportBitMap[i>>3] &= ~(1u << (i & 7));
+            exportBitMap.section[i>>3] &= ~(1u << (i & 7));
             iMissingExports++;
         }
     }
 
     if(iMissingExports == 0)
     {
-        iExportBitMap.clear();
-        iExportBitMap.push_back(0);
+        exportBitMap.section.clear();
+        exportBitMap.section.push_back(0);
         iExportDescType = 0;
         iExportDescSize = 0;
-		return iExportBitMap;
+		return exportBitMap;
     }
 
     size_t nbytes = 0;
 	for(uint32_t i = 0; i < memsz; i++) // check why used ++i???
     {
-		if (iExportBitMap[i] != 0xff) ++nbytes; // number of groups of 8
+		if (exportBitMap.section[i] != 0xff) ++nbytes; // number of groups of 8
 	}
 
 	assert(memsz > 65536);
@@ -49,7 +53,7 @@ E32SectionUnit ExportBitmapProcessor::CreateExportBitmap()
 	iExportDescSize = memsz;
 
 	if(mbs + nbytes >= memsz)
-        return iExportBitMap;
+        return exportBitMap;
 
     uint32_t extra_space = mbs + nbytes;
     extra_space = (extra_space + sizeof(uint32_t) - 1) &~ (sizeof(uint32_t) - 1);
@@ -64,17 +68,17 @@ E32SectionUnit ExportBitmapProcessor::CreateExportBitmap()
     char* gptr = mptr + mbs;
     for (uint32_t i = 0; i < memsz; i++)  // check why used ++i???
     {
-        if (iExportBitMap[i] != 0xff)
+        if (exportBitMap.section[i] != 0xff)
         {
             mptr[i>>3] |= (1u << (i&7));
-            *gptr++ = iExportBitMap[i];
+            *gptr++ = exportBitMap.section[i];
         }
     }
 
-    iExportBitMap.clear();
-    iExportBitMap.swap(tmp);
+    exportBitMap.section.clear();
+    exportBitMap.section.swap(tmp);
 
-    return iExportBitMap;
+    return exportBitMap;
 }
 
 uint8_t ExportBitmapProcessor::ExportDescType() const

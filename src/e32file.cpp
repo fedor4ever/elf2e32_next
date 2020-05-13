@@ -25,9 +25,9 @@
 #include "exportbitmapprocessor.h"
 #include "symbollookupprocessor.h"
 
-E32SectionUnit ExportTable(const Symbols& s);
-E32SectionUnit CodeSection(const ElfParser* parser);
-E32SectionUnit DataSection(const ElfParser* parser);
+E32Section ExportTable(const Symbols& s);
+E32Section CodeSection(const ElfParser* parser);
+E32Section DataSection(const ElfParser* parser);
 
 bool CmpSections(E32Section first, E32Section second)
 {
@@ -70,6 +70,7 @@ void E32File::WriteE32File()
     for(auto x: iE32image)
     {
         printf("section type %u has size %u\n", x.type, x.section.size());
+        printf("current E32Image size: 0x%x\n", iHeader.size());
         switch(x.type)
         {
         case E32Sections::HEADER:
@@ -113,67 +114,72 @@ void E32File::WriteE32File()
         }
 
         iHeader.insert(iHeader.end(), x.section.begin(), x.section.end());
-        hdr = (E32ImageHeader*)iHeader[0];
-        hdrv = (E32ImageHeaderV*)iHeader[offset];
+        hdr = (E32ImageHeader*)&iHeader[0];
+        hdrv = (E32ImageHeaderV*)&iHeader[offset];
     }
     SetE32ImageCrc(iHeader.data());
     // see E32Rebuilder::ReCompress()
     SaveFile(iE32Opts->iOutput.c_str(), iHeader.data(), iHeader.size());
 }
 
-E32SectionUnit MakeExportSection(const Symbols& s)
+E32Section MakeExportSection(const Symbols& s)
 {
-    E32SectionUnit exports;
-    uint32_t sz = s.size() + 1;
-    exports.insert(exports.begin(), sz * sizeof(uint32_t), 0);
+    E32Section exports;
+    if(s.empty())
+        return exports;
 
-    uint32_t* iTable = (uint32_t*)exports.data();
+    exports.info = "EXPORTS";
+    exports.type = E32Sections::EXPORTS;
+    uint32_t sz = s.size() + 1;
+    exports.section.insert(exports.section.begin(), sz * sizeof(uint32_t), 0);
+
+    uint32_t* iTable = (uint32_t*)exports.section.data();
     iTable[0] = sz;
 
     uint32_t i = 1;
     for(auto x: s)
     {
-        printf("%s\n", x->AliasName().c_str());
+//        printf("%s\n", x->AliasName().c_str());
         iTable[i++] = x->Elf_st_value();
     }
     return exports;
 }
 
-E32SectionUnit CodeSection(const ElfParser* parser)
+E32Section CodeSection(const ElfParser* parser)
 {
-    E32SectionUnit code;
-    code.insert(code.begin(), parser->CodeSegment(), parser->CodeSegment() + parser->CodeSegmentSize());
+    E32Section code;
+    code.info = "CODE";
+    code.type = E32Sections::CODE;
+    code.section.insert(code.section.begin(), parser->CodeSegment(), parser->CodeSegment() + parser->CodeSegmentSize());
     return code;
 }
 
-E32SectionUnit DataSection(const ElfParser* parser)
+E32Section DataSection(const ElfParser* parser)
 {
     //iElfImage->GetRawRWSegment(), iElfImage->GetRWSize()
-    E32SectionUnit data;
-    data.insert(data.begin(), parser->CodeSegment(), parser->CodeSegment() + parser->DataSegmentSize());
+    E32Section data;
+    data.info = "DATA";
+    data.type = E32Sections::DATA;
+    data.section.insert(data.section.begin(), parser->CodeSegment(), parser->CodeSegment() + parser->DataSegmentSize());
     return data;
 }
 
 void E32File::PrepareData()
 {
-    E32Section tmp, tmp2;
-    E32SectionUnit exports;
-    printf("0x%x\n", iElfSrc->EntryPointOffset());
+    E32Section tmp;
+    printf("EntryPointOffset: 0x%x\n", iElfSrc->EntryPointOffset());
 
-    exports = MakeExportSection(iSymbols);
-    if(!exports.empty())
+    tmp = MakeExportSection(iSymbols);
+    if(tmp.type > E32Sections::EMPTY_SECTION)
     {
-        tmp2.section = exports;
-        tmp2.type = E32Sections::EXPORTS;
-        iE32image.push_back(tmp2);
+        iE32image.push_back(tmp);
 
-        ExportBitmapProcessor* proc = new ExportBitmapProcessor(iSymbols.size(), exports, iElfSrc->EntryPointOffset());
-        tmp2.section = proc->CreateExportBitmap();
-        if(!tmp2.section.empty())
+        ExportBitmapProcessor* proc =
+            new ExportBitmapProcessor(iSymbols.size(), tmp.section, iElfSrc->EntryPointOffset());
+        tmp = proc->CreateExportBitmap();
+        if(tmp.type > E32Sections::EMPTY_SECTION)
         {
-            tmp2.type = E32Sections::BITMAP;
-            iE32image.push_back(tmp2);
-
+            iE32image.push_back(tmp);
             iExportDescSize = proc->ExportDescSize();
             iExportDescType = proc->ExportDescType();
         }
@@ -183,27 +189,20 @@ void E32File::PrepareData()
     if(iE32Opts->iNamedlookup)
     {
         SymbolLookupProcessor* proc = new SymbolLookupProcessor(iSymbols);
-        tmp2.section = proc->SymlookSection();
-        if(tmp2.section.empty())
+        tmp = proc->SymlookSection();
+        if(tmp.type == E32Sections::EMPTY_SECTION)
             ReportError(ErrorCodes::BADEXPORTS);
-        tmp2.type = E32Sections::SYMLOOK;
-        iE32image.push_back(tmp2);
+        iE32image.push_back(tmp);
         delete proc;
     }
 
-    tmp2.section = CodeSection(iElfSrc);
-    if(!tmp2.section.empty())
-    {
-        tmp2.type = E32Sections::CODE;
-        iE32image.push_back(tmp2);
-    }
+    tmp = CodeSection(iElfSrc);
+    if(tmp.type > E32Sections::EMPTY_SECTION)
+        iE32image.push_back(tmp);
 
-    tmp2.section = DataSection(iElfSrc);
-    if(!tmp2.section.empty())
-    {
-        tmp2.type = E32Sections::DATA;
-        iE32image.push_back(tmp2);
-    }
+    tmp = DataSection(iElfSrc);
+    if(tmp.type > E32Sections::EMPTY_SECTION)
+        iE32image.push_back(tmp);
 
     #if 0
     tmp2.section = ImportsSection();

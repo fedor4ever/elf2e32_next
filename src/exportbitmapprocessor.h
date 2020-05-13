@@ -9,7 +9,7 @@ class ExportBitmapProcessor
         ExportBitmapProcessor(uint32_t exportsCount, const E32SectionUnit& exportTable, uint32_t absentVal);
         ~ExportBitmapProcessor();
 
-        E32SectionUnit CreateExportBitmap();
+        E32Section CreateExportBitmap();
         uint8_t ExportDescType() const;
         uint16_t ExportDescSize() const;
 
@@ -19,7 +19,6 @@ class ExportBitmapProcessor
         uint32_t iAbsentVal = 0;
         uint32_t iMissingExports = 0;
     private:
-        E32SectionUnit iExportBitMap;
         uint16_t iExportDescSize = 0;
         uint8_t iExportDescType = 0;
 };

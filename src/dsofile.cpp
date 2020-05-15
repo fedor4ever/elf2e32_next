@@ -85,14 +85,19 @@ void DSOFile::CreateTablesFromSymbols(const Symbols& s)
     iDSOSymNameStrTbl.push_back(0);
 
     const char *absentSymbol = "_._.absent_export_";
-    int length = strlen(absentSymbol);
+    const int length = strlen(absentSymbol) + 7;
     uint32_t aPos = 0;
-    length +=7;
     for(auto x: s)
     {
         // Ordinal Number can be upto 0xffff which is 6 digits
         if(x->Ordinal() > 999999)
             ReportError(ErrorCodes::VALUEOVERFLOW, "absent symbols");
+        // Update code section data..
+        iCodeSectionData[aPos++] = x->Ordinal();
+
+        //set symbol info..
+        iElfDynSym[aPos].st_name = iDSOSymNameStrTbl.size();
+
         /* If a symbol is marked as Absent in the DEF file, replace the
          * symbol name with "_._.absent_export_<Ordinal Number>"
          */
@@ -100,16 +105,11 @@ void DSOFile::CreateTablesFromSymbols(const Symbols& s)
         {
             char *symName = new char[length]();
             sprintf(symName, "_._.absent_export_%d", x->Ordinal());
-            x->SetName(symName);
+            iDSOSymNameStrTbl += symName;
             delete[] symName;
         }
-        // Update code section data..
-        iCodeSectionData[aPos++] = x->Ordinal();
-
-        //set symbol info..
-        iElfDynSym[aPos].st_name = iDSOSymNameStrTbl.size();
-
-        iDSOSymNameStrTbl += x->AliasName();
+        else
+            iDSOSymNameStrTbl += x->AliasName();
         iDSOSymNameStrTbl.push_back(0);
 
         SetElfSymbols(x, &iElfDynSym[aPos], aPos);

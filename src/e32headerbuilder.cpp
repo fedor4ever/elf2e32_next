@@ -32,7 +32,7 @@ E32SectionUnit E32HeaderBuilder::MakeE32Header()
     iHeader.reserve(headersize);
     iHeader.insert(iHeader.begin(), headersize, 0);
 
-    E32ImageHeader* hdr = (E32ImageHeader*)iHeader.data();
+    E32ImageHeader* hdr = new E32ImageHeader();
     hdr->iUid1 = iHeaderData->iUid1;
     hdr->iUid2 = iHeaderData->iUid2;
     hdr->iUid3 = iHeaderData->iUid3;
@@ -52,11 +52,18 @@ E32SectionUnit E32HeaderBuilder::MakeE32Header()
     hdr->iStackSize = iHeaderData->iStack;
     hdr->iProcessPriority = iHeaderData->iPriority;
 
+    iHeader.insert(iHeader.begin(), (char*)hdr, (char*)hdr + sizeof(E32ImageHeader));
+    delete hdr;
+    E32ImageHeaderJ* hdrJ = new E32ImageHeaderJ();
+    iHeader.insert(iHeader.end(), (char*)hdrJ, (char*)hdrJ + sizeof(E32ImageHeaderJ));
+    delete hdrJ;
+
 //    E32ImageHeaderV* v = (E32ImageHeaderV*)iHeader[sizeof(E32ImageHeader) + sizeof(E32ImageHeaderJ)];
-    E32ImageHeaderV* v = (E32ImageHeaderV*)(iHeader.data() + sizeof(E32ImageHeader) + sizeof(E32ImageHeaderJ));
+    E32ImageHeaderV* v = new E32ImageHeaderV();
     v->iS.iSecureId = iHeaderData->iSid;
     v->iS.iVendorId = iHeaderData->iVid;
     v->iS.iCaps = ProcessCapabilities(iHeaderData->iCapability);
-    // ends before E32ImageHeaderV::iExportDesc[0]
+    iHeader.insert(iHeader.end(), (char*)v, (char*)v + sizeof(E32ImageHeaderJ));
+    delete v;
     return iHeader;
 }

@@ -172,6 +172,7 @@ void E32File::PrepareData()
     tmp = MakeExportSection(iSymbols);
     if(tmp.type > E32Sections::EMPTY_SECTION)
     {
+        iHeader.pop_back(); // remove E32ImageHeaderV::iExportDesc[1]
         iE32image.push_back(tmp);
 
         ExportBitmapProcessor* proc =
@@ -186,6 +187,7 @@ void E32File::PrepareData()
         delete proc;
     }
 
+    #if 0
     if(iE32Opts->iNamedlookup)
     {
         SymbolLookupProcessor* proc = new SymbolLookupProcessor(iSymbols);
@@ -204,7 +206,6 @@ void E32File::PrepareData()
     if(tmp.type > E32Sections::EMPTY_SECTION)
         iE32image.push_back(tmp);
 
-    #if 0
     tmp2.section = ImportsSection();
     if(!tmp2.section.empty())
     {

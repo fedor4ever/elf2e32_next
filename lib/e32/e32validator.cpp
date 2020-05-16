@@ -250,6 +250,10 @@ void E32Validator::ValidateHeader()
             "exports section ends after code section ends");
         ThrowIfTrue((exportsStart-codeStart) & iPointerAlignMask,
             "exports aligned within code section");
+
+        uint32_t* exports = (uint32_t*)(iParser->GetBufferedImage() + iHdr->iExportDirOffset);
+        ThrowIfTrue(exports[0] != iHdr->iExportDirCount,
+            "exports size consistency. Export's header and iExportDirOffset size differs.");
     }
 
 	// check iTextSize...

@@ -16,7 +16,6 @@
 					<Add option="-std=c++14" />
 					<Add option="-g -O0" />
 					<Add option="-g -fno-omit-frame-pointer -ggdb -femit-class-debug-always -D_FORTIFY_SOURCE=2" />
-					<Add option="-D_DEBUG" />
 					<Add directory="lib/e32" />
 					<Add directory="src" />
 					<Add directory="lib/elf" />

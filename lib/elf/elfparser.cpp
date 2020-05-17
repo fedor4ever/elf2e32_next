@@ -145,14 +145,10 @@ uint32_t ElfParser::RWVirtualAddress() const
 
 uint32_t ElfParser::EntryPointOffset() const
 {
-	if (!(iElfHeader->e_entry) && !(iCodeSegmentHdr->p_vaddr))
-	{
-	    ReportWarning(ErrorCodes::UNDEFINEDENTRYPOINT);
-		return 0;
-	}
-	else if (!(iElfHeader->e_entry))
-        ReportError(ErrorCodes::ENTRYPOINTNOTSET);
-    return iElfHeader->e_entry - iCodeSegmentHdr->p_vaddr;
+    uint32_t x = EntryPoint();
+    if(!x)
+        return x;
+    return x - iCodeSegmentHdr->p_vaddr;
 }
 
 uint32_t ElfParser::EntryPoint() const

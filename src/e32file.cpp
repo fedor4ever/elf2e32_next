@@ -47,9 +47,12 @@ void E32File::WriteE32File()
     E32HeaderBuilder header(iE32Opts);
     iHeader = header.MakeE32Header();
 
+    if(!iSymbols.empty())
+        iHeader.pop_back(); // remove E32ImageHeaderV::iExportDesc[1]
+
     printf("header size: %u\n", iHeader.size());
 
-    E32ImageHeader* hdr = (E32ImageHeader*)iHeader.data();
+    E32ImageHeader* hdr = (E32ImageHeader*)&iHeader[0];
     hdr->iDataSize = iElfSrc->DataSegmentSize();
     hdr->iBssSize = iElfSrc->BssSegmentSize();
     hdr->iEntryPoint = iElfSrc->EntryPointOffset();
@@ -59,8 +62,7 @@ void E32File::WriteE32File()
     hdr->iExportDirCount = iSymbols.size();
 
     const uint32_t offset = sizeof(E32ImageHeader) + sizeof(E32ImageHeaderJ);
-//    E32ImageHeaderV* hdrv = (E32ImageHeaderV*)iHeader[offset];
-    E32ImageHeaderV* hdrv = (E32ImageHeaderV*)(iHeader.data() + offset);
+    E32ImageHeaderV* hdrv = (E32ImageHeaderV*)&iHeader[offset];
 
     hdrv->iExceptionDescriptor = iElfSrc->ExceptionDescriptor();
 
@@ -69,8 +71,6 @@ void E32File::WriteE32File()
     iE32image.sort([](auto A, auto B){return A.type < B.type;});
     for(auto x: iE32image)
     {
-        printf("section type %u has size %u\n", x.type, x.section.size());
-        printf("current E32Image size: 0x%x\n", iHeader.size());
         switch(x.type)
         {
         case E32Sections::HEADER:
@@ -113,6 +113,8 @@ void E32File::WriteE32File()
             break;
         }
 
+        printf("Added Chunks has size: %06zx for section: %s at address: %08zx\n",
+               x.section.size(), x.info.c_str(), iHeader.size());
         iHeader.insert(iHeader.end(), x.section.begin(), x.section.end());
         hdr = (E32ImageHeader*)&iHeader[0];
         hdrv = (E32ImageHeaderV*)&iHeader[offset];
@@ -122,6 +124,8 @@ void E32File::WriteE32File()
     SaveFile(iE32Opts->iOutput.c_str(), iHeader.data(), iHeader.size());
 }
 
+// Export Section consist of uint32_t array, zero element contains section's size.
+// Absent symbols values set E32 image entry point, other set to their elf st_value
 E32Section MakeExportSection(const Symbols& s)
 {
     E32Section exports;
@@ -130,18 +134,17 @@ E32Section MakeExportSection(const Symbols& s)
 
     exports.info = "EXPORTS";
     exports.type = E32Sections::EXPORTS;
+    // The export table has a header containing the number of entries
+	// before the entries themselves. So add 1 to number of exports
     uint32_t sz = s.size() + 1;
     exports.section.insert(exports.section.begin(), sz * sizeof(uint32_t), 0);
 
     uint32_t* iTable = (uint32_t*)exports.section.data();
-    iTable[0] = sz;
+    iTable[0] = s.size();
 
     uint32_t i = 1;
     for(auto x: s)
-    {
-//        printf("%s\n", x->AliasName().c_str());
         iTable[i++] = x->Elf_st_value();
-    }
     return exports;
 }
 
@@ -172,11 +175,10 @@ void E32File::PrepareData()
     tmp = MakeExportSection(iSymbols);
     if(tmp.type > E32Sections::EMPTY_SECTION)
     {
-        iHeader.pop_back(); // remove E32ImageHeaderV::iExportDesc[1]
         iE32image.push_back(tmp);
 
         ExportBitmapProcessor* proc =
-            new ExportBitmapProcessor(iSymbols.size(), tmp.section, iElfSrc->EntryPointOffset());
+            new ExportBitmapProcessor(iSymbols.size(), tmp.section, iElfSrc->EntryPoint());
         tmp = proc->CreateExportBitmap();
         if(tmp.type > E32Sections::EMPTY_SECTION)
         {
@@ -187,7 +189,10 @@ void E32File::PrepareData()
         delete proc;
     }
 
-    #if 0
+    tmp = CodeSection(iElfSrc);
+    if(tmp.type > E32Sections::EMPTY_SECTION)
+        iE32image.push_back(tmp);
+
     if(iE32Opts->iNamedlookup)
     {
         SymbolLookupProcessor* proc = new SymbolLookupProcessor(iSymbols);
@@ -198,10 +203,7 @@ void E32File::PrepareData()
         delete proc;
     }
 
-    tmp = CodeSection(iElfSrc);
-    if(tmp.type > E32Sections::EMPTY_SECTION)
-        iE32image.push_back(tmp);
-
+    #if 0
     tmp = DataSection(iElfSrc);
     if(tmp.type > E32Sections::EMPTY_SECTION)
         iE32image.push_back(tmp);

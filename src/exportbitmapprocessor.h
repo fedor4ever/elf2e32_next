@@ -17,7 +17,6 @@ class ExportBitmapProcessor
         uint32_t iExportsCount = 0;
         const E32SectionUnit& iExportTable;
         uint32_t iAbsentVal = 0;
-        uint32_t iMissingExports = 0;
     private:
         uint16_t iExportDescSize = 0;
         uint8_t iExportDescType = 0;

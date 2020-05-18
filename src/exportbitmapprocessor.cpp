@@ -13,71 +13,86 @@ ExportBitmapProcessor::~ExportBitmapProcessor()
 E32Section ExportBitmapProcessor::CreateExportBitmap()
 {
     E32Section exportBitMap;
-    exportBitMap.info = "EXPORTS";
-    exportBitMap.type = E32Sections::EXPORTS;
+    exportBitMap.info = "BITMAP";
+    exportBitMap.type = E32Sections::BITMAP;
 
     size_t memsz = (iExportsCount + 7) >> 3;  // size of complete bitmap
-	size_t mbs = (memsz + 7) >> 3;	// size of meta-bitmap
+    size_t mbs = (memsz + 7) >> 3;    // size of meta-bitmap
+    uint8_t* bitMap = new uint8_t[memsz](0xff);
 
-    exportBitMap.section.insert(exportBitMap.section.begin(), memsz, 0xff);
-    uint32_t* exports = ((uint32_t*)iExportTable.data()) + 1;
+    uint32_t* exports = ((uint32_t*)iExportTable.data());
+    exports++; // skip header
+    uint32_t absentExportsCnt = 0;
 
     for(int i = 0; i < iExportsCount; ++i)
     {
         if (exports[i] == iAbsentVal)
         {
-            exportBitMap.section[i>>3] &= ~(1u << (i & 7));
-            iMissingExports++;
+            bitMap[i>>3] &= ~(1u << (i & 7));
+            absentExportsCnt++;
         }
     }
 
-    if(iMissingExports == 0)
+    exportBitMap.section.insert(exportBitMap.section.begin(),
+                        (char*)bitMap, (char*)bitMap + memsz);
+
+    delete[] bitMap;
+
+    if(absentExportsCnt == 0)
     {
         exportBitMap.section.clear();
         exportBitMap.section.push_back(0);
+        exportBitMap.type = E32Sections::EMPTY_SECTION;
         iExportDescType = 0;
         iExportDescSize = 0;
-		return exportBitMap;
+        return exportBitMap;
     }
 
     size_t nbytes = 0;
-	for(uint32_t i = 0; i < memsz; i++) // check why used ++i???
+    for(uint32_t i = 0; i < memsz; i++) // check why used ++i???
     {
-		if (exportBitMap.section[i] != 0xff) ++nbytes; // number of groups of 8
-	}
-
-	assert(memsz > 65536);
-    assert(((mbs + nbytes) > 65536));
-
-	iExportDescType = KImageHdr_ExpD_FullBitmap;
-	iExportDescSize = memsz;
-
-	if(mbs + nbytes >= memsz)
-        return exportBitMap;
-
-    uint32_t extra_space = mbs + nbytes;
-    extra_space = (extra_space + sizeof(uint32_t) - 1) &~ (sizeof(uint32_t) - 1);
-    const char* aDesc = new char[extra_space]();
-
-    iExportDescType = KImageHdr_ExpD_SparseBitmap8;
-    iExportDescSize = mbs + nbytes;
-
-    E32SectionUnit tmp;
-    tmp.insert(tmp.begin(), memsz, 0);
-    char* mptr = tmp.data();
-    char* gptr = mptr + mbs;
-    for (uint32_t i = 0; i < memsz; i++)  // check why used ++i???
-    {
-        if (exportBitMap.section[i] != 0xff)
-        {
-            mptr[i>>3] |= (1u << (i&7));
-            *gptr++ = exportBitMap.section[i];
-        }
+        if ((uint8_t)exportBitMap.section[i] != 0xff)
+            ++nbytes; // number of groups of 8
     }
 
-    exportBitMap.section.clear();
-    exportBitMap.section.swap(tmp);
+//   at first try deal with Full bitmap
+    iExportDescType = KImageHdr_ExpD_FullBitmap;
+    iExportDescSize = memsz;
+    if (mbs + nbytes < memsz)
+    {
+        iExportDescType = KImageHdr_ExpD_SparseBitmap8;
+        iExportDescSize = mbs + nbytes;
+    }
 
+    if (iExportDescType == KImageHdr_ExpD_FullBitmap)
+    {
+        assert(memsz < 65536);
+        return exportBitMap;
+    }
+    else
+    {
+        uint32_t extra_space = mbs + nbytes - 1;
+        extra_space = (extra_space + sizeof(uint32_t) - 1) &~ (sizeof(uint32_t) - 1);
+        extra_space++;
+
+        assert((mbs + nbytes) < 65536);
+        uint8_t* aBuf = new uint8_t[extra_space]();
+        uint8_t* mptr = aBuf;
+        uint8_t* gptr = mptr + mbs;
+        for (uint32_t i = 0; i < memsz; i++)
+        {
+            if ((uint8_t)exportBitMap.section[i] != 0xff)
+            {
+                mptr[i>>3] |= (1u << (i&7));
+                *gptr++ = (uint8_t)exportBitMap.section[i];
+            }
+        }
+
+        E32SectionUnit tmp;
+        tmp.insert(tmp.begin(), (char*)aBuf, (char*)aBuf + extra_space);
+        exportBitMap.section = tmp;
+        delete[] aBuf;
+    }
     return exportBitMap;
 }
 
@@ -90,4 +105,3 @@ uint16_t ExportBitmapProcessor::ExportDescSize() const
 {
     return iExportDescSize;
 }
-

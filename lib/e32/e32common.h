@@ -130,6 +130,7 @@ struct E32ImageHeaderJ
 	uint32_t iUncompressedSize = 0;	///< Uncompressed size of file data after the header, or zero if file not compressed.
 };
 
+#pragma pack(push, 1)
 /**< In e32 binary take place after E32ImageHeaderJ */
 struct E32ImageHeaderV
 {
@@ -141,6 +142,7 @@ struct E32ImageHeaderV
     uint8_t  iExportDescType = 0;  // type of description of holes in export table
     uint8_t  iExportDesc[1];       // description of holes in export table - extend
 };
+#pragma pack(pop)
 
 enum E32HdrFmt
 {

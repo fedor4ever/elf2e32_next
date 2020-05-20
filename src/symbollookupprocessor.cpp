@@ -11,7 +11,8 @@ inline T Align(T v)
 	return (T)res;
 }
 
-SymbolLookupProcessor::SymbolLookupProcessor(const Symbols& s): iSymbols(s){}
+SymbolLookupProcessor::SymbolLookupProcessor(const Symbols& s, uint32_t dllCount):
+            iSymbols(s), iDllCount(dllCount){}
 
 const char pad[] = {'\0', '\0', '\0', '\0'};
 void SymbolLookupProcessor::ProcessSymbols()
@@ -73,9 +74,8 @@ E32Section SymbolLookupProcessor::SymlookSection()
     symInf = (E32EpocExpSymInfoHdr*)&data.section[0];
     symInf->iDepDllZeroOrdTableOffset = data.section.size();
 
-    data.section.insert(data.section.end(), 12, 0);
     data.section.insert(data.section.end(), symInf->iDllCount, 0);
-//    symInf = (E32EpocExpSymInfoHdr*)&data.section[0];
+    symInf = (E32EpocExpSymInfoHdr*)&data.section[0];
     symInf->iSize = data.section.size();
     return data;
 }
@@ -87,6 +87,7 @@ void SymbolLookupProcessor::InitHeader(E32EpocExpSymInfoHdr& s)
 
 	s.iSymCount = (uint16_t)iSymAddrTab.size();
 	s.iStringTableSz = iSymbolNames.size();
+	s.iDllCount = iDllCount;
 
     s.iFlags |= 1;//set the 0th bit
 	if(iSymNameOffset < 0xffff) // 		iSymNameOffset = iSymbolNames.size() >> 2;

@@ -10,7 +10,7 @@ struct E32EpocExpSymInfoHdr;
 class SymbolLookupProcessor
 {
     public:
-        SymbolLookupProcessor(const Symbols& s);
+        SymbolLookupProcessor(const Symbols& s, uint32_t dllCount);
         ~SymbolLookupProcessor(){}
         E32Section SymlookSection();
     private:
@@ -21,7 +21,8 @@ class SymbolLookupProcessor
         std::vector<uint32_t> iSymAddrTab;
         std::vector<uint32_t> iSymNameOffTab;
         std::string  iSymbolNames;
-        uint32_t     iSymNameOffset=0;
+        uint32_t     iSymNameOffset = 0;
+        uint32_t     iDllCount = 0;
 };
 
 #endif // SYMBOLLOOKUPPROCESSOR_H

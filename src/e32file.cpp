@@ -160,7 +160,7 @@ E32Section DataSection(const ElfParser* parser)
     E32Section data;
     data.info = "DATA";
     data.type = E32Sections::DATA;
-    data.section.insert(data.section.begin(), parser->CodeSegment(), parser->CodeSegment() + parser->DataSegmentSize());
+    data.section.insert(data.section.begin(), parser->DataSegment(), parser->DataSegment() + parser->DataSegmentSize());
     return data;
 }
 
@@ -200,11 +200,11 @@ void E32File::PrepareData()
         delete proc;
     }
 
-    #if 0
     tmp = DataSection(iElfSrc);
     if(tmp.type > E32Sections::EMPTY_SECTION)
         iE32image.push_back(tmp);
 
+    #if 0
     tmp2.section = ImportsSection();
     if(!tmp2.section.empty())
     {

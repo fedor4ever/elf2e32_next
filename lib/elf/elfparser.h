@@ -36,6 +36,8 @@ class ElfParser
         const char* CodeSegment() const;
 
         uint32_t DataSegmentSize() const;
+        const char* DataSegment() const;
+
         uint32_t ImportsCount() const;
         uint32_t ROVirtualAddress() const;
         uint32_t RWVirtualAddress() const;

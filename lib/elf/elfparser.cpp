@@ -50,6 +50,11 @@ const char* ElfParser::CodeSegment() const
     return iCodeSegment;
 }
 
+const char* ElfParser::DataSegment() const
+{
+    return iDataSegment;
+}
+
 uint32_t* ElfParser::GetDSOImportsOrdinals() const
 {
     return (uint32_t*)iCodeSegment;

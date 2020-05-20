@@ -89,11 +89,8 @@ void E32File::WriteE32File()
             {
             hdr->iTextSize = hdr->iCodeSize = iHeader.size() + x.section.size() - hdr->iCodeOffset;
             E32EpocExpSymInfoHdr* symInf = (E32EpocExpSymInfoHdr*)x.section.data();
-            uint32_t offset = symInf->iDepDllZeroOrdTableOffset;
-//            symInf->iDllCount = iNumDlls;
-
-//            offset += iNumDlls * sizeof(uint32_t); // Dependency list - ordinal zero placeholder
-            symInf->iSize = offset;
+            /// TODO (Administrator#1#05/20/20): Init this fields
+//            symInf->iDllCount = ;
             }
             break;
         case E32Sections::DATA:

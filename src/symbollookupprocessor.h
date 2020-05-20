@@ -11,7 +11,7 @@ class SymbolLookupProcessor
 {
     public:
         SymbolLookupProcessor(const Symbols& s);
-        ~SymbolLookupProcessor();
+        ~SymbolLookupProcessor(){}
         E32Section SymlookSection();
     private:
         void ProcessSymbols();

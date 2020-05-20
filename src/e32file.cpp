@@ -21,6 +21,7 @@
 #include "elfparser.h"
 #include "e32common.h"
 #include "elf2e32_opt.hpp"
+#include "importprocessor.h"
 #include "e32headerbuilder.h"
 #include "exportbitmapprocessor.h"
 #include "symbollookupprocessor.h"
@@ -190,15 +191,20 @@ void E32File::PrepareData()
     if(tmp.type > E32Sections::EMPTY_SECTION)
         iE32image.push_back(tmp);
 
+    ImportProcessor* proc = new ImportProcessor(iElfSrc);
     if(iE32Opts->iNamedlookup)
     {
-        SymbolLookupProcessor* proc = new SymbolLookupProcessor(iSymbols);
+        uint32_t r = proc->DllCount();
+        SymbolLookupProcessor* proc = new SymbolLookupProcessor(iSymbols, r);
         tmp = proc->SymlookSection();
         if(tmp.type == E32Sections::EMPTY_SECTION)
             ReportError(ErrorCodes::BADEXPORTS);
         iE32image.push_back(tmp);
         delete proc;
     }
+    tmp = proc->Imports();
+    iE32image.push_back(tmp);
+    delete proc;
 
     tmp = DataSection(iElfSrc);
     if(tmp.type > E32Sections::EMPTY_SECTION)

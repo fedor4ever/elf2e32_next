@@ -74,7 +74,7 @@ E32Section SymbolLookupProcessor::SymlookSection()
     symInf = (E32EpocExpSymInfoHdr*)&data.section[0];
     symInf->iDepDllZeroOrdTableOffset = data.section.size();
 
-    data.section.insert(data.section.end(), symInf->iDllCount, 0);
+    data.section.insert(data.section.end(), symInf->iDllCount * sizeof(uint32_t), 0);
     symInf = (E32EpocExpSymInfoHdr*)&data.section[0];
     symInf->iSize = data.section.size();
     return data;

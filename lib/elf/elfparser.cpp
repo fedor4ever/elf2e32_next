@@ -223,6 +223,9 @@ void ElfParser::ProcessDynamicTable()
 		case DT_SYMTAB:
 			iElfDynSym = ELF_ENTRY_PTR(Elf32_Sym, iElfHeader, aDyn[i].d_val);
 			break;
+		case DT_VERNEED:
+			iVersionNeed = ELF_ENTRY_PTR(Elf32_Verneed, iElfHeader, aDyn[i].d_val);
+			break;
 		default:
 			//cout << "Unknown entry in dynamic table Tag=0x%x Value=0x%x",aDyn[i].d_tag, aDyn[i].d_val);
 			break;
@@ -248,6 +251,10 @@ const char* ElfParser::GetSymbolNameFromStringTable(uint32_t index) const
     return iStringTable + iElfDynSym[index].st_name;
 }
 
+const char* ElfParser::GetNameFromStringTable(uint32_t offset) const
+{
+    return iStringTable + offset;
+}
 
 void ElfParser::ValidateElfImage()
 {
@@ -380,6 +387,10 @@ Elf32_Sym* ElfParser::LookupStaticSymbol(const char* aName)
     return nullptr;
 }
 
+Elf32_Verneed* ElfParser::GetElf32_Verneed() const
+{
+    return iVersionNeed;
+}
 
 
 

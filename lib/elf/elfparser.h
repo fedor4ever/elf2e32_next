@@ -44,6 +44,7 @@ class ElfParser
         uint32_t ExceptionDescriptor() const;
     public:
         const char* GetSymbolNameFromStringTable(uint32_t index) const;
+        const char* GetNameFromStringTable(uint32_t offset) const;
         Elf32_Sym* GetSymbolTableEntity(uint32_t index) const;
         Elf32_Sym* LookupStaticSymbol(const char* aName);
         Elf32_Phdr* GetSegmentAtAddr(Elf32_Addr addr) const;
@@ -52,6 +53,7 @@ class ElfParser
 
         uint32_t EntryPoint() const;
         uint32_t EntryPointOffset() const;
+        Elf32_Verneed* GetElf32_Verneed() const;
     private:
         void ValidateElfImage();
         void ProcessSectionHeaders();
@@ -93,6 +95,8 @@ class ElfParser
         const char* iDataSegment = nullptr;
         	/** The dynamic symbol array.*/
         Elf32_Sym* iElfDynSym = nullptr;//The ELF symbol
+
+        Elf32_Verneed* iVersionNeed = nullptr;
 
         //others
         char* iStringTable = nullptr;

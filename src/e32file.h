@@ -41,6 +41,7 @@
 struct Args;
 class ElfParser;
 struct E32ImageHeader;
+class RelocsProcessor;
 class ExportBitmapProcessor;
 typedef std::vector<char> E32SectionUnit;
 
@@ -86,6 +87,7 @@ class E32File
         E32image iE32image;
         E32SectionUnit iHeader;
         ExportBitmapProcessor* iExportBitmap;
+        RelocsProcessor* iRelocs = nullptr;
 };
 
 #endif // E32FILE_H

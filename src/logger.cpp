@@ -85,7 +85,8 @@ struct Message Messages[]=
     {ErrorCodes::NOSTATICSYMBOLS, "Input ELF File contains no static symbols.\n"},
     {ErrorCodes::UNKNOWNSECTION, "Detected unknown section while building E32Image.\n"},
     {ErrorCodes::UNFROZENSYMBOLADDED, "New Symbol %s found, export(s) not yet Frozen.\n"},
-    {ErrorCodes::ELF_ST_VALUE, "Copying elf symbols failed.\n"}//,
+    {ErrorCodes::ELF_ST_VALUE, "Copying elf symbols failed.\n"},
+    {ErrorCodes::ILLEGALEXPORTFROMDATASEGMENT, "'%s' : '%s' Import relocation does not refer to code segment.\n"}//,
 //    {ErrorCodes::, ".\n"}//,
 };
 

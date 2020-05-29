@@ -15,6 +15,7 @@
 //
 //
 
+#include <assert.h>
 #include <string.h>
 
 #include "elfdefs.h"
@@ -22,6 +23,7 @@
 #include "elfparser.h"
 
 using std::string;
+using std::vector;
 
 #define ELF_ENTRY_PTR(ptype, base, offset) \
 	((ptype*)((char*)base + offset))
@@ -36,6 +38,11 @@ Elf32_Word VirtualAddress(const Elf32_Phdr* p)
 {
 	if(p) return p->p_vaddr;
 	return 0;
+}
+
+bool GlobalSymbol(Elf32_Sym* aSym)
+{
+	return (ELF32_ST_BIND(aSym->st_info) == STB_GLOBAL);
 }
 
 ElfParser::ElfParser(string elf): iFile(elf) {}
@@ -200,8 +207,40 @@ void ElfParser::ProcessSectionHeaders()
     }
 }
 
+Elf32_Word ElfParser::Addend(const Elf32_Rel* r) const
+{
+	Elf32_Phdr* h = GetSegmentAtAddr(r->r_offset);
+	uint32_t off = h->p_offset + r->r_offset - h->p_vaddr;
+	Elf32_Word* aAddendPlace = ELF_ENTRY_PTR(Elf32_Word, iElfHeader, off);
+	return *aAddendPlace;
+}
+
+uint32_t ElfParser::Addend(const Elf32_Rela* r) const
+{
+    return r->r_addend;
+}
+
+
+vector<RelocBlock> ElfParser::GetRelocs()
+{
+    vector<RelocBlock> r;
+    if(iRel.rel)
+        r.push_back(iRel);
+    if(iRela.rela)
+        r.push_back(iRela);
+    if(iPltRel.rel)
+        r.push_back(iPltRel);
+    if(iPltRela.rela)
+        r.push_back(iPltRela);
+    assert(!r.empty());
+    return r;
+}
+
 void ElfParser::ProcessDynamicTable()
 {
+    bool aPltRelTypeSeen = false, aJmpRelSeen = false;
+    uint32_t iJmpRelOffset = 0, iPltRelType = 0;
+
     uint32_t i = 0, nSymbols = 0;
     Elf32_Dyn* aDyn = ELF_ENTRY_PTR(Elf32_Dyn, iElfHeader, iDynSegmentHdr->p_offset);
     while( aDyn[i].d_tag != DT_NULL )
@@ -214,18 +253,49 @@ void ElfParser::ProcessDynamicTable()
 		case DT_ARM_SYMTABSZ:
 			nSymbols = aDyn[i].d_val;
 			break;
-		case DT_STRTAB:
-			iStringTable = ELF_ENTRY_PTR(char, iElfHeader, aDyn[i].d_val);
-			break;
 		case DT_HASH:
 			iHashTbl = ELF_ENTRY_PTR(Elf32_HashTable, iElfHeader, aDyn[i].d_val);
+			break;
+		case DT_STRTAB:
+			iStringTable = ELF_ENTRY_PTR(char, iElfHeader, aDyn[i].d_val);
 			break;
 		case DT_SYMTAB:
 			iElfDynSym = ELF_ENTRY_PTR(Elf32_Sym, iElfHeader, aDyn[i].d_val);
 			break;
+		case DT_SONAME:
+			iSONameOffset = aDyn[i].d_val;
+			break;
+		case DT_JMPREL:
+			aJmpRelSeen = true;
+			iJmpRelOffset = aDyn[i].d_val;
+			break;
+		case DT_REL:
+            iRel.rel = ELF_ENTRY_PTR(Elf32_Rel, iElfHeader, aDyn[i].d_val);
+			break;
+		case DT_RELSZ:
+			iRel.size = aDyn[i].d_val;
+			break;
+		case DT_RELA:
+			iRela.rela = ELF_ENTRY_PTR(Elf32_Rela, iElfHeader, aDyn[i].d_val);
+			break;
+		case DT_RELASZ:
+			iRela.size = aDyn[i].d_val;
+			break;
+		case DT_VERSYM:
+			iVersionTbl = ELF_ENTRY_PTR(Elf32_Half, iElfHeader, aDyn[i].d_val);
+			break;
+        case DT_VERDEF:
+            iVersionDef = ELF_ENTRY_PTR(Elf32_Verdef, iElfHeader, aDyn[i].d_val);
+            break;
+		case DT_VERDEFNUM:
+            iVerInfoCount += aDyn[i].d_val;
+			break;
 		case DT_VERNEED:
 			iVersionNeed = ELF_ENTRY_PTR(Elf32_Verneed, iElfHeader, aDyn[i].d_val);
 			break;
+        case DT_VERNEEDNUM:
+            iVerInfoCount += aDyn[i].d_val;
+            break;
 		default:
 			//cout << "Unknown entry in dynamic table Tag=0x%x Value=0x%x",aDyn[i].d_tag, aDyn[i].d_val);
 			break;
@@ -239,6 +309,41 @@ void ElfParser::ProcessDynamicTable()
 		if (nSymbols && (nSymbols != iHashTbl->nChains))
 			ReportError(ErrorCodes::SYMBOLCOUNTMISMATCHERROR, iFile);
 	}
+
+    if(aPltRelTypeSeen && aJmpRelSeen)
+    {
+		if (iPltRelType == DT_REL)
+		{
+			iPltRel.rel = ELF_ENTRY_PTR(Elf32_Rel, iElfHeader, iJmpRelOffset);
+			// check to see if PltRels are included in iRel. If they are
+			// ignore them since we don't care about the distinction
+			if (iRel.rel <= iPltRel.rel && iPltRel.rel < ELF_ENTRY_PTR(Elf32_Rel, iRel.rel, iRel.size))
+				iPltRel.rel = nullptr;
+		}
+		else
+		{
+			iPltRela.rela = ELF_ENTRY_PTR(Elf32_Rela, iElfHeader, iJmpRelOffset);
+			// check to see if PltRels are included in iRel.  If they are
+			// ignore them since we don't care about the distinction
+			if (iRela.rela <= iPltRela.rela && iPltRela.rela < ELF_ENTRY_PTR(Elf32_Rela, iRela.rela, iRela.size))
+				iPltRela.rela = nullptr;
+		}
+	}
+}
+
+Elf32_Verdef* ElfParser::GetElf32_Verdef() const
+{
+    return iVersionDef;
+}
+
+Elf32_Half* ElfParser::VersionTbl() const
+{
+    return iVersionTbl;
+}
+
+const char* ElfParser::SOName() const
+{
+    return iStringTable + iSONameOffset;
 }
 
 uint32_t ElfParser::ImportsCount() const
@@ -253,6 +358,8 @@ const char* ElfParser::GetSymbolNameFromStringTable(uint32_t index) const
 
 const char* ElfParser::GetNameFromStringTable(uint32_t offset) const
 {
+    if(!iStringTable)
+        return nullptr;
     return iStringTable + offset;
 }
 
@@ -324,7 +431,6 @@ ESegmentType ElfParser::SegmentType(Elf32_Addr aAddr) const
 	return ESegmentUndefined;
 }
 
-
 Elf32_Phdr* ElfParser::GetSegmentAtAddr(Elf32_Addr addr) const
 {
     if(iCodeSegmentHdr)
@@ -344,10 +450,14 @@ Elf32_Phdr* ElfParser::GetSegmentAtAddr(Elf32_Addr addr) const
     return nullptr;
 }
 
-
 Elf32_Sym* ElfParser::GetSymbolTableEntity(uint32_t index) const
 {
     return &iElfDynSym[index];
+}
+
+Elf32_Word ElfParser::VerInfoCount() const
+{
+    return iVerInfoCount;
 }
 
 uint32_t ElfParser::ExceptionDescriptor() const
@@ -392,8 +502,58 @@ Elf32_Verneed* ElfParser::GetElf32_Verneed() const
     return iVersionNeed;
 }
 
+Elf32_Sym* ElfParser::FindSymbol(char* aName)
+{
+	if(!aName )
+		return nullptr;
 
+	uint32_t aHashVal = elf_hash((const unsigned char*)aName);
 
+	Elf32_Sword* aBuckets = ELF_ENTRY_PTR(Elf32_Sword, iHashTbl, sizeof(Elf32_HashTable) );
+	Elf32_Sword* aChains = ELF_ENTRY_PTR(Elf32_Sword, aBuckets, sizeof(Elf32_Sword)*(iHashTbl->nBuckets) );
 
+	Elf32_Sword aIdx = aHashVal % iHashTbl->nBuckets;
+	aIdx = aBuckets[aIdx];
+	do
+    {
+		char *symName = ELF_ENTRY_PTR(char, iStringTable, iElfDynSym[aIdx].st_name);
+		if( !strcmp(symName, aName) )
+			return &iElfDynSym[aIdx];
+		aIdx = aChains[aIdx];
+	} while( aIdx > 0 );
+	return nullptr;
+}
 
+uint32_t ElfParser::GetSymbolOrdinal(char* aSymName) const
+{
+    Elf32_Sym* aSym = FindSymbol(aSymName);
+    if(!aSym)
+        return (uint32_t)-1;
+    return GetSymbolOrdinal(aSym);
+}
 
+uint32_t ElfParser::GetSymbolOrdinal(Elf32_Sym* aSym) const
+{
+    uint32_t aOrd = (uint32_t)-1;
+    if( aSym->st_shndx == ESegmentRO)
+    {
+        Elf32_Word aOffset = iCodeSegmentHdr->p_offset + aSym->st_value - iCodeSegmentHdr->p_vaddr;
+        Elf32_Word *aLocation = ELF_ENTRY_PTR(Elf32_Word, iElfHeader, aOffset);
+        aOrd = *aLocation;
+    }
+    return aOrd;
+}
+
+Elf32_Word ElfParser::GetRelocationOffset(Elf32_Addr r_offset) const
+{
+    Elf32_Phdr* aHdr = GetSegmentAtAddr(r_offset);
+    return r_offset - aHdr->p_vaddr;
+}
+
+Elf32_Word* ElfParser::GetRelocationPlace(Elf32_Addr r_offset) const
+{
+	Elf32_Phdr* aHdr = GetSegmentAtAddr(r_offset);
+	uint32_t off = aHdr->p_offset + r_offset - aHdr->p_vaddr;
+	Elf32_Word* aPlace = ELF_ENTRY_PTR(Elf32_Word, iElfHeader, off);
+	return aPlace;
+}

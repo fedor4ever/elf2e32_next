@@ -113,6 +113,8 @@
 		<Unit filename="src/logger.cpp" />
 		<Unit filename="src/logger.h" />
 		<Unit filename="src/main.cpp" />
+		<Unit filename="src/relocsprocessor.cpp" />
+		<Unit filename="src/relocsprocessor.h" />
 		<Unit filename="src/symbol.cpp" />
 		<Unit filename="src/symbol.h" />
 		<Unit filename="src/symbollookupprocessor.cpp" />

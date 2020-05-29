@@ -7,7 +7,7 @@ template <class T>
 inline T Align(T v)
 {
 	unsigned int inc = sizeof(uint32_t)-1;
-	unsigned int res = ((unsigned int)v+inc) & ~inc;
+	unsigned int res = ((uint32_t)v+inc) & ~inc;
 	return (T)res;
 }
 

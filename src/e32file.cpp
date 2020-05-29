@@ -22,6 +22,7 @@
 #include "e32common.h"
 #include "elf2e32_opt.hpp"
 #include "importprocessor.h"
+#include "relocsprocessor.h"
 #include "e32headerbuilder.h"
 #include "exportbitmapprocessor.h"
 #include "symbollookupprocessor.h"
@@ -36,15 +37,18 @@ bool CmpSections(E32Section first, E32Section second)
 }
 
 E32File::E32File(const Args* args, const ElfParser* elfParser, const Symbols& s):
-    iE32Opts(args), iElfSrc(elfParser), iSymbols(s) {}
+    iE32Opts(args), iElfSrc(elfParser), iSymbols(s){}
 
 E32File::~E32File()
 {
-    //dtor
+    delete iRelocs;
 }
 
 void E32File::WriteE32File()
 {
+    iRelocs = new RelocsProcessor(iElfSrc);
+    iRelocs->Process();
+
     E32HeaderBuilder header(iE32Opts);
     iHeader = header.MakeE32Header();
 
@@ -191,10 +195,14 @@ void E32File::PrepareData()
     if(tmp.type > E32Sections::EMPTY_SECTION)
         iE32image.push_back(tmp);
 
-    ImportProcessor* proc = new ImportProcessor(iElfSrc);
+    ImportProcessor* proc = new ImportProcessor(iElfSrc, iRelocs, iE32Opts);
+    tmp = proc->Imports();
+    iE32image.push_back(tmp);
     if(iE32Opts->iNamedlookup)
+    delete proc;
+
     {
-        uint32_t r = proc->DllCount();
+        uint32_t r = iRelocs->DllCount();
         SymbolLookupProcessor* proc = new SymbolLookupProcessor(iSymbols, r);
         tmp = proc->SymlookSection();
         if(tmp.type == E32Sections::EMPTY_SECTION)
@@ -202,9 +210,6 @@ void E32File::PrepareData()
         iE32image.push_back(tmp);
         delete proc;
     }
-    tmp = proc->Imports();
-    iE32image.push_back(tmp);
-    delete proc;
 
     tmp = DataSection(iElfSrc);
     if(tmp.type > E32Sections::EMPTY_SECTION)

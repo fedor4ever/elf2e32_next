@@ -469,6 +469,15 @@ bool IsDataSymbol(const Elf32_Sym* s)
 	return (STT_OBJECT == ELF32_ST_TYPE(s->st_info));
 }
 
+bool IsImportedSymbol(uint32_t symIdx, const ElfParser* parser)
+{
+    Elf32_Sym* sym = parser->GetSymbolTableEntity(symIdx);
+    uint32_t aIdx = sym->st_shndx;
+    if( (aIdx == SHN_UNDEF) && IsGlobalSymbol(sym) && HasSymbolDefaultVisibility(sym) && (!IsDefinedSymbol(sym, parser)) )
+		return true;
+	return false;
+}
+
 bool IsExportedSymbol(const Elf32_Sym* sym, const ElfParser* parser)
 {
     uint32_t index = sym->st_shndx;

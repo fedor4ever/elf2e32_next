@@ -83,7 +83,8 @@ enum ErrorCodes
     NOSTATICSYMBOLS,
     UNKNOWNSECTION,
     UNFROZENSYMBOLADDED,
-    ELF_ST_VALUE
+    ELF_ST_VALUE,
+    ILLEGALEXPORTFROMDATASEGMENT
 };
 
 // handy macro for tracing

@@ -62,4 +62,6 @@ class SymbolProcessor
         Symbols iSymbols;
 };
 
+bool IsImportedSymbol(uint32_t symIdx, const ElfParser* parser);
+
 #endif // SYMBOLPROCESSOR_H

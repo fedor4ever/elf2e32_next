@@ -19,9 +19,19 @@
 #define ELFPARSER_H
 
 #include <string>
+#include <vector>
 #include "elfdefs.h"
 
 struct Elf32_Sym;
+struct Elf32_Rel;
+struct Elf32_Rela;
+
+struct RelocBlock
+{
+    uint32_t    size;
+    Elf32_Rel*  rel  = nullptr;
+    Elf32_Rela* rela = nullptr;
+};
 
 class ElfParser
 {
@@ -38,6 +48,9 @@ class ElfParser
         uint32_t DataSegmentSize() const;
         const char* DataSegment() const;
 
+        Elf32_Word GetRelocationOffset(Elf32_Addr r_offset) const;
+        Elf32_Word* GetRelocationPlace(Elf32_Addr r_offset) const;
+    public:
         uint32_t ImportsCount() const;
         uint32_t ROVirtualAddress() const;
         uint32_t RWVirtualAddress() const;
@@ -45,15 +58,27 @@ class ElfParser
     public:
         const char* GetSymbolNameFromStringTable(uint32_t index) const;
         const char* GetNameFromStringTable(uint32_t offset) const;
+        uint32_t GetSymbolOrdinal(char* aSymName) const;
+        Elf32_Sym* FindSymbol(char* aName);
+        uint32_t GetSymbolOrdinal(Elf32_Sym* aSym) const;
+    public:
         Elf32_Sym* GetSymbolTableEntity(uint32_t index) const;
         Elf32_Sym* LookupStaticSymbol(const char* aName);
         Elf32_Phdr* GetSegmentAtAddr(Elf32_Addr addr) const;
         ESegmentType SegmentType(Elf32_Addr addr) const;
         uint32_t* GetDSOImportsOrdinals() const;
-
+    public:
         uint32_t EntryPoint() const;
         uint32_t EntryPointOffset() const;
         Elf32_Verneed* GetElf32_Verneed() const;
+        Elf32_Verdef*  GetElf32_Verdef() const;
+        Elf32_Word VerInfoCount() const;
+        const char* SOName() const;
+    public:
+        uint32_t Addend(const Elf32_Rel* r) const;
+        uint32_t Addend(const Elf32_Rela* r) const;
+        Elf32_Half* VersionTbl() const;
+        std::vector<RelocBlock> GetRelocs();
     private:
         void ValidateElfImage();
         void ProcessSectionHeaders();
@@ -98,8 +123,19 @@ class ElfParser
 
         Elf32_Verneed* iVersionNeed = nullptr;
 
+    private:
+        Elf32_Verdef* iVersionDef = nullptr;
+        Elf32_Word iVerInfoCount = 0;
+        Elf32_Half* iVersionTbl = nullptr;
         //others
         char* iStringTable = nullptr;
+        uint32_t iSONameOffset = 0;
+    private:
+        std::vector<RelocBlock> iRelocs;
+        RelocBlock iRel;
+        RelocBlock iRela;
+        RelocBlock iPltRel;
+        RelocBlock iPltRela;
 };
 
 

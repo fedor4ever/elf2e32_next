@@ -15,22 +15,6 @@
 //
 //
 
-/// TODO (Administrator#1#05/20/20): integrate code: ...
-///
-///	// At the end, the dependencies are listed. They remain zeroes and shall be fixed up
-///	// while relocating.
-///
-///	// Update the import table to have offsets to ordinal zero entries
-///	uint32 *importTab = iImportSection;
-///
-///	uint32 offset = aBaseOffset - iHdr->iCodeOffset;// This gives the offset of syminfo table base
-///										// wrt the code section start
-///	offset += expHdr.iDepDllZeroOrdTableOffset; // This points to the ordinal zero offset table now
-///	for(auto x: iImportTabLocations) {
-///		uint32 *aLocation = (importTab + x);
-///		*aLocation = offset;
-///		offset += sizeof(uint32);
-///	}
 #ifndef E32FILE_H
 #define E32FILE_H
 
@@ -88,6 +72,7 @@ class E32File
         E32SectionUnit iHeader;
         ExportBitmapProcessor* iExportBitmap;
         RelocsProcessor* iRelocs = nullptr;
+        std::vector<int32_t> iImportTabLocations;
 };
 
 #endif // E32FILE_H

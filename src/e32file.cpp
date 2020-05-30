@@ -44,6 +44,19 @@ E32File::~E32File()
     delete iRelocs;
 }
 
+void UpdateOrdinalOffsetTable(E32Section& s, uint32_t offSet, const std::vector<int32_t>& iImportTabLocations)
+{
+    E32EpocExpSymInfoHdr* symInf = (E32EpocExpSymInfoHdr*)&s.section[0];
+    uint32_t* aImportTab = (uint32_t*)(&s.section[0] + symInf->iDepDllZeroOrdTableOffset);
+    offSet += symInf->iDepDllZeroOrdTableOffset; // This points to the ordinal zero offset table now
+    for(auto x: iImportTabLocations)
+    {
+        uint32_t* aLocation = (aImportTab + x);
+        *aLocation = offSet;
+        offSet += sizeof(uint32_t);
+    }
+}
+
 void E32File::WriteE32File()
 {
     iRelocs = new RelocsProcessor(iElfSrc);
@@ -93,9 +106,8 @@ void E32File::WriteE32File()
         case E32Sections::SYMLOOK:
             {
             hdr->iTextSize = hdr->iCodeSize = iHeader.size() + x.section.size() - hdr->iCodeOffset;
-            E32EpocExpSymInfoHdr* symInf = (E32EpocExpSymInfoHdr*)x.section.data();
-            /// TODO (Administrator#1#05/20/20): Init this fields
-//            symInf->iDllCount = ;
+            /// TODO (#1#05/30/20): Implement initialization for field iImportTabLocations
+//            UpdateOrdinalOffsetTable(x, hdr->iTextSize);
             }
             break;
         case E32Sections::DATA:
@@ -197,10 +209,11 @@ void E32File::PrepareData()
 
     ImportProcessor* proc = new ImportProcessor(iElfSrc, iRelocs, iE32Opts);
     tmp = proc->Imports();
+    iImportTabLocations = proc->ImportTabLocations();
     iE32image.push_back(tmp);
-    if(iE32Opts->iNamedlookup)
     delete proc;
 
+    if(iE32Opts->iNamedlookup)
     {
         uint32_t r = iRelocs->DllCount();
         SymbolLookupProcessor* proc = new SymbolLookupProcessor(iSymbols, r);

@@ -228,27 +228,13 @@ void E32File::PrepareData()
     if(tmp.type > E32Sections::EMPTY_SECTION)
         iE32image.push_back(tmp);
 
-    #if 0
-    tmp2.section = ImportsSection();
-    if(!tmp2.section.empty())
-    {
-        tmp2.type = E32Sections::IMPORTS;
-        iE32image.push_back(tmp2);
-    }
-    tmp2.section = CodeRelocsSection();
-    if(!tmp2.section.empty())
-    {
-        tmp2.type = E32Sections::CODERELOCKS;
-        iE32image.push_back(tmp2);
-    }
+    tmp = iRelocs->DataRelocsSection();
+    if(tmp.type > E32Sections::EMPTY_SECTION)
+        iE32image.push_back(tmp);
 
-    tmp2.section = DataRelocsSection();
-    if(!tmp2.section.empty())
-    {
-        tmp2.type = E32Sections::DATARELOCKS;
-        iE32image.push_back(tmp2);
-    }
-    #endif // 0
+    tmp = iRelocs->CodeRelocsSection();
+    if(tmp.type > E32Sections::EMPTY_SECTION)
+        iE32image.push_back(tmp);
 }
 
 

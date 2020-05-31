@@ -417,9 +417,9 @@ bool ElfParser::IsRelocationFixRequired() const
     return true;
 }
 
-ESegmentType ElfParser::SegmentType(Elf32_Addr aAddr) const
+ESegmentType ElfParser::SegmentType(Elf32_Addr addr) const
 {
-	Elf32_Phdr* phdr = GetSegmentAtAddr(aAddr);
+	Elf32_Phdr* phdr = GetSegmentAtAddr(addr);
 	if(!phdr)
 		return ESegmentUndefined;
 
@@ -526,34 +526,72 @@ Elf32_Sym* ElfParser::FindSymbol(char* aName)
 
 uint32_t ElfParser::GetSymbolOrdinal(char* aSymName) const
 {
-    Elf32_Sym* aSym = FindSymbol(aSymName);
-    if(!aSym)
+    Elf32_Sym* s = FindSymbol(aSymName);
+    if(!s)
         return (uint32_t)-1;
-    return GetSymbolOrdinal(aSym);
+    return GetSymbolOrdinal(s);
 }
 
 uint32_t ElfParser::GetSymbolOrdinal(Elf32_Sym* aSym) const
 {
-    uint32_t aOrd = (uint32_t)-1;
+    uint32_t ord = (uint32_t)-1;
     if( aSym->st_shndx == ESegmentRO)
     {
         Elf32_Word aOffset = iCodeSegmentHdr->p_offset + aSym->st_value - iCodeSegmentHdr->p_vaddr;
         Elf32_Word *aLocation = ELF_ENTRY_PTR(Elf32_Word, iElfHeader, aOffset);
-        aOrd = *aLocation;
+        ord = *aLocation;
     }
-    return aOrd;
+    return ord;
 }
 
 Elf32_Word ElfParser::GetRelocationOffset(Elf32_Addr r_offset) const
 {
-    Elf32_Phdr* aHdr = GetSegmentAtAddr(r_offset);
-    return r_offset - aHdr->p_vaddr;
+    Elf32_Phdr* hdr = GetSegmentAtAddr(r_offset);
+    return r_offset - hdr->p_vaddr;
 }
 
 Elf32_Word* ElfParser::GetRelocationPlace(Elf32_Addr r_offset) const
 {
-	Elf32_Phdr* aHdr = GetSegmentAtAddr(r_offset);
-	uint32_t off = aHdr->p_offset + r_offset - aHdr->p_vaddr;
-	Elf32_Word* aPlace = ELF_ENTRY_PTR(Elf32_Word, iElfHeader, off);
-	return aPlace;
+	Elf32_Phdr* hdr = GetSegmentAtAddr(r_offset);
+	uint32_t off = hdr->p_offset + r_offset - hdr->p_vaddr;
+	Elf32_Word* place = ELF_ENTRY_PTR(Elf32_Word, iElfHeader, off);
+	return place;
+}
+
+Elf32_Word* ElfParser::GetFixupLocation(Elf32_Addr place, bool ExportTableReloc)
+{
+    Elf32_Phdr* phdr = ExportTableReloc ?
+        iCodeSegmentHdr : GetSegmentHdr(place);
+    Elf32_Word offset = phdr->p_offset + place - phdr->p_vaddr;
+    return ELF_ENTRY_PTR(Elf32_Word, iElfHeader, offset);
+}
+
+Elf32_Phdr* ElfParser::GetSegmentHdr(Elf32_Addr addr)
+{
+	if(iCodeSegmentHdr) {
+		uint32_t start = iCodeSegmentHdr->p_vaddr;
+		if( start <= addr && addr < (start + iCodeSegmentHdr->p_memsz) ) {
+			return iCodeSegmentHdr;
+		}
+	}
+	if(iDataSegmentHdr) {
+		uint32_t start = iDataSegmentHdr->p_vaddr;
+		if( start <= addr && addr < (start + iDataSegmentHdr->p_memsz) ) {
+			return iDataSegmentHdr;
+		}
+	}
+    return nullptr;
+}
+
+ESegmentType ElfParser::Segment(Elf32_Sym* s)
+{
+    ESegmentType type = ESegmentUndefined;
+    if(!s) return type;
+
+	Elf32_Phdr* hdr = GetSegmentHdr(s->st_value);
+
+    if (hdr == iCodeSegmentHdr) type = ESegmentRO;
+    else if (hdr == iDataSegmentHdr) type = ESegmentRW;
+
+	return type;
 }

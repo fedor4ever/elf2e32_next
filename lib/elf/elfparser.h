@@ -79,6 +79,10 @@ class ElfParser
         uint32_t Addend(const Elf32_Rela* r) const;
         Elf32_Half* VersionTbl() const;
         std::vector<RelocBlock> GetRelocs();
+    public:
+        Elf32_Word* GetFixupLocation(Elf32_Addr aPlace, bool ExportTableReloc);
+        Elf32_Phdr* GetSegmentHdr(Elf32_Addr aAddr);
+        ESegmentType Segment(Elf32_Sym* s);
     private:
         void ValidateElfImage();
         void ProcessSectionHeaders();

@@ -15,18 +15,28 @@
 //
 //
 
+#include <string.h>
 #include <algorithm>
 
-#include "string.h"
 #include "elfdefs.h"
+#include "e32common.h"
 #include "elfparser.h"
 #include "relocsprocessor.h"
 #include "symbolprocessor.h"
+#include "e32importsprocessor.hpp"
 
 using std::string;
 
 #define ELF_ENTRY_PTR(ptype, base, offset) \
 	((ptype*)((char*)base + offset))
+
+template <class T>
+inline T Align(T v)
+{
+	unsigned int inc = sizeof(uint32_t)-1;
+	unsigned int res = ((uint32_t)v+inc) & ~inc;
+	return (T)res;
+}
 
 bool StringPtrLess::operator() (const char * lhs, const char * rhs) const
 {
@@ -66,6 +76,130 @@ bool ValidRelocEntry(uint8_t aType)
     }
 }
 
+struct E32RelocPageDesc {
+    uint32_t aOffset;
+    uint32_t aSize;
+};
+
+/**
+This function calculates the relocation taking into consideration
+the page boundaries if they are crossed. The relocations are
+sorted.
+@param aRelocs - relocations found in the Elf file.
+*/
+size_t RelocationsSize(const std::vector<LocalReloc>& relocs)
+{
+    size_t bytecount = 0;
+    int page = -1;
+    for(auto x: relocs)
+    {
+        int p = x.iAddr & 0xfffff000;
+        if (page != p)
+        {
+            if (bytecount%4 != 0)
+                bytecount += sizeof(uint16_t);
+            bytecount += sizeof(E32RelocPageDesc); // page, block size
+            page = p;
+        }
+        bytecount += sizeof(uint16_t);
+    }
+    if (bytecount%4 != 0)
+        bytecount += sizeof(uint16_t);
+    return bytecount;
+}
+
+/**
+This function creates Code and Data relocations from the corresponding
+ELF form to E32 form.
+*/
+E32Section CreateRelocations(std::vector<LocalReloc>& aRelocations, E32Section& aRelocs, RelocsProcessor* rp)
+{
+	size_t rsize = RelocationsSize(aRelocations);
+	if(!rsize)
+        return E32Section();
+
+    size_t aRelocsSize = Align(rsize + sizeof(E32RelocSection));
+
+    uint32_t aBase = (*aRelocations.begin()).iSegment->p_vaddr; //Elf32_Phdr	*iSegment = nullptr;
+    //add for cleanup to be done later..
+    aRelocs.section.insert(aRelocs.section.begin(), aRelocsSize, 0);
+    E32RelocSection* e32reloc = (E32RelocSection*)&aRelocs.section[0];
+
+    uint16_t* data = (uint16_t*)e32reloc->iRelocBlock;
+    E32RelocPageDesc* startofblock = (E32RelocPageDesc*)data;
+
+    int page = -1;
+    int pagesize = sizeof(E32RelocPageDesc);
+    for (auto r: aRelocations)
+    {
+        int p = r.iAddr & 0xfffff000;
+        if (page != p)
+        {
+            if (pagesize%4 != 0)
+            {
+                *data++ = 0;
+                pagesize += sizeof(uint16_t);
+            }
+            if (page == -1) page = p;
+            startofblock->aOffset = page - aBase;
+            startofblock->aSize = pagesize;
+            pagesize = sizeof(E32RelocPageDesc);
+            page = p;
+            startofblock = (E32RelocPageDesc *)data;
+            data = (uint16_t*)(startofblock + 1);
+        }
+        uint16_t relocType = rp->Fixup(r);
+        *data++ = (uint16_t)((r.iAddr & 0xfff) | relocType);
+        pagesize += sizeof(uint16_t);
+    }
+    if (pagesize%4 != 0)
+    {
+        *data++ = 0;
+        pagesize += sizeof(uint16_t);
+    }
+    startofblock->aOffset = page - aBase;
+    startofblock->aSize = pagesize;
+
+    E32RelocSection* rsec = (E32RelocSection*)&aRelocs.section[0];
+    rsec->iNumberOfRelocs = aRelocations.size();
+    rsec->iSize = rsize;
+    return aRelocs;
+}
+
+/**
+This function adjusts the fixup for the relocation entry.
+@return - Relocation type
+*/
+uint16_t RelocsProcessor::Fixup(const LocalReloc& rel)
+{
+	if(rel.rel && !rel.iVeneerSymbol)
+	{
+		Elf32_Word * aLoc = iElf->GetFixupLocation(rel.rel->r_offset, rel.rel);
+		Elf32_Word aLocVal = * aLoc;
+
+		if (rel.iRelType == R_ARM_ABS32 || rel.iRelType == R_ARM_GLOB_DAT )
+		{
+
+			Elf32_Word aFixedVal = aLocVal + rel.iSymbol->st_value;
+			*aLoc = aFixedVal;
+		}
+	}
+
+	ESegmentType aType;
+	if(rel.iSymbol)
+		aType = iElf->Segment(rel.iSymbol);
+	else
+		aType = rel.iSegmentType;
+
+	if (aType == ESegmentRO)
+		return KTextRelocType;
+	else if (aType == ESegmentRW)
+		return KDataRelocType;
+
+	// maybe this should be an error
+	return KInferredRelocType;
+}
+
 template <class T>
 void RelocsProcessor::ProcessRelocations(const T* elfRel, const RelocBlock& r)
 {
@@ -94,6 +228,20 @@ void RelocsProcessor::ProcessRelocations(const T* elfRel, const RelocBlock& r)
 //				 ElfRelocation* aRel = new ElfLocalRelocation(this, elfRel->r_offset, aAddend,
 //						aSymIdx, aType, &tmp);
 //				 AddToLocalRelocations((ElfLocalRelocation*)aRel);
+                LocalReloc loc;
+                loc.iAddr = elfRel->r_offset;
+                loc.iSegment = iElf->GetSegmentAtAddr(loc.iAddr);
+                switch(aType)
+                {
+                case ESegmentType::ESegmentRO:
+                    iCodeRelocations.push_back(loc);
+                    break;
+                case ESegmentType::ESegmentRW:
+                    iDataRelocations.push_back(loc);
+                    break;
+                default:
+                    break;
+                }
 			}
 		}
 		elfRel++;
@@ -112,7 +260,7 @@ void RelocsProcessor::ProcessVerInfo()
 	std::vector<VersionInfo> iVerInfo(aSz);
 //	iVerInfo.reserve(aSz);
 
-	Elf32_Verdef* aDef = iElf->GetElf32_Verdef();
+//	Elf32_Verdef* aDef = iElf->GetElf32_Verdef();
 	const char*  aSoName = nullptr;
 	const char*  aLinkAs = nullptr;
 
@@ -166,4 +314,20 @@ uint32_t RelocsProcessor::DllCount() const
 std::vector<std::string> RelocsProcessor::StrTableData() const
 {
     return iLinkAsNames;
+}
+
+E32Section RelocsProcessor::CodeRelocsSection()
+{
+    E32Section codeRel;
+    codeRel.type = E32Sections::CODERELOCKS;
+    codeRel.info = "CODERELOCKS";
+    return CreateRelocations(iCodeRelocations, codeRel, this);
+}
+
+E32Section RelocsProcessor::DataRelocsSection()
+{
+    E32Section dataRel;
+    dataRel.type = E32Sections::DATARELOCKS;
+    dataRel.info = "DATARELOCKS";
+    return CreateRelocations(iDataRelocations, dataRel, this);
 }

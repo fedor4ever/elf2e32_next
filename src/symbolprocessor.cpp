@@ -472,8 +472,7 @@ bool IsDataSymbol(const Elf32_Sym* s)
 bool IsImportedSymbol(uint32_t symIdx, const ElfParser* parser)
 {
     Elf32_Sym* sym = parser->GetSymbolTableEntity(symIdx);
-    uint32_t aIdx = sym->st_shndx;
-    if( (aIdx == SHN_UNDEF) && IsGlobalSymbol(sym) && HasSymbolDefaultVisibility(sym) && (!IsDefinedSymbol(sym, parser)) )
+    if(!IsDefinedSymbol(sym, parser) && IsGlobalSymbol(sym) && HasSymbolDefaultVisibility(sym))
 		return true;
 	return false;
 }

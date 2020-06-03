@@ -75,18 +75,11 @@ bool ValidRelocEntry(uint8_t aType)
         return false;
     }
 }
-
 struct E32RelocPageDesc {
-    uint32_t aOffset;
-    uint32_t aSize;
+    uint32_t iPageOffset;
+    uint32_t iBlockSize;
 };
 
-/**
-This function calculates the relocation taking into consideration
-the page boundaries if they are crossed. The relocations are
-sorted.
-@param aRelocs - relocations found in the Elf file.
-*/
 size_t RelocationsSize(const std::vector<LocalReloc>& relocs)
 {
     size_t bytecount = 0;
@@ -120,13 +113,15 @@ E32Section CreateRelocations(std::vector<LocalReloc>& aRelocations, E32Section& 
 
     size_t aRelocsSize = Align(rsize + sizeof(E32RelocSection));
 
-    uint32_t aBase = (*aRelocations.begin()).iSegment->p_vaddr; //Elf32_Phdr	*iSegment = nullptr;
-    //add for cleanup to be done later..
-    aRelocs.section.insert(aRelocs.section.begin(), aRelocsSize, 0);
-    E32RelocSection* e32reloc = (E32RelocSection*)&aRelocs.section[0];
+    uint32_t aBase = (*aRelocations.begin()).iSegment->p_vaddr;
 
-    uint16_t* data = (uint16_t*)e32reloc->iRelocBlock;
-    E32RelocPageDesc* startofblock = (E32RelocPageDesc*)data;
+    aRelocs.section.insert(aRelocs.section.begin(), aRelocsSize, 0);
+    E32RelocSection* section = (E32RelocSection*)&aRelocs.section[0];
+    section->iNumberOfRelocs = aRelocations.size();
+    section->iSize = rsize;
+
+    E32RelocBlock* block = section->iRelocBlock;
+    uint16_t* data = block->iEntry;
 
     int page = -1;
     int pagesize = sizeof(E32RelocPageDesc);
@@ -135,18 +130,19 @@ E32Section CreateRelocations(std::vector<LocalReloc>& aRelocations, E32Section& 
         int p = r.iAddr & 0xfffff000;
         if (page != p)
         {
-            if (pagesize%4 != 0)
+            if(pagesize%4 != 0)
             {
                 *data++ = 0;
                 pagesize += sizeof(uint16_t);
             }
             if (page == -1) page = p;
-            startofblock->aOffset = page - aBase;
-            startofblock->aSize = pagesize;
-            pagesize = sizeof(E32RelocPageDesc);
+            block->iPageOffset = page - aBase;
+            block->iBlockSize = pagesize;
+
+            pagesize = sizeof(E32RelocBlock) - sizeof(E32RelocBlock::iEntry);
             page = p;
-            startofblock = (E32RelocPageDesc *)data;
-            data = (uint16_t*)(startofblock + 1);
+            block = (E32RelocBlock*)data;
+            data = block->iEntry;
         }
         uint16_t relocType = rp->Fixup(r);
         *data++ = (uint16_t)((r.iAddr & 0xfff) | relocType);
@@ -157,12 +153,8 @@ E32Section CreateRelocations(std::vector<LocalReloc>& aRelocations, E32Section& 
         *data++ = 0;
         pagesize += sizeof(uint16_t);
     }
-    startofblock->aOffset = page - aBase;
-    startofblock->aSize = pagesize;
-
-    E32RelocSection* rsec = (E32RelocSection*)&aRelocs.section[0];
-    rsec->iNumberOfRelocs = aRelocations.size();
-    rsec->iSize = rsize;
+    block->iPageOffset = page - aBase;
+    block->iBlockSize = pagesize;
     return aRelocs;
 }
 

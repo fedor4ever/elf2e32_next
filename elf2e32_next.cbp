@@ -98,18 +98,18 @@
 		<Unit filename="src/e32file.h" />
 		<Unit filename="src/e32flags.cpp" />
 		<Unit filename="src/e32flags.h" />
-		<Unit filename="src/e32headerbuilder.cpp" />
-		<Unit filename="src/e32headerbuilder.h" />
+		<Unit filename="src/e32header_section.cpp" />
+		<Unit filename="src/e32header_section.h" />
 		<Unit filename="src/e32info.cpp" />
 		<Unit filename="src/e32info.h" />
 		<Unit filename="src/e32rebuilder.cpp" />
 		<Unit filename="src/e32rebuilder.h" />
 		<Unit filename="src/elf2e32.cpp" />
 		<Unit filename="src/elf2e32.h" />
-		<Unit filename="src/exportbitmapprocessor.cpp" />
-		<Unit filename="src/exportbitmapprocessor.h" />
-		<Unit filename="src/importprocessor.cpp" />
-		<Unit filename="src/importprocessor.h" />
+		<Unit filename="src/exportbitmap_section.cpp" />
+		<Unit filename="src/exportbitmap_section.h" />
+		<Unit filename="src/import_section.cpp" />
+		<Unit filename="src/import_section.h" />
 		<Unit filename="src/logger.cpp" />
 		<Unit filename="src/logger.h" />
 		<Unit filename="src/main.cpp" />
@@ -117,8 +117,8 @@
 		<Unit filename="src/relocsprocessor.h" />
 		<Unit filename="src/symbol.cpp" />
 		<Unit filename="src/symbol.h" />
-		<Unit filename="src/symbollookupprocessor.cpp" />
-		<Unit filename="src/symbollookupprocessor.h" />
+		<Unit filename="src/symbollookup_section.cpp" />
+		<Unit filename="src/symbollookup_section.h" />
 		<Unit filename="src/symbolprocessor.cpp" />
 		<Unit filename="src/symbolprocessor.h" />
 		<Extensions>

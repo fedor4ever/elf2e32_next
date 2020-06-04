@@ -26,11 +26,11 @@
 
 struct Args;
 
-class E32HeaderBuilder
+class E32HeaderSection
 {
     public:
-        E32HeaderBuilder(const Args* opts);
-        ~E32HeaderBuilder() {}
+        E32HeaderSection(const Args* opts);
+        ~E32HeaderSection() {}
         E32SectionUnit MakeE32Header();
 
     private:

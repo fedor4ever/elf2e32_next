@@ -26,7 +26,7 @@ struct Args;
 class ElfParser;
 struct E32ImageHeader;
 class RelocsProcessor;
-class ExportBitmapProcessor;
+class ExportBitmapSection;
 typedef std::vector<char> E32SectionUnit;
 
 /// Sections for E32Image chunks in sorted order
@@ -70,7 +70,7 @@ class E32File
         uint8_t  iExportDescType = 0;
         E32image iE32image;
         E32SectionUnit iHeader;
-        ExportBitmapProcessor* iExportBitmap;
+        ExportBitmapSection* iExportBitmap;
         RelocsProcessor* iRelocs = nullptr;
         std::vector<int32_t> iImportTabLocations;
 };

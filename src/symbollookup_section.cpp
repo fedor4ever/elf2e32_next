@@ -1,7 +1,7 @@
 #include <assert.h>
 #include "symbol.h"
 #include "e32common.h"
-#include "symbollookupprocessor.h"
+#include "symbollookup_section.h"
 
 template <class T>
 inline T Align(T v)
@@ -11,11 +11,11 @@ inline T Align(T v)
 	return (T)res;
 }
 
-SymbolLookupProcessor::SymbolLookupProcessor(const Symbols& s, uint32_t dllCount):
+SymbolLookupSection::SymbolLookupSection(const Symbols& s, uint32_t dllCount):
             iSymbols(s), iDllCount(dllCount){}
 
 const char pad[] = {'\0', '\0', '\0', '\0'};
-void SymbolLookupProcessor::ProcessSymbols()
+void SymbolLookupSection::ProcessSymbols()
 {
     for(auto x: iSymbols)
     {
@@ -36,7 +36,7 @@ void SymbolLookupProcessor::ProcessSymbols()
     }
 }
 
-E32Section SymbolLookupProcessor::SymlookSection()
+E32Section SymbolLookupSection::SymlookSection()
 {
     E32Section data;
     data.info = "SYMLOOK";
@@ -80,7 +80,7 @@ E32Section SymbolLookupProcessor::SymlookSection()
     return data;
 }
 
-void SymbolLookupProcessor::InitHeader(E32EpocExpSymInfoHdr& s)
+void SymbolLookupSection::InitHeader(E32EpocExpSymInfoHdr& s)
 {
     uint32_t offset = sizeof(E32EpocExpSymInfoHdr);
 	assert(offset == s.iSymbolTblOffset);

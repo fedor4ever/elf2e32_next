@@ -7,11 +7,11 @@
 
 struct E32EpocExpSymInfoHdr;
 
-class SymbolLookupProcessor
+class SymbolLookupSection
 {
     public:
-        SymbolLookupProcessor(const Symbols& s, uint32_t dllCount);
-        ~SymbolLookupProcessor(){}
+        SymbolLookupSection(const Symbols& s, uint32_t dllCount);
+        ~SymbolLookupSection(){}
         E32Section SymlookSection();
     private:
         void ProcessSymbols();

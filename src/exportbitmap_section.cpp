@@ -1,16 +1,16 @@
 #include <assert.h>
 #include "e32common.h"
-#include "exportbitmapprocessor.h"
+#include "exportbitmap_section.h"
 
-ExportBitmapProcessor::ExportBitmapProcessor(uint32_t exportsCount, const E32SectionUnit& exportTable, uint32_t absentVal):
+ExportBitmapSection::ExportBitmapSection(uint32_t exportsCount, const E32SectionUnit& exportTable, uint32_t absentVal):
     iExportsCount(exportsCount), iExportTable(exportTable), iAbsentVal(absentVal) {}
 
-ExportBitmapProcessor::~ExportBitmapProcessor()
+ExportBitmapSection::~ExportBitmapSection()
 {
     //dtor
 }
 
-E32Section ExportBitmapProcessor::CreateExportBitmap()
+E32Section ExportBitmapSection::CreateExportBitmap()
 {
     E32Section exportBitMap;
     exportBitMap.info = "BITMAP";
@@ -96,12 +96,12 @@ E32Section ExportBitmapProcessor::CreateExportBitmap()
     return exportBitMap;
 }
 
-uint8_t ExportBitmapProcessor::ExportDescType() const
+uint8_t ExportBitmapSection::ExportDescType() const
 {
     return iExportDescType;
 }
 
-uint16_t ExportBitmapProcessor::ExportDescSize() const
+uint16_t ExportBitmapSection::ExportDescSize() const
 {
     return iExportDescSize;
 }

@@ -50,12 +50,12 @@ class RelocsProcessor;
 //
 // stringtable at end
 
-class ImportProcessor
+class ImportsSection
 {
     public:
-        ImportProcessor(const ElfParser* elf, const RelocsProcessor* rel,
+        ImportsSection(const ElfParser* elf, const RelocsProcessor* rel,
                         const Args* opts);
-        ~ImportProcessor();
+        ~ImportsSection();
         E32Section Imports();
         std::vector<int32_t> ImportTabLocations();
     private:
@@ -69,6 +69,7 @@ class ImportProcessor
         std::string iStrTab;
         std::vector<std::string> iDsoNames;
         std::vector<int32_t> iImportTabLocations;
+        bool iNamedLookUp = false;
 };
 
 #endif // IMPORTPROCESSOR_H

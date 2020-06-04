@@ -19,12 +19,12 @@
 #include "e32common.h"
 #include "symbiantime.h"
 #include "elf2e32_opt.hpp"
-#include "e32headerbuilder.h"
+#include "e32header_section.h"
 
-E32HeaderBuilder::E32HeaderBuilder(const Args* opts): iHeaderData(opts)
+E32HeaderSection::E32HeaderSection(const Args* opts): iHeaderData(opts)
 {}
 
-E32SectionUnit E32HeaderBuilder::MakeE32Header()
+E32SectionUnit E32HeaderSection::MakeE32Header()
 {
     // set CRC, compression type after E32Image done
     E32ImageHeader* hdr = new E32ImageHeader();

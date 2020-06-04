@@ -3,11 +3,11 @@
 
 #include "e32file.h"
 
-class ExportBitmapProcessor
+class ExportBitmapSection
 {
     public:
-        ExportBitmapProcessor(uint32_t exportsCount, const E32SectionUnit& exportTable, uint32_t absentVal);
-        ~ExportBitmapProcessor();
+        ExportBitmapSection(uint32_t exportsCount, const E32SectionUnit& exportTable, uint32_t absentVal);
+        ~ExportBitmapSection();
 
         E32Section CreateExportBitmap();
         uint8_t ExportDescType() const;

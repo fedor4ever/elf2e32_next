@@ -34,14 +34,6 @@ using std::vector;
 #define ELF_ENTRY_PTR(ptype, base, offset) \
 	((ptype*)((char*)base + offset))
 
-template <class T>
-inline T Align(T v)
-{
-	unsigned int inc = sizeof(uint32_t)-1;
-	unsigned int res = ((uint32_t)v+inc) & ~inc;
-	return (T)res;
-}
-
 ImportsSection::ImportsSection(const ElfParser* elf, const RelocsProcessor* r,
             const Args* opts): iElf(elf), iRelocs(r), iOpts(opts)
 {
@@ -64,6 +56,8 @@ void ImportsSection::AllocStringTable()
         iStrTab += x;
         iStrTab.push_back(0);
 	}
+    while(iStrTab.size()%4)
+        iStrTab.push_back(0);
 }
 
 bool IsFileExist(std::string& s)
@@ -101,68 +95,66 @@ string ImportsSection::FindDSO(std::string name)
 E32Section ImportsSection::Imports()
 {
     AllocStringTable();
-// Imports stored as uint32_t, therefore
-// we calculate count uint32_t cells without vla parts(E32ImportBlock::iImports[])
-    size_t importSectionSize = sizeof(/*E32ImportSection*/ int32_t)/4 +
-        ( (sizeof(E32ImportBlock) - sizeof(int32_t))/4 * iRelocs->DllCount() +
-        iRelocs->ImportsCount() );
+// We calculate count bytes without vla parts(E32ImportBlock::iImports[])
+    size_t importSectionSize = sizeof(/*E32ImportSection*/ int32_t) +
+        ( (sizeof(E32ImportBlock) - sizeof(int32_t)) * iRelocs->DllCount() +
+        iRelocs->ImportsCount() * sizeof(uint32_t));
 
 // These are the 0th ordinals imported into the import table, one
 // entry for each DLL.
     if(iOpts->iNamedlookup)
-		importSectionSize += iRelocs->DllCount();
+		importSectionSize += iRelocs->DllCount() * sizeof(uint32_t);
 
-//    vector<Elf32_Word> aImportSection;
-    vector<Elf32_Word> aImportSection(importSectionSize);
+	size_t totalSize = importSectionSize + iStrTab.size();
+    vector<Elf32_Word> aImportSection;
+    aImportSection.push_back(totalSize); // E32ImportSection::iSize = totalSize
 
-    while(iStrTab.size()%4)
-        iStrTab.push_back(0);
-	size_t totalSize = Align(importSectionSize + iStrTab.size());
-
-	// Fill in the section header now we have the correct value.
-	E32ImportSection* section = (E32ImportSection*)&aImportSection[0];
-	section->iSize = totalSize;
-	E32ImportBlock* block = section->iImportBlock;
-	uint32_t* data = block->iImports;
-	uint32_t offset = sizeof(E32ImportSection);
-
+    ImportLibs imps = iRelocs->GetImports();
 	int idx = 0;
-	#if 0
-	while(offset < aImportSection.size())
+	for (auto p: imps)
     {
-        offset += sizeof(E32ImportBlock);
-        block->iNumberOfImports++;
-        block = (E32ImportBlock*)data;
-        block->iOffsetOfDllName = iStrTabOffsets[idx] + importSectionSize;
-
-        int nImports = imports.size();
+        Relocations& imports = p.second;
+        // E32ImportBlock::iOffsetOfDllName
+        aImportSection.push_back(iStrTabOffsets[idx] + importSectionSize);
 		// Take the additional 0th ordinal import into account
-		if(iNamedLookUp) nImports++;
-		block->iNumberOfImports = nImports;
+		size_t nImports = imports.size();
+		if(iOpts->iNamedlookup) nImports++;
+		aImportSection.push_back(nImports); // E32ImportBlock::iNumberOfImports
 
-        for(auto aReloc: imports)
-		{
-			char* aSymName = iElfImage->GetSymbolName(aReloc->iSymNdx);
-			unsigned int aOrdinal = aElfImage.GetSymbolOrdinal(aSymName);
-            if (iElfImage->SegmentType(aReloc->iAddr) != ESegmentRO)
-                ReportError(ILLEGALEXPORTFROMDATASEGMENT, aSymName, iElfImage->iElfInput);
+        string aDSO = FindDSO(imports[0].iSOName);
+		ElfParser parser(aDSO);
+		parser.GetElfFileLayout();
+		for(auto aReloc: imports)
+        {
+            const char* aSymName = iElf->GetSymbolNameFromStringTable(aReloc.iSymNdx);
+            uint32_t aOrdinal = parser.GetSymbolOrdinal(aSymName);
 
-            Elf32_Word aRelocOffset = iElfImage->GetRelocationOffset(aReloc);
-            *data++ = aRelocOffset;
-            Elf32_Word* aRelocPlace = iElfImage->GetRelocationPlace(aReloc);
-            *aRelocPlace = (aReloc->iAddend<<16) | aOrdinal;
+//check the reloc refers to Code Segment
+            Elf32_Addr r_offset = aReloc.iRela.r_offset;
+            if (iElf->SegmentType(r_offset) != ESegmentType::ESegmentRO)
+                ReportError(ErrorCodes::ILLEGALEXPORTFROMDATASEGMENT, aSymName, iOpts->iElfinput);
+            Elf32_Word off = iElf->GetRelocationOffset(r_offset);
+            aImportSection.push_back(off);
+
+            Elf32_Word* aRelocPlace = iElf->GetRelocationPlace(r_offset);
+            *aRelocPlace = (aReloc.iRela.r_addend<<16) | aOrdinal;
         }
-
-        block = (E32ImportBlock*)data;
-        data = block->iImports;
-
-    #endif // 0
+        if(iOpts->iNamedlookup)
+        {
+            // Keep track of the location of the entry
+			iImportTabLocations.push_back(aImportSection.size());
+			// Put the entry as 0 now, which shall be updated
+			aImportSection.push_back(0);
+		}
+		idx++;
+    }
+    assert(importSectionSize == aImportSection.size() * sizeof(Elf32_Word));
 
     E32Section imports;
     imports.type = E32Sections::IMPORTS;
     imports.info = "IMPORTS";
     imports.section.insert(imports.section.begin(), (char*)&aImportSection.at(0),
-               (char*)&aImportSection.at(0) + importSectionSize * sizeof(uint32_t));
+               (char*)&aImportSection.at(0) + importSectionSize);
     imports.section.insert(imports.section.end(), iStrTab.data(),
                            iStrTab.data() + iStrTab.size());
     return imports;

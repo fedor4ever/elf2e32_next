@@ -38,6 +38,17 @@ struct StringPtrLess
     bool operator() (const char * lhs, const char * rhs) const;
 };
 
+struct ElfImportRelocation
+{
+    uint32_t iSymNdx;
+    Elf32_Rela iRela;
+    std::string iLinkAs;
+    std::string iSOName;
+};
+
+typedef std::vector<ElfImportRelocation> Relocations;
+typedef std::map<std::string, Relocations> ImportLibs;
+
 struct LocalReloc
 {
     uint32_t    iAddr;
@@ -62,6 +73,7 @@ class RelocsProcessor
         E32Section CodeRelocsSection();
         E32Section DataRelocsSection();
         uint16_t Fixup(const LocalReloc& rel);
+        ImportLibs RelocsProcessor::GetImports();
 
     private:
         void AddToImports(uint32_t index, Elf32_Rela rela);
@@ -75,6 +87,7 @@ class RelocsProcessor
         std::vector<VersionInfo> iVerInfo;
         std::vector<LocalReloc> iCodeRelocations;
         std::vector<LocalReloc> iDataRelocations;
+        ImportLibs  iImports;
         uint16_t* iVersionTbl = nullptr;  //= iElf->VersionTbl();
         uint32_t iImportsCount = 0;
         uint32_t iDllCount = 0;

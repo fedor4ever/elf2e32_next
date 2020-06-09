@@ -192,10 +192,15 @@ const char* E32Parser::GetDLLName(uint32_t OffsetOfDllName) const
     return (iBufferedFile + iHdr->iImportOffset + OffsetOfDllName);
 }
 
+// iExportDirOffset points after Export Table header
+uint32_t* E32Parser::GetExportTable()
+{
+    return (uint32_t*)(iBufferedFile + iHdr->iExportDirOffset - sizeof(uint32_t));
+}
+
 const E32EpocExpSymInfoHdr* E32Parser::GetEpocExpSymInfoHdr() const
 {
-    uint32_t* expTable = (uint32_t*)(iBufferedFile + iHdr->iExportDirOffset);
-    uint32_t* zeroethOrd = expTable - 1;
+    uint32_t* zeroethOrd = GetExportTable();
     return (E32EpocExpSymInfoHdr*)(iBufferedFile + iHdr->iCodeOffset + *zeroethOrd - iHdr->iCodeBase);
 }
 

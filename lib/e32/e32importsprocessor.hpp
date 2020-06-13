@@ -51,8 +51,8 @@ struct E32RelocSection
 
 struct E32ImportBlockPE2
 {
-    uint32_t iOffsetOfDllName = 0;           ///< Offset from start of import section for a NULL terminated executable (DLL or EXE) name.
-    int32_t  iNumberOfImports = 0;           ///< Number of imports from this executable.
+    uint32_t iOffsetOfDllName = 0;    ///< Offset from start of import section for a NULL terminated executable (DLL or EXE) name.
+    int32_t  iNumberOfImports = 0;    ///< Number of imports from this executable.
 };
 
 struct E32ImportBlock
@@ -66,14 +66,14 @@ struct E32ImportBlock
 
 struct E32ImportSection
 {
-    int32_t iSize;     ///< Size of E32ImportBlock arrays
+    int32_t iSize;     ///< Size of E32 Import Section in bytes
     const E32ImportBlock iImportBlock[1]; //iImportBlock[iDllRefTableCount]
 };
 
 class E32ImportParser
 {
 public:
-    E32ImportParser(uint32_t importFormat,
+    E32ImportParser(uint32_t importCount, uint32_t importFormat,
     		const E32ImportSection* section);
 
     void NextImportBlock();

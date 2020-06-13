@@ -30,11 +30,10 @@ uint32_t E32ImportBlock::Size(uint32_t aImpFmt) const
     return r;
 }
 
-E32ImportParser::E32ImportParser(uint32_t importFormat,
-    const E32ImportSection* section):
-         iImportFormat(importFormat), iSection(section)
+E32ImportParser::E32ImportParser(uint32_t importCount, uint32_t importFormat,
+    const E32ImportSection* section): iImportCounter(importCount),
+         iImportFormat(importFormat), iSection(section), iNext(section->iImportBlock)
 {
-    iNext = iSection->iImportBlock;
 }
 
 void E32ImportParser::NextImportBlock()

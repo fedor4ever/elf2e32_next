@@ -20,6 +20,7 @@
 #include "argparser.h"
 #include "elfparser.h"
 #include "e32common.h"
+#include "e32parser.h"
 #include "elf2e32_opt.hpp"
 #include "import_section.h"
 #include "relocsprocessor.h"
@@ -44,17 +45,32 @@ E32File::~E32File()
     delete iRelocs;
 }
 
-void UpdateOrdinalOffsetTable(E32Section& s, uint32_t offSet, const std::vector<int32_t>& iImportTabLocations)
+void UpdateImportTable(const char* s, size_t bufsz, const std::vector<int32_t>& iImportTabLocations)
 {
-    E32EpocExpSymInfoHdr* symInf = (E32EpocExpSymInfoHdr*)&s.section[0];
-    uint32_t* aImportTab = (uint32_t*)(&s.section[0] + symInf->iDepDllZeroOrdTableOffset);
-    offSet += symInf->iDepDllZeroOrdTableOffset; // This points to the ordinal zero offset table now
+    E32Parser* p = new E32Parser(s, bufsz);
+    E32ImageHeader* h = p->GetFileLayout();
+    E32EpocExpSymInfoHdr* symInf = p->GetEpocExpSymInfoHdr();
+    size_t offSet = p->ExpSymInfoTableOffset();
+    E32EpocExpSymInfoHdr* sInf = (E32EpocExpSymInfoHdr*)(p->GetBufferedImage() + offSet);
+//    printf("aBaseOffset: %08x\n", offSet);
+//    printf("symInf: %p\t sInf: %p\n", symInf, sInf);
+/// TODO (Administrator#1#06/15/20): Investigate why GetEpocExpSymInfoHdr() point to wrong offset.
+// In  E32Parset it works fine...
+//    offSet += symInf->iDepDllZeroOrdTableOffset; // This points to the ordinal zero offset table now
+    offSet += sInf->iDepDllZeroOrdTableOffset; // This points to the ordinal zero offset table now
+    offSet -= h->iCodeOffset;
+//    printf("symInf->iDepDllZeroOrdTableOffset: %08x\n", symInf->iDepDllZeroOrdTableOffset);
+//    printf("symInf->iSymCount: %08x\n", symInf->iSymCount);
+//    printf("h->iCodeOffset: %08x\n", h->iCodeOffset);
+
+    uint32_t* aImportTab = (uint32_t*)p->GetImportSection();
     for(auto x: iImportTabLocations)
     {
-        uint32_t* aLocation = (aImportTab + x);
-        *aLocation = offSet;
+//        printf("offSet: %08x\n", offSet);
+        aImportTab[x] = offSet;
         offSet += sizeof(uint32_t);
     }
+    delete p;
 }
 
 void E32File::WriteE32File()
@@ -86,7 +102,6 @@ void E32File::WriteE32File()
 
     PrepareData();
 
-    iE32image.sort([](auto A, auto B){return A.type < B.type;});
     for(auto x: iE32image)
     {
         switch(x.type)
@@ -96,19 +111,13 @@ void E32File::WriteE32File()
         case E32Sections::BITMAP:
             hdrv->iExportDescSize = this->iExportDescSize;
             hdrv->iExportDescType = this->iExportDescType;
+            hdr->iCodeOffset = iHeader.size() + x.section.size();
             break;
         case E32Sections::EXPORTS:
             hdr->iExportDirOffset = iHeader.size();
         case E32Sections::CODE:
-            hdr->iCodeOffset = iHeader.size();
+        case E32Sections::SYMLOOK: //falltru
             hdr->iTextSize = hdr->iCodeSize = iHeader.size() + x.section.size() - hdr->iCodeOffset;
-            break;
-        case E32Sections::SYMLOOK:
-            {
-            hdr->iTextSize = hdr->iCodeSize = iHeader.size() + x.section.size() - hdr->iCodeOffset;
-            /// TODO (#1#05/30/20): Implement initialization for field iImportTabLocations
-//            UpdateOrdinalOffsetTable(x, hdr->iTextSize);
-            }
             break;
         case E32Sections::DATA:
             hdr->iDataOffset = iHeader.size();
@@ -134,11 +143,13 @@ void E32File::WriteE32File()
         hdrv = (E32ImageHeaderV*)&iHeader[offset];
     }
     SetE32ImageCrc(iHeader.data());
+    UpdateImportTable(iHeader.data(), iHeader.size(), iImportTabLocations);
     // see E32Rebuilder::ReCompress()
     SaveFile(iE32Opts->iOutput.c_str(), iHeader.data(), iHeader.size());
 }
 
-// Export Section consist of uint32_t array, zero element contains section's size.
+// Export Section consist of uint32_t array, zero element contains section's size
+// equal to .
 // Absent symbols values set E32 image entry point, other set to their elf st_value
 E32Section MakeExportSection(const Symbols& s)
 {
@@ -173,7 +184,6 @@ E32Section CodeSection(const ElfParser* parser)
 
 E32Section DataSection(const ElfParser* parser)
 {
-    //iElfImage->GetRawRWSegment(), iElfImage->GetRWSize()
     E32Section data;
     data.info = "DATA";
     data.type = E32Sections::DATA;
@@ -228,13 +238,14 @@ void E32File::PrepareData()
     if(tmp.type > E32Sections::EMPTY_SECTION)
         iE32image.push_back(tmp);
 
-    tmp = iRelocs->DataRelocsSection();
-    if(tmp.type > E32Sections::EMPTY_SECTION)
-        iE32image.push_back(tmp);
-
     tmp = iRelocs->CodeRelocsSection();
     if(tmp.type > E32Sections::EMPTY_SECTION)
         iE32image.push_back(tmp);
+
+    tmp = iRelocs->DataRelocsSection();
+    if(tmp.type > E32Sections::EMPTY_SECTION)
+        iE32image.push_back(tmp);
+    iE32image.sort([](auto A, auto B){return A.type < B.type;});
 }
 
 

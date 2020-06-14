@@ -208,7 +208,7 @@ const E32EpocExpSymInfoHdr* E32Parser::GetEpocExpSymInfoHdr() const
 {
     uint32_t* tbl = GetExportTable();
 // We ignore that formula because my build elf2e32 set wrong header for Export Table.
-// elf2e32 shipped with sdk fails from internal error.
+// elf2e32 shipped with SDK crashes from internal error.
 //    return (E32EpocExpSymInfoHdr*)(tbl + tbl[0] + 1);
     return (E32EpocExpSymInfoHdr*)(tbl + iHdr->iExportDirCount + 1);
 }

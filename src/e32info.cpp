@@ -378,7 +378,7 @@ void E32Info::ImportTableInfo()
 
     uint32_t impfmt = ImpFmtFromFlags(iHdr->iFlags);
     const E32ImportSection* section = iE32->GetImportSection();
-    E32ImportParser* parser = new E32ImportParser(impfmt, section);
+    E32ImportParser* parser = new E32ImportParser(iHdr->iDllRefTableCount, impfmt, section);
     const char* impTable = iE32->GetImportTable();
     const uint32_t* impAddrTable = iE32->GetImportAddressTable();
 
@@ -419,38 +419,35 @@ void E32Info::SymbolInfo()
 {
     if(!(iHdr->iFlags & KImageNmdExpData))
         return;
-    const E32EpocExpSymInfoHdr *symInfoHdr = iE32->GetEpocExpSymInfoHdr();
+    const E32EpocExpSymInfoHdr* symInfoHdr = iE32->GetEpocExpSymInfoHdr();
     if(!symInfoHdr)
 		return;
 
-    char *symTblBase = (char*)symInfoHdr;
-    uint32_t *symAddrTbl = (uint32_t*)(symTblBase + symInfoHdr->iSymbolTblOffset);
+    char* symTblBase = (char*)symInfoHdr;
+    uint32_t* symAddrTbl = (uint32_t*)(symTblBase + symInfoHdr->iSymbolTblOffset);
     char *symNameTbl = (char*)(symAddrTbl + symInfoHdr->iSymCount);
 
 	printf("\n\n\n\t\tSymbol Info\n");
 	if(symInfoHdr->iSymCount)
 	{
-        char *strTable = symTblBase + symInfoHdr->iStringTableOffset;
-		char *symbolName = nullptr;
-		printf("%d Symbols exported\n",symInfoHdr->iSymCount);
-		printf("  Addr\t\tName\n");
-		printf("----------------------------------------\n");
-		size_t nameOffset = 0;
-		for(int i = 0; i < symInfoHdr->iSymCount; i++)
+        char* strTable = symTblBase + symInfoHdr->iStringTableOffset;
+        printf("%d Symbols exported\n", symInfoHdr->iSymCount);
+        printf("  Addr\t\tName\n");
+        printf("----------------------------------------\n");
+        size_t nameOffset = 0;
+        for(int i = 0; i < symInfoHdr->iSymCount; i++)
 		{
 			if(symInfoHdr->iFlags & 1)
 			{
 				uint32_t* offset = ((uint32_t*)symNameTbl+i);
 				nameOffset = (*offset << 2);
-				symbolName = strTable + nameOffset;
 			}
 			else
 			{
 				uint16_t* offset = ((uint16_t*)symNameTbl+i);
 				nameOffset = (*offset << 2);
-				symbolName = strTable + nameOffset;
 			}
-			printf("0x%08x \t%s\t\n",symAddrTbl[i], symbolName);
+			printf("0x%08x \t%s\t\n",symAddrTbl[i], strTable + nameOffset);
 		}
 	}
     else
@@ -469,7 +466,7 @@ void E32Info::SymbolInfo()
 
     const E32ImportSection* section = iE32->GetImportSection();
     uint32_t impfmt = ImpFmtFromFlags(iHdr->iFlags);
-    E32ImportParser* parser = new E32ImportParser(impfmt, section);
+    E32ImportParser* parser = new E32ImportParser(iHdr->iDllRefTableCount, impfmt, section);
 
     /* The import table has offsets to the location (in code section) where the
      * import is required. For dependencies pointed by 0th ordinal, this offset

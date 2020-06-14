@@ -58,10 +58,11 @@ class E32Parser
         const TExceptionDescriptor* GetExceptionDescriptor() const;
         const E32ImportSection* GetImportSection() const;
 
-        uint32_t* GetExportTable();
+        uint32_t* GetExportTable() const;
         int32_t GetExportDescription();
 
         const uint32_t* GetImportAddressTable() const;
+        uint32_t ExpSymInfoTableOffset() const;
         const E32EpocExpSymInfoHdr* GetEpocExpSymInfoHdr() const;
         const char* GetImportTable() const;
 

@@ -19,6 +19,7 @@
 #define ARTIFACTBUILDER_H
 
 #include <list>
+#include "task.hpp"
 
 class Args;
 class Symbol;

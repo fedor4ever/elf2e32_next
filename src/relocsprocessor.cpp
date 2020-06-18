@@ -18,6 +18,7 @@
 #include <string.h>
 #include <algorithm>
 
+#include "symbol.h"
 #include "elfdefs.h"
 #include "e32common.h"
 #include "elfparser.h"
@@ -43,20 +44,26 @@ bool StringPtrLess::operator() (const char * lhs, const char * rhs) const
 	return strcmp(lhs, rhs) < 0;
 }
 
-RelocsProcessor::RelocsProcessor(const ElfParser* elf): iElf(elf) {}
+RelocsProcessor::RelocsProcessor(const ElfParser* elf, const Symbols& s): iElf(elf), iRelocSrc(s) {}
 
 void RelocsProcessor::Process()
 {
     ProcessVerInfo();
     iVersionTbl = iElf->VersionTbl();
-    std::vector<RelocBlock> r = iElf->GetRelocs();
+    const std::vector<RelocBlock> r = iElf->GetRelocs();
     for(auto x: r)
     {
         if(x.rel)
+        {
+            //printf("RelocsProcessor::Process(): %u\n");
             ProcessRelocations(x.rel, x);
+        }
         else
             ProcessRelocations(x.rela, x);
     }
+    RelocsFromSymbols();
+    ProcessSymbolInfo();
+    ProcessVeneers();
 }
 
 bool ValidRelocEntry(uint8_t aType)
@@ -75,6 +82,7 @@ bool ValidRelocEntry(uint8_t aType)
         return false;
     }
 }
+
 struct E32RelocPageDesc {
     uint32_t iPageOffset;
     uint32_t iBlockSize;
@@ -100,6 +108,102 @@ size_t RelocationsSize(const std::vector<LocalReloc>& relocs)
         bytecount += sizeof(uint16_t);
     return bytecount;
 }
+
+void RelocsProcessor::RelocsFromSymbols()
+{
+    Elf32_Addr* aPlace = iElf->ExportTable();
+    uint32_t i = 1;
+    for(auto x: iRelocSrc)
+    {
+        iExportTableAddress = (uintptr_t)aPlace;
+        /// TODO (Administrator#1#06/16/20): use to set reloc
+        AddToLocalRelocations(iExportTableAddress, i, R_ARM_ABS32,
+                              ESegmentRO, x->GetElf32_Sym(), x->Absent());
+        aPlace++;
+        i++;
+    }
+    printf("elfAddr: %08x\n", iExportTableAddress - 4);
+}
+
+void RelocsProcessor::ProcessSymbolInfo()
+{
+    Elf32_Addr elfAddr = iExportTableAddress - 4;// This location points to 0th ord.;
+    AddToLocalRelocations(elfAddr, 0, R_ARM_ABS32, ESegmentRO, nullptr);
+
+    elfAddr += (iRelocSrc.size() + 1);// now points to the symInfo
+//	uint32 *zerothOrd = iUseCase->GetExportTable();
+//	*zerothOrd = elfAddr;
+	elfAddr += sizeof(E32EpocExpSymInfoHdr);// now points to the symbol address
+											// which is just after the syminfo header.
+    for(auto x: iRelocSrc)
+    {
+        AddToLocalRelocations(elfAddr, 0, R_ARM_ABS32, ESegmentRO,
+                              x->GetElf32_Sym());
+        elfAddr += sizeof(uint32_t);
+    }
+}
+
+void RelocsProcessor::ProcessVeneers()
+{
+    int length = strlen("$Ven$AT$L$$");
+    Elf32_Sym* symTab = iElf->SymTab();
+    const char* strTab = iElf->StrTab();
+    if (!(symTab && strTab))
+        return;
+    // Process the symbol table to find Long ARM to Thumb Veneers
+    // i.e. symbols of the form '$Ven$AT$L$$'
+    for(; symTab < iElf->Lim(); symTab++)
+    {
+        if (!symTab->st_name) continue;
+        char * aSymName = strTab + symTab->st_name;
+        Elf32_Sym	*aSym;
+
+        if (!strncmp(aSymName, "$Ven$AT$L$$", length))
+        {
+            aSym = symTab;
+            Elf32_Addr r_offset = aSym->st_value;
+            const Elf32_Addr aOffset = r_offset + 4;
+            Elf32_Word	aInstruction = iElf->GetRelocationPlace(r_offset);
+            bool aRelocEntryFound = false;
+
+            for(auto x: iCodeRelocations)
+            {
+                // Check if there is a relocation entry for the veneer symbol
+                if (x.iAddr == aOffset)
+                {
+                    aRelocEntryFound = true;
+                    break;
+                }
+            }
+            Elf32_Word aPointer = iElf->GetRelocationPlace(aOffset);
+
+            /* If the symbol addresses a Thumb instruction, its value is the
+             * address of the instruction with bit zero set (in a
+             * relocatable object, the section offset with bit zero set).
+             * This allows a linker to distinguish ARM and Thumb code symbols
+             * without having to refer to the map. An ARM symbol will always have
+             * an even value, while a Thumb symbol will always have an odd value.
+             * Reference: Section 4.5.3 in Elf for the ARM Architecture Doc
+             * aIsThumbSymbol will be 1 for a thumb symbol and 0 for ARM symbol
+             */
+            int aIsThumbSymbol = aPointer & 0x1;
+
+            /* The relocation entry should be generated for the veneer only if
+             * the following three conditions are satisfied:
+             * 1) Check if the instruction at the symbol is as expected
+             *    i.e. has the bit pattern 0xe51ff004 == 'LDR pc,[pc,#-4]'
+             * 2) There is no relocation entry generated for the veneer symbol
+             * 3) The instruction in the location provided by the pointer is a thumb symbol
+             */
+            if (aInstruction == 0xE51FF004 && !aRelocEntryFound && aIsThumbSymbol)
+            {
+                AddToLocalRelocations(aOffset, 0, R_ARM_NONE,
+                    ESegmentRO, aSym, false, true);
+            }
+        }
+    }
+}
+
 
 /**
 This function creates Code and Data relocations from the corresponding
@@ -158,25 +262,26 @@ E32Section CreateRelocations(std::vector<LocalReloc>& aRelocations, E32Section& 
     return aRelocs;
 }
 
+bool IsLocalReloc(const LocalReloc& rel)
+{
+    return ((rel.iHasRela && !rel.iVeneerSymbol) &&
+            (rel.iRelType == R_ARM_ABS32 || rel.iRelType == R_ARM_GLOB_DAT));
+}
+
 /**
 This function adjusts the fixup for the relocation entry.
 @return - Relocation type
 */
 uint16_t RelocsProcessor::Fixup(const LocalReloc& rel)
 {
-	if(rel.rel && !rel.iVeneerSymbol)
-	{
-		if (rel.iRelType == R_ARM_ABS32 || rel.iRelType == R_ARM_GLOB_DAT )
-		{
-            Elf32_Word* aLoc = iElf->GetFixupLocation(rel.rel->r_offset, rel.rel);
-            Elf32_Word aLocVal = *aLoc;
-			Elf32_Word aFixedVal = aLocVal + rel.iSymbol->st_value;
-			*aLoc = aFixedVal;
-		}
-	}
+//	if(IsLocalReloc(rel))
+//	{
+//        Elf32_Word* aLoc = iElf->GetFixupLocation(rel.iRela.r_offset, rel.iHasRela);
+//        aLoc[0] += rel.iSymbol->st_value;
+//	}
 
 	ESegmentType aType;
-	if(rel.iSymbol)
+	if(rel.iHasElf32_Sym)
 		aType = iElf->Segment(rel.iSymbol);
 	else
 		aType = rel.iSegmentType;
@@ -214,23 +319,8 @@ void RelocsProcessor::ProcessRelocations(const T* elfRel, const RelocBlock& r)
 			}
 			else
             {
-//				 ElfRelocation* aRel = new ElfLocalRelocation(this, elfRel->r_offset, aAddend,
-//						aSymIdx, aType, &tmp);
-//				 AddToLocalRelocations((ElfLocalRelocation*)aRel);
-                LocalReloc loc;
-                loc.iAddr = elfRel->r_offset;
-                loc.iSegment = iElf->GetSegmentAtAddr(loc.iAddr);
-                switch(aType)
-                {
-                case ESegmentType::ESegmentRO:
-                    iCodeRelocations.push_back(loc);
-                    break;
-                case ESegmentType::ESegmentRW:
-                    iDataRelocations.push_back(loc);
-                    break;
-                default:
-                    break;
-                }
+//                ReportLog("ProcessRelocations(): aAddend : %d\n", tmp.r_addend);
+                AddToLocalRelocations(tmp.r_offset, aSymIdx, aType, tmp);
 			}
 		}
 		elfRel++;
@@ -249,6 +339,58 @@ void RelocsProcessor::AddToImports(uint32_t index, Elf32_Rela rela)
                 iLinkAs : {linkAs},
                 iSOName : {SOname}
                 } );
+}
+
+void RelocsProcessor::AddToLocalRelocations(uint32_t aAddr, uint32_t index,
+                     uint8_t relType, Elf32_Rela rela, bool veneerSymbol)
+{
+    LocalReloc loc;
+    loc.iAddr = rela.r_offset;
+    loc.iSegment = iElf->GetSegmentAtAddr(rela.r_offset);
+    loc.iSymNdx = index;
+    loc.iRela = Elf32_Rela(rela);
+    loc.iHasRela = true;
+    loc.iVeneerSymbol = veneerSymbol;
+    loc.iRelType = relType;
+    loc.iSymbol = iElf->GetSymbolTableEntity(index);
+    loc.iSegmentType = iElf->SegmentType(rela.r_offset);
+    UpdateRelocs(loc);
+}
+
+//Elf32_Word aAddend = Addend(aElfRel);
+//tmp.r_addend = iElf->Addend(elfRel);
+//aAddr = tmp.r_offset
+void RelocsProcessor::AddToLocalRelocations(uint32_t aAddr, uint32_t index,
+            uint8_t relType, ESegmentType aSegmentType, Elf32_Sym* aSym,
+            bool aDelSym, bool veneerSymbol)
+{
+    LocalReloc loc;
+    loc.iAddr = aAddr;
+    loc.iSegment = iElf->Segment(aSegmentType);
+    loc.iSymNdx = index;
+    loc.iHasRela = false;
+    loc.iSymbol = aSym;
+    loc.iHasElf32_Sym = (aSym != nullptr);
+    loc.iRelType = relType;
+    loc.iDelSym = aDelSym; // true for absent symbols only
+    loc.iVeneerSymbol = veneerSymbol;
+    loc.iSegmentType = aSegmentType;
+    UpdateRelocs(loc);
+}
+
+void RelocsProcessor::UpdateRelocs(const LocalReloc& r)
+{
+    switch(r.iSegmentType)
+    {
+    case ESegmentType::ESegmentRO:
+        iCodeRelocations.push_back(r);
+        break;
+    case ESegmentType::ESegmentRW:
+        iDataRelocations.push_back(r);
+        break;
+    default:
+        break;
+    }
 }
 
 void RelocsProcessor::ProcessVerInfo()

@@ -75,7 +75,7 @@ void UpdateImportTable(const char* s, size_t bufsz, const std::vector<int32_t>& 
 
 void E32File::WriteE32File()
 {
-    iRelocs = new RelocsProcessor(iElfSrc);
+    iRelocs = new RelocsProcessor(iElfSrc, iSymbols);
     iRelocs->Process();
 
     E32HeaderSection header(iE32Opts);

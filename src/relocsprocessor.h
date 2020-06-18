@@ -23,6 +23,7 @@
 #include <string>
 #include <vector>
 #include "e32file.h"
+#include "artifactbuilder.h"
 
 class ElfParser;
 struct RelocBlock;
@@ -53,32 +54,49 @@ struct LocalReloc
 {
     uint32_t    iAddr;
     Elf32_Phdr* iSegment      = nullptr;
-    Elf32_Rel*  rel           = nullptr;
+    uint32_t	iSymNdx;
+    Elf32_Rela  iRela;
     Elf32_Sym*  iSymbol       = nullptr;
-    bool        iVeneerSymbol = false;
+    bool        iHasRela      = false;
+    bool        iHasElf32_Sym = false;
     uint8_t	    iRelType;
-	ESegmentType iSegmentType = ESegmentUndefined;
+    bool        iDelSym       = false; // true for absent symbols only
+    bool        iVeneerSymbol = false;
+    ESegmentType iSegmentType = ESegmentUndefined;
 };
 
 class RelocsProcessor
 {
     public:
-        RelocsProcessor(const ElfParser* elf);
+        RelocsProcessor(const ElfParser* elf, const Symbols& s);
         ~RelocsProcessor() {}
+
+        E32Section CodeRelocsSection();
+        E32Section DataRelocsSection();
+        ImportLibs GetImports();
+
         void Process();
         uint32_t ImportsCount() const;
         uint32_t DllCount() const;
         void ProcessVerInfo();
         std::vector<std::string> StrTableData() const;
-        E32Section CodeRelocsSection();
-        E32Section DataRelocsSection();
         uint16_t Fixup(const LocalReloc& rel);
-        ImportLibs RelocsProcessor::GetImports();
 
     private:
+        void RelocsFromSymbols();
+        void ProcessSymbolInfo();
+        void ProcessVeneers();
         void AddToImports(uint32_t index, Elf32_Rela rela);
+        void AddToLocalRelocations(uint32_t aAddr,
+                uint32_t index, uint8_t relType,
+                Elf32_Rela rela, bool veneerSymbol = false);
+        void AddToLocalRelocations(uint32_t aAddr,
+                uint32_t index, uint8_t relType,
+                ESegmentType aSegmentType, Elf32_Sym* aSym,
+                bool aDelSym = false, bool veneerSymbol = false);
         template <class T>
         void ProcessRelocations(const T* elfRel, const RelocBlock& r);
+        void UpdateRelocs(const LocalReloc& r);
 
     private:
         const ElfParser* iElf = nullptr;
@@ -87,10 +105,12 @@ class RelocsProcessor
         std::vector<VersionInfo> iVerInfo;
         std::vector<LocalReloc> iCodeRelocations;
         std::vector<LocalReloc> iDataRelocations;
+        const Symbols& iRelocSrc;
         ImportLibs  iImports;
         uint16_t* iVersionTbl = nullptr;  //= iElf->VersionTbl();
         uint32_t iImportsCount = 0;
         uint32_t iDllCount = 0;
+        size_t iExportTableAddress = 0;
 };
 
 #endif // RELOCSPROCESSOR_H

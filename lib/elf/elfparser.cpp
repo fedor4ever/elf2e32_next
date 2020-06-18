@@ -479,6 +479,21 @@ uint32_t ElfParser::ExceptionDescriptor() const
     return((symAddr - codeSegmentAddr) | 0x00000001);
 }
 
+Elf32_Sym* ElfParser::SymTab() const
+{
+    return iSymTab;
+}
+
+Elf32_Sym* ElfParser::Lim() const
+{
+    return iLim;
+}
+
+const char* ElfParser::StrTab() const
+{
+    return iStrTab;
+}
+
 Elf32_Sym* ElfParser::LookupStaticSymbol(const char* aName)
 {
 	if (!iElfHeader->e_shnum)
@@ -487,12 +502,13 @@ Elf32_Sym* ElfParser::LookupStaticSymbol(const char* aName)
 	if(!iSymTab || !iStrTab)
         ReportError(ErrorCodes::NOSTATICSYMBOLS);
 
-	while(iSymTab++ < iLim)
+    Elf32_Sym* aSymTab = iSymTab;
+	while(aSymTab++ < iLim)
 	{
-		if (!iSymTab->st_name) continue;
-		char* aSymName = iStrTab + iSymTab->st_name;
+		if (!aSymTab->st_name) continue;
+		char* aSymName = iStrTab + aSymTab->st_name;
 		if (!strcmp(aSymName, aName))
-			return iSymTab;
+			return aSymTab;
 	}
     return nullptr;
 }
@@ -594,4 +610,25 @@ ESegmentType ElfParser::Segment(Elf32_Sym* s)
     else if (hdr == iDataSegmentHdr) type = ESegmentRW;
 
 	return type;
+}
+
+Elf32_Addr* ElfParser::ExportTable()
+{
+    Elf32_Phdr* ROHdr = iCodeSegmentHdr;
+    // The export table starts after the header. NB this is a virtual address in the RO
+    // segment of the E32Image. It is outside the ELF RO segment.
+    return ELF_ENTRY_PTR(Elf32_Addr, (intptr_t)ROHdr->p_vaddr, ROHdr->p_filesz) + 1;
+}
+
+Elf32_Phdr* ElfParser::Segment(ESegmentType aType)
+{
+    switch(aType)
+    {
+    case ESegmentRO:
+        return iCodeSegmentHdr;
+    case ESegmentRW:
+        return iDataSegmentHdr;
+    default:
+        return nullptr;
+	}
 }

@@ -29,10 +29,7 @@ class RelocsProcessor;
 //struct E32ImportSection
 //{
 //    int32_t iSize;     ///< Size of E32ImportBlock arrays
-//    const E32ImportBlock iImportBlock[1]; //iImportBlock[iDllRefTableCount]
-//    const E32ImportBlock iImportBlock[1]; //iImportBlock[iDllRefTableCount]
-//    const E32ImportBlock iImportBlock[1]; //iImportBlock[iDllRefTableCount]
-//    const E32ImportBlock iImportBlock[1]; //iImportBlock[iDllRefTableCount]
+//    const E32ImportBlock iImportBlock[E32ImageHeader::iDllRefTableCount];
 //};
 //
 //struct E32ImportBlock
@@ -40,12 +37,7 @@ class RelocsProcessor;
 //    uint32_t Size(uint32_t aImpFmt) const;
 //    uint32_t iOffsetOfDllName = 0;        ///< Offset from start of import section for a NULL terminated executable (DLL or EXE) name.
 //    int32_t  iNumberOfImports = 0;        ///< Number of imports from this executable.
-////  uint32_t  iImport[iNumberOfImports];  ///< For ELF-derived executes: list of code section offsets. For PE, list of imported ordinals. Omitted in PE2 import format
-//    const uint32_t iImports[1];
-//    const uint32_t iImports[1];
-//    const uint32_t iImports[1];
-//    const uint32_t iImports[1];
-//    const uint32_t iImports[1];
+//    uint32_t iImports[iNumberOfImports];  ///< For ELF-derived executes: list of code section offsets. For PE, list of imported ordinals. Omitted in PE2 import format
 //};
 //
 // stringtable at end

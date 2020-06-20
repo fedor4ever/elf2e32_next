@@ -92,7 +92,7 @@ void E32File::WriteE32File()
     hdr->iEntryPoint = iElfSrc->EntryPointOffset();
     hdr->iCodeBase = iElfSrc->ROVirtualAddress();
     hdr->iDataBase = iElfSrc->RWVirtualAddress();
-    hdr->iDllRefTableCount; // = iNumDlls;   // filling this in enables E32ROM to leave space for it
+    hdr->iDllRefTableCount = iRelocs->DllCount();   // filling this in enables E32ROM to leave space for it
     hdr->iExportDirCount = iSymbols.size();
 
     const uint32_t offset = sizeof(E32ImageHeader) + sizeof(E32ImageHeaderJ);
@@ -115,7 +115,7 @@ void E32File::WriteE32File()
             break;
         case E32Sections::EXPORTS:
             hdr->iExportDirOffset = iHeader.size();
-        case E32Sections::CODE:
+        case E32Sections::CODE:    //falltru
         case E32Sections::SYMLOOK: //falltru
             hdr->iTextSize = hdr->iCodeSize = iHeader.size() + x.section.size() - hdr->iCodeOffset;
             break;
@@ -144,7 +144,10 @@ void E32File::WriteE32File()
     }
     SetE32ImageCrc(iHeader.data());
     UpdateImportTable(iHeader.data(), iHeader.size(), iImportTabLocations);
+    /// TODO (Administrator#1#06/20/20): implement compression
     // see E32Rebuilder::ReCompress()
+//    E32ImageHeaderJ* j = &iHeader[sizeof(E32ImageHeader)];
+//    j->iUncompressedSize = ;
     SaveFile(iE32Opts->iOutput.c_str(), iHeader.data(), iHeader.size());
 }
 

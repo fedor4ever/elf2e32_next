@@ -28,6 +28,8 @@
 
 using std::string;
 
+const uint32_t E32RelocSectionStatic = sizeof(uint32_t) * 2; //sizeof(E32RelocSection) w/out vla
+
 #define ELF_ENTRY_PTR(ptype, base, offset) \
 	((ptype*)((char*)base + offset))
 
@@ -39,9 +41,15 @@ inline T Align(T v)
 	return (T)res;
 }
 
-bool StringPtrLess::operator() (const char * lhs, const char * rhs) const
+bool Cmp(LocalReloc x, LocalReloc y)
 {
-	return strcmp(lhs, rhs) < 0;
+	return x.iRela.r_offset < y.iRela.r_offset;
+}
+
+void RelocsProcessor::SortRelocs()
+{
+    std::sort(iCodeRelocations.begin(), iCodeRelocations.end(), Cmp);
+    std::sort(iDataRelocations.begin(), iDataRelocations.end(), Cmp);
 }
 
 RelocsProcessor::RelocsProcessor(const ElfParser* elf, const Symbols& s): iElf(elf), iRelocSrc(s) {}
@@ -54,16 +62,14 @@ void RelocsProcessor::Process()
     for(auto x: r)
     {
         if(x.rel)
-        {
-            //printf("RelocsProcessor::Process(): %u\n");
             ProcessRelocations(x.rel, x);
-        }
         else
             ProcessRelocations(x.rela, x);
     }
-    RelocsFromSymbols();
-    ProcessSymbolInfo();
+    RelocsFromSymbols(); //CreateExportTable() // ok
+    ProcessSymbolInfo(); //ProcessSymbolInfo() // ok
     ProcessVeneers();
+    SortRelocs();
 }
 
 bool ValidRelocEntry(uint8_t aType)
@@ -83,23 +89,18 @@ bool ValidRelocEntry(uint8_t aType)
     }
 }
 
-struct E32RelocPageDesc {
-    uint32_t iPageOffset;
-    uint32_t iBlockSize;
-};
-
 size_t RelocationsSize(const std::vector<LocalReloc>& relocs)
 {
     size_t bytecount = 0;
     int page = -1;
     for(auto x: relocs)
     {
-        int p = x.iAddr & 0xfffff000;
+        int p = x.iRela.r_offset & 0xfffff000;
         if (page != p)
         {
             if (bytecount%4 != 0)
                 bytecount += sizeof(uint16_t);
-            bytecount += sizeof(E32RelocPageDesc); // page, block size
+            bytecount += E32RelocSectionStatic; // page, block size
             page = p;
         }
         bytecount += sizeof(uint16_t);
@@ -122,7 +123,6 @@ void RelocsProcessor::RelocsFromSymbols()
         aPlace++;
         i++;
     }
-    printf("elfAddr: %08x\n", iExportTableAddress - 4);
 }
 
 void RelocsProcessor::ProcessSymbolInfo()
@@ -130,13 +130,17 @@ void RelocsProcessor::ProcessSymbolInfo()
     Elf32_Addr elfAddr = iExportTableAddress - 4;// This location points to 0th ord.;
     AddToLocalRelocations(elfAddr, 0, R_ARM_ABS32, ESegmentRO, nullptr);
 
-    elfAddr += (iRelocSrc.size() + 1);// now points to the symInfo
+/// TODO (Administrator#1#06/25/20): find how os linker handle syminfo section. ...
+///Is commented code wrong?
+    elfAddr += ((iRelocSrc.size() + 1) * sizeof(uint32_t));// now points to the symInfo
 //	uint32 *zerothOrd = iUseCase->GetExportTable();
 //	*zerothOrd = elfAddr;
 	elfAddr += sizeof(E32EpocExpSymInfoHdr);// now points to the symbol address
 											// which is just after the syminfo header.
     for(auto x: iRelocSrc)
     {
+        if(x->Absent())
+            continue;
         AddToLocalRelocations(elfAddr, 0, R_ARM_ABS32, ESegmentRO,
                               x->GetElf32_Sym());
         elfAddr += sizeof(uint32_t);
@@ -169,7 +173,7 @@ void RelocsProcessor::ProcessVeneers()
             for(auto x: iCodeRelocations)
             {
                 // Check if there is a relocation entry for the veneer symbol
-                if (x.iAddr == aOffset)
+                if (x.iRela.r_offset == aOffset)
                 {
                     aRelocEntryFound = true;
                     break;
@@ -215,26 +219,25 @@ E32Section CreateRelocations(std::vector<LocalReloc>& aRelocations, E32Section& 
 	if(!rsize)
         return E32Section();
 
-    size_t aRelocsSize = Align(rsize + sizeof(E32RelocSection));
+    size_t aRelocsSize = Align(rsize + E32RelocSectionStatic);
 
     uint32_t aBase = (*aRelocations.begin()).iSegment->p_vaddr;
 
     aRelocs.section.insert(aRelocs.section.begin(), aRelocsSize, 0);
     E32RelocSection* section = (E32RelocSection*)&aRelocs.section[0];
-    section->iNumberOfRelocs = aRelocations.size();
     section->iSize = rsize;
+    section->iNumberOfRelocs = aRelocations.size();
 
     E32RelocBlock* block = section->iRelocBlock;
-    uint16_t* data = block->iEntry;
+    uint16_t* data = (uint16_t*)section->iRelocBlock;
 
     int page = -1;
-    int pagesize = sizeof(E32RelocPageDesc);
+    int pagesize = sizeof(E32RelocSectionStatic);
     for (auto r: aRelocations)
     {
-        int p = r.iAddr & 0xfffff000;
+        int p = r.iRela.r_offset & 0xfffff000;
         if (page != p)
-        {
-            if(pagesize%4 != 0)
+        {            if(pagesize%4 != 0)
             {
                 *data++ = 0;
                 pagesize += sizeof(uint16_t);
@@ -243,13 +246,13 @@ E32Section CreateRelocations(std::vector<LocalReloc>& aRelocations, E32Section& 
             block->iPageOffset = page - aBase;
             block->iBlockSize = pagesize;
 
-            pagesize = sizeof(E32RelocBlock) - sizeof(E32RelocBlock::iEntry);
+            pagesize = E32RelocSectionStatic;
             page = p;
             block = (E32RelocBlock*)data;
             data = block->iEntry;
         }
         uint16_t relocType = rp->Fixup(r);
-        *data++ = (uint16_t)((r.iAddr & 0xfff) | relocType);
+        *data++ = (uint16_t)((r.iRela.r_offset & 0xfff) | relocType);
         pagesize += sizeof(uint16_t);
     }
     if (pagesize%4 != 0)
@@ -318,10 +321,7 @@ void RelocsProcessor::ProcessRelocations(const T* elfRel, const RelocBlock& r)
                 AddToImports(aSymIdx, tmp);
 			}
 			else
-            {
-//                ReportLog("ProcessRelocations(): aAddend : %d\n", tmp.r_addend);
-                AddToLocalRelocations(tmp.r_offset, aSymIdx, aType, tmp);
-			}
+                AddToLocalRelocations(aSymIdx, aType, tmp);
 		}
 		elfRel++;
 	}
@@ -341,11 +341,10 @@ void RelocsProcessor::AddToImports(uint32_t index, Elf32_Rela rela)
                 } );
 }
 
-void RelocsProcessor::AddToLocalRelocations(uint32_t aAddr, uint32_t index,
+void RelocsProcessor::AddToLocalRelocations(uint32_t index,
                      uint8_t relType, Elf32_Rela rela, bool veneerSymbol)
 {
     LocalReloc loc;
-    loc.iAddr = rela.r_offset;
     loc.iSegment = iElf->GetSegmentAtAddr(rela.r_offset);
     loc.iSymNdx = index;
     loc.iRela = Elf32_Rela(rela);
@@ -365,9 +364,9 @@ void RelocsProcessor::AddToLocalRelocations(uint32_t aAddr, uint32_t index,
             bool aDelSym, bool veneerSymbol)
 {
     LocalReloc loc;
-    loc.iAddr = aAddr;
     loc.iSegment = iElf->Segment(aSegmentType);
     loc.iSymNdx = index;
+    loc.iRela.r_offset = aAddr;
     loc.iHasRela = false;
     loc.iSymbol = aSym;
     loc.iHasElf32_Sym = (aSym != nullptr);

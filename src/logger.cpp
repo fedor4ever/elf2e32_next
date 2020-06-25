@@ -175,14 +175,14 @@ void Logger::Log(ErrorCodes errcode)
     printf("%s", Messages[errcode].str);
 }
 
-void Logger::Log(ErrorCodes errcode, const int x, const int y)
+void Logger::Log(ErrorCodes errcode, int x, int y)
 {
     if(iFile)
         fprintf(iFile, Messages[errcode].str, x, y);
     printf(Messages[errcode].str, x, y);
 }
 
-void Logger::Log(ErrorCodes errcode, const int x)
+void Logger::Log(ErrorCodes errcode, int x)
 {
     if(iFile)
         fprintf(iFile, Messages[errcode].str, x);

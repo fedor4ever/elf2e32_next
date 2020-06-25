@@ -99,14 +99,7 @@ void ReportWarning(const ErrorCodes err, const std::string& s1, const std::strin
 
 void ReportLog(const std::string& str, int x, int y, int z)
 {
-    if(z > -1)
-        Logger::Instance()->Log(str, x, y, z);
-    else if(y > -1)
-        Logger::Instance()->Log(str, x, y);
-    else if(x > -1)
-        Logger::Instance()->Log(str, x);
-    else
-        Logger::Instance()->Log(str);
+    Logger::Instance()->Log(str, x, y, z);
 }
 
 const char* ReadFile(const char* filename, std::streamsize& fsize)

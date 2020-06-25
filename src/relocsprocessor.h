@@ -34,11 +34,6 @@ struct VersionInfo
     std::string iLinkAs;
 };
 
-struct StringPtrLess
-{
-    bool operator() (const char * lhs, const char * rhs) const;
-};
-
 struct ElfImportRelocation
 {
     uint32_t iSymNdx;
@@ -52,7 +47,6 @@ typedef std::map<std::string, Relocations> ImportLibs;
 
 struct LocalReloc
 {
-    uint32_t    iAddr;
     Elf32_Phdr* iSegment      = nullptr;
     uint32_t	iSymNdx;
     Elf32_Rela  iRela;
@@ -87,7 +81,7 @@ class RelocsProcessor
         void ProcessSymbolInfo();
         void ProcessVeneers();
         void AddToImports(uint32_t index, Elf32_Rela rela);
-        void AddToLocalRelocations(uint32_t aAddr,
+        void AddToLocalRelocations(
                 uint32_t index, uint8_t relType,
                 Elf32_Rela rela, bool veneerSymbol = false);
         void AddToLocalRelocations(uint32_t aAddr,
@@ -97,6 +91,7 @@ class RelocsProcessor
         template <class T>
         void ProcessRelocations(const T* elfRel, const RelocBlock& r);
         void UpdateRelocs(const LocalReloc& r);
+        void SortRelocs();
 
     private:
         const ElfParser* iElf = nullptr;

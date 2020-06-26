@@ -52,10 +52,11 @@ struct LocalReloc
     Elf32_Rela  iRela;
     Elf32_Sym*  iSymbol       = nullptr;
     bool        iHasRela      = false;
-    bool        iHasElf32_Sym = false;
-    uint8_t	    iRelType;
+    uint8_t	    iRelType      = 0;
     bool        iDelSym       = false; // true for absent symbols only
     bool        iVeneerSymbol = false;
+    /// TODO (Administrator#1#06/26/20): Use relocation types directly:
+    //      KReservedRelocType, KTextRelocType, KDataRelocType, KInferredRelocType
     ESegmentType iSegmentType = ESegmentUndefined;
 };
 

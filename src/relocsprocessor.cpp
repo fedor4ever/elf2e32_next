@@ -66,8 +66,8 @@ void RelocsProcessor::Process()
         else
             ProcessRelocations(x.rela, x);
     }
-    RelocsFromSymbols(); //CreateExportTable() // ok
-    ProcessSymbolInfo(); //ProcessSymbolInfo() // ok
+    RelocsFromSymbols(); //CreateExportTable()
+    ProcessSymbolInfo(); //ProcessSymbolInfo()
     ProcessVeneers();
     SortRelocs();
 }
@@ -220,17 +220,17 @@ E32Section CreateRelocations(std::vector<LocalReloc>& aRelocations, E32Section& 
         return E32Section();
 
     size_t aRelocsSize = Align(rsize + E32RelocSectionStatic);
-
-    uint32_t aBase = (*aRelocations.begin()).iSegment->p_vaddr;
-
     aRelocs.section.insert(aRelocs.section.begin(), aRelocsSize, 0);
+
     E32RelocSection* section = (E32RelocSection*)&aRelocs.section[0];
     section->iSize = rsize;
     section->iNumberOfRelocs = aRelocations.size();
 
     E32RelocBlock* block = section->iRelocBlock;
+    // data should point to iEntry field, set later.
     uint16_t* data = (uint16_t*)section->iRelocBlock;
 
+    const uint32_t aBase = (*aRelocations.begin()).iSegment->p_vaddr;
     int page = -1;
     int pagesize = sizeof(E32RelocSectionStatic);
     for (auto r: aRelocations)
@@ -239,6 +239,7 @@ E32Section CreateRelocations(std::vector<LocalReloc>& aRelocations, E32Section& 
         if (page != p)
         {            if(pagesize%4 != 0)
             {
+                // at first run does nothing
                 *data++ = 0;
                 pagesize += sizeof(uint16_t);
             }
@@ -249,7 +250,7 @@ E32Section CreateRelocations(std::vector<LocalReloc>& aRelocations, E32Section& 
             pagesize = E32RelocSectionStatic;
             page = p;
             block = (E32RelocBlock*)data;
-            data = block->iEntry;
+            data = block->iEntry; // now data points to iEntry field
         }
         uint16_t relocType = rp->Fixup(r);
         *data++ = (uint16_t)((r.iRela.r_offset & 0xfff) | relocType);
@@ -284,7 +285,7 @@ uint16_t RelocsProcessor::Fixup(const LocalReloc& rel)
 //	}
 
 	ESegmentType aType;
-	if(rel.iHasElf32_Sym)
+	if(rel.iSymbol)
 		aType = iElf->Segment(rel.iSymbol);
 	else
 		aType = rel.iSegmentType;
@@ -369,7 +370,6 @@ void RelocsProcessor::AddToLocalRelocations(uint32_t aAddr, uint32_t index,
     loc.iRela.r_offset = aAddr;
     loc.iHasRela = false;
     loc.iSymbol = aSym;
-    loc.iHasElf32_Sym = (aSym != nullptr);
     loc.iRelType = relType;
     loc.iDelSym = aDelSym; // true for absent symbols only
     loc.iVeneerSymbol = veneerSymbol;

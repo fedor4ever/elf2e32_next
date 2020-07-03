@@ -65,7 +65,7 @@ class ElfParser
         Elf32_Sym* GetSymbolTableEntity(uint32_t index) const;
         Elf32_Sym* LookupStaticSymbol(const char* aName);
         Elf32_Phdr* GetSegmentAtAddr(Elf32_Addr addr) const;
-        Elf32_Phdr* Segment(ESegmentType aType);
+        Elf32_Phdr* Segment(uint16_t aType);
         ESegmentType SegmentType(Elf32_Addr addr) const;
         uint32_t* GetDSOImportsOrdinals() const;
     public:
@@ -82,8 +82,7 @@ class ElfParser
         std::vector<RelocBlock> GetRelocs();
     public:
         Elf32_Word* GetFixupLocation(Elf32_Addr aPlace, bool ExportTableReloc);
-        Elf32_Phdr* GetSegmentHdr(Elf32_Addr aAddr);
-        ESegmentType Segment(Elf32_Sym* s);
+        uint16_t Segment(const Elf32_Sym* s) const;
     public:
         Elf32_Addr* ExportTable();
         Elf32_Sym* Lim() const;

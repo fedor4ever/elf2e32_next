@@ -48,8 +48,8 @@ E32File::~E32File()
 void UpdateImportTable(const char* s, size_t bufsz, const std::vector<int32_t>& iImportTabLocations)
 {
     E32Parser* p = new E32Parser(s, bufsz);
-    E32ImageHeader* h = p->GetFileLayout();
-    E32EpocExpSymInfoHdr* symInf = p->GetEpocExpSymInfoHdr();
+    const E32ImageHeader* h = p->GetFileLayout();
+    const E32EpocExpSymInfoHdr* symInf = p->GetEpocExpSymInfoHdr();
     size_t offSet = p->ExpSymInfoTableOffset();
     E32EpocExpSymInfoHdr* sInf = (E32EpocExpSymInfoHdr*)(p->GetBufferedImage() + offSet);
 //    printf("aBaseOffset: %08x\n", offSet);

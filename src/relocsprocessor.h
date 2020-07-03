@@ -75,20 +75,19 @@ class RelocsProcessor
         uint32_t DllCount() const;
         void ProcessVerInfo();
         std::vector<std::string> StrTableData() const;
-        uint16_t Fixup(const LocalReloc& rel);
+        uint16_t Fixup(const Elf32_Sym* s);
 
     private:
         void RelocsFromSymbols();
         void ProcessSymbolInfo();
         void ProcessVeneers();
         void AddToImports(uint32_t index, Elf32_Rela rela);
-        void AddToLocalRelocations(
-                uint32_t index, uint8_t relType,
-                Elf32_Rela rela, bool veneerSymbol = false);
-        void AddToLocalRelocations(uint32_t aAddr,
-                uint32_t index, uint8_t relType,
-                ESegmentType aSegmentType, Elf32_Sym* aSym,
-                bool aDelSym = false, bool veneerSymbol = false);
+        void AddToLocalRelocations(uint32_t index,
+                uint8_t relType, Elf32_Rela rela);
+        void AddToLocalRelocations(uint32_t aAddr, uint32_t index,
+                uint8_t relType,
+                Elf32_Sym* aSym, bool aDelSym = false,
+                bool veneerSymbol = false);
         template <class T>
         void ProcessRelocations(const T* elfRel, const RelocBlock& r);
         void UpdateRelocs(const LocalReloc& r);

@@ -119,7 +119,7 @@ void RelocsProcessor::RelocsFromSymbols()
         iExportTableAddress = (uintptr_t)aPlace;
         /// TODO (Administrator#1#06/16/20): use to set reloc
         AddToLocalRelocations(iExportTableAddress, i, R_ARM_ABS32,
-                              ESegmentRO, x->GetElf32_Sym(), x->Absent());
+                              x->GetElf32_Sym(), x->Absent());
         aPlace++;
         i++;
     }
@@ -128,21 +128,20 @@ void RelocsProcessor::RelocsFromSymbols()
 void RelocsProcessor::ProcessSymbolInfo()
 {
     Elf32_Addr elfAddr = iExportTableAddress - 4;// This location points to 0th ord.;
-    AddToLocalRelocations(elfAddr, 0, R_ARM_ABS32, ESegmentRO, nullptr);
+    AddToLocalRelocations(elfAddr, 0, R_ARM_ABS32, nullptr);
 
 /// TODO (Administrator#1#06/25/20): find how os linker handle syminfo section. ...
 ///Is commented code wrong?
     elfAddr += ((iRelocSrc.size() + 1) * sizeof(uint32_t));// now points to the symInfo
-//	uint32 *zerothOrd = iUseCase->GetExportTable();
-//	*zerothOrd = elfAddr;
+//	uint32 *aZerothOrd = iUseCase->GetExportTable();
+//	aZerothOrd[0] = elfAddr;
 	elfAddr += sizeof(E32EpocExpSymInfoHdr);// now points to the symbol address
 											// which is just after the syminfo header.
     for(auto x: iRelocSrc)
     {
         if(x->Absent())
             continue;
-        AddToLocalRelocations(elfAddr, 0, R_ARM_ABS32, ESegmentRO,
-                              x->GetElf32_Sym());
+        AddToLocalRelocations(elfAddr, 0, R_ARM_ABS32, x->GetElf32_Sym());
         elfAddr += sizeof(uint32_t);
     }
 }
@@ -200,10 +199,7 @@ void RelocsProcessor::ProcessVeneers()
              * 3) The instruction in the location provided by the pointer is a thumb symbol
              */
             if (aInstruction == 0xE51FF004 && !aRelocEntryFound && aIsThumbSymbol)
-            {
-                AddToLocalRelocations(aOffset, 0, R_ARM_NONE,
-                    ESegmentRO, aSym, false, true);
-            }
+                AddToLocalRelocations(aOffset, 0, R_ARM_NONE, aSym, false, true);
         }
     }
 }
@@ -252,7 +248,7 @@ E32Section CreateRelocations(std::vector<LocalReloc>& aRelocations, E32Section& 
             block = (E32RelocBlock*)data;
             data = block->iEntry; // now data points to iEntry field
         }
-        uint16_t relocType = rp->Fixup(r);
+        uint16_t relocType = rp->Fixup(r.iSymbol);
         *data++ = (uint16_t)((r.iRela.r_offset & 0xfff) | relocType);
         pagesize += sizeof(uint16_t);
     }
@@ -274,29 +270,17 @@ bool IsLocalReloc(const LocalReloc& rel)
 
 /**
 This function adjusts the fixup for the relocation entry.
-@return - Relocation type
 */
-uint16_t RelocsProcessor::Fixup(const LocalReloc& rel)
+uint16_t RelocsProcessor::Fixup(const Elf32_Sym* s)
 {
 //	if(IsLocalReloc(rel))
 //	{
 //        Elf32_Word* aLoc = iElf->GetFixupLocation(rel.iRela.r_offset, rel.iHasRela);
-//        aLoc[0] += rel.iSymbol->st_value;
+//        aLoc[0] += s->st_value;
 //	}
-
-	ESegmentType aType;
-	if(rel.iSymbol)
-		aType = iElf->Segment(rel.iSymbol);
-	else
-		aType = rel.iSegmentType;
-
-	if (aType == ESegmentRO)
-		return KTextRelocType;
-	else if (aType == ESegmentRW)
-		return KDataRelocType;
-
-	// maybe this should be an error
-	return KInferredRelocType;
+	if(s)
+		return iElf->Segment(s);
+    return KTextRelocType;
 }
 
 template <class T>
@@ -343,14 +327,13 @@ void RelocsProcessor::AddToImports(uint32_t index, Elf32_Rela rela)
 }
 
 void RelocsProcessor::AddToLocalRelocations(uint32_t index,
-                     uint8_t relType, Elf32_Rela rela, bool veneerSymbol)
+                     uint8_t relType, Elf32_Rela rela)
 {
     LocalReloc loc;
     loc.iSegment = iElf->GetSegmentAtAddr(rela.r_offset);
     loc.iSymNdx = index;
     loc.iRela = Elf32_Rela(rela);
     loc.iHasRela = true;
-    loc.iVeneerSymbol = veneerSymbol;
     loc.iRelType = relType;
     loc.iSymbol = iElf->GetSymbolTableEntity(index);
     loc.iSegmentType = iElf->SegmentType(rela.r_offset);
@@ -361,11 +344,11 @@ void RelocsProcessor::AddToLocalRelocations(uint32_t index,
 //tmp.r_addend = iElf->Addend(elfRel);
 //aAddr = tmp.r_offset
 void RelocsProcessor::AddToLocalRelocations(uint32_t aAddr, uint32_t index,
-            uint8_t relType, ESegmentType aSegmentType, Elf32_Sym* aSym,
-            bool aDelSym, bool veneerSymbol)
+            uint8_t relType, Elf32_Sym* aSym, bool aDelSym, bool veneerSymbol)
 {
     LocalReloc loc;
-    loc.iSegment = iElf->Segment(aSegmentType);
+    uint16_t type = Fixup(aSym);
+    loc.iSegment = iElf->Segment(&type);
     loc.iSymNdx = index;
     loc.iRela.r_offset = aAddr;
     loc.iHasRela = false;
@@ -373,7 +356,7 @@ void RelocsProcessor::AddToLocalRelocations(uint32_t aAddr, uint32_t index,
     loc.iRelType = relType;
     loc.iDelSym = aDelSym; // true for absent symbols only
     loc.iVeneerSymbol = veneerSymbol;
-    loc.iSegmentType = aSegmentType;
+    loc.iSegmentType = ESegmentType::ESegmentRO;
     UpdateRelocs(loc);
 }
 

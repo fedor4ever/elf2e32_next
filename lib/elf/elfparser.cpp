@@ -20,6 +20,7 @@
 
 #include "elfdefs.h"
 #include "common.hpp"
+#include "e32common.h"
 #include "elfparser.h"
 
 using std::string;
@@ -577,39 +578,18 @@ Elf32_Word* ElfParser::GetRelocationPlace(Elf32_Addr r_offset) const
 Elf32_Word* ElfParser::GetFixupLocation(Elf32_Addr place, bool ExportTableReloc)
 {
     Elf32_Phdr* phdr = ExportTableReloc ?
-        iCodeSegmentHdr : GetSegmentHdr(place);
+        iCodeSegmentHdr : GetSegmentAtAddr(place);
     Elf32_Word offset = phdr->p_offset + place - phdr->p_vaddr;
     return ELF_ENTRY_PTR(Elf32_Word, iElfHeader, offset);
 }
 
-Elf32_Phdr* ElfParser::GetSegmentHdr(Elf32_Addr addr)
+uint16_t ElfParser::Segment(const Elf32_Sym* s) const
 {
-	if(iCodeSegmentHdr) {
-		uint32_t start = iCodeSegmentHdr->p_vaddr;
-		if( start <= addr && addr < (start + iCodeSegmentHdr->p_memsz) ) {
-			return iCodeSegmentHdr;
-		}
-	}
-	if(iDataSegmentHdr) {
-		uint32_t start = iDataSegmentHdr->p_vaddr;
-		if( start <= addr && addr < (start + iDataSegmentHdr->p_memsz) ) {
-			return iDataSegmentHdr;
-		}
-	}
-    return nullptr;
-}
-
-ESegmentType ElfParser::Segment(Elf32_Sym* s)
-{
-    ESegmentType type = ESegmentUndefined;
-    if(!s) return type;
-
-	Elf32_Phdr* hdr = GetSegmentHdr(s->st_value);
-
-    if (hdr == iCodeSegmentHdr) type = ESegmentRO;
-    else if (hdr == iDataSegmentHdr) type = ESegmentRW;
-
-	return type;
+    if(!s)
+        return KReservedRelocType;
+    Elf32_Phdr* hdr = GetSegmentAtAddr(s->st_value);
+    if (hdr == iCodeSegmentHdr) return KTextRelocType;
+    else if (hdr == iDataSegmentHdr) return KDataRelocType;
 }
 
 Elf32_Addr* ElfParser::ExportTable()
@@ -620,13 +600,13 @@ Elf32_Addr* ElfParser::ExportTable()
     return ELF_ENTRY_PTR(Elf32_Addr, (intptr_t)ROHdr->p_vaddr, ROHdr->p_filesz) + 1;
 }
 
-Elf32_Phdr* ElfParser::Segment(ESegmentType aType)
+Elf32_Phdr* ElfParser::Segment(uint16_t aType)
 {
     switch(aType)
     {
-    case ESegmentRO:
+    case KTextRelocType:
         return iCodeSegmentHdr;
-    case ESegmentRW:
+    case KDataRelocType:
         return iDataSegmentHdr;
     default:
         return nullptr;

@@ -81,7 +81,6 @@ class ElfParser
         Elf32_Half* VersionTbl() const;
         std::vector<RelocBlock> GetRelocs();
     public:
-        Elf32_Word* GetFixupLocation(Elf32_Addr aPlace, bool ExportTableReloc);
         uint16_t Segment(const Elf32_Sym* s) const;
     public:
         Elf32_Addr* ExportTable();

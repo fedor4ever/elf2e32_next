@@ -216,15 +216,17 @@ void E32File::PrepareData()
         delete proc;
     }
 
-    tmp = CodeSection(iElfSrc);
-    if(tmp.type > E32Sections::EMPTY_SECTION)
-        iE32image.push_back(tmp);
-
+// While import section builds their relocs implicitly apply
+// for code and data sections. Therefore should run first
     ImportsSection* proc = new ImportsSection(iElfSrc, iRelocs, iE32Opts);
     tmp = proc->Imports();
     iImportTabLocations = proc->ImportTabLocations();
     iE32image.push_back(tmp);
     delete proc;
+
+    tmp = CodeSection(iElfSrc);
+    if(tmp.type > E32Sections::EMPTY_SECTION)
+        iE32image.push_back(tmp);
 
     if(iE32Opts->iNamedlookup)
     {

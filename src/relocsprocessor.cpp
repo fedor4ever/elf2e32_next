@@ -158,8 +158,8 @@ void RelocsProcessor::ProcessVeneers()
     for(; symTab < iElf->Lim(); symTab++)
     {
         if (!symTab->st_name) continue;
-        char * aSymName = strTab + symTab->st_name;
-        Elf32_Sym	*aSym;
+        char* aSymName = strTab + symTab->st_name;
+        Elf32_Sym* aSym;
 
         if (!strncmp(aSymName, "$Ven$AT$L$$", length))
         {
@@ -268,19 +268,21 @@ bool IsLocalReloc(const LocalReloc& rel)
             (rel.iRelType == R_ARM_ABS32 || rel.iRelType == R_ARM_GLOB_DAT));
 }
 
-/**
-This function adjusts the fixup for the relocation entry.
-*/
 uint16_t RelocsProcessor::Fixup(const Elf32_Sym* s)
 {
-//	if(IsLocalReloc(rel))
-//	{
-//        Elf32_Word* aLoc = iElf->GetFixupLocation(rel.iRela.r_offset, rel.iHasRela);
-//        aLoc[0] += s->st_value;
-//	}
 	if(s)
 		return iElf->Segment(s);
     return KTextRelocType;
+}
+
+void RelocsProcessor::ApplyLocalReloc(const LocalReloc& rel)
+{
+
+	if(IsLocalReloc(rel))
+	{
+        Elf32_Word* aLoc = iElf->GetRelocationPlace(rel.iRela.r_offset);
+        aLoc[0] += rel.iSymbol->st_value;
+	}
 }
 
 template <class T>
@@ -362,6 +364,7 @@ void RelocsProcessor::AddToLocalRelocations(uint32_t aAddr, uint32_t index,
 
 void RelocsProcessor::UpdateRelocs(const LocalReloc& r)
 {
+    ApplyLocalReloc(r);
     switch(r.iSegmentType)
     {
     case ESegmentType::ESegmentRO:

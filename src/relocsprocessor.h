@@ -11,10 +11,17 @@
 // Contributors:
 //
 // Description:
-// Parse ELF relocs
+// Parse and resolve ELF relocs
 //
 //
-
+// Relocs resolution:
+// 1) exports:
+//      Elf32_Word* aRelocPlace = iElf->GetRelocationPlace(r_offset);
+//      *aRelocPlace = (aReloc.iRela.r_addend<<16) | aOrdinal;
+// 2) local:
+//      Elf32_Word* aLoc = iElf->GetRelocationPlace(rel.iRela.r_offset);
+//      aLoc[0] += rel.iSymbol->st_value;
+//
 
 #ifndef RELOCSPROCESSOR_H
 #define RELOCSPROCESSOR_H
@@ -65,12 +72,12 @@ class RelocsProcessor
     public:
         RelocsProcessor(const ElfParser* elf, const Symbols& s);
         ~RelocsProcessor() {}
+        void Process();
 
         E32Section CodeRelocsSection();
         E32Section DataRelocsSection();
         ImportLibs GetImports();
 
-        void Process();
         uint32_t ImportsCount() const;
         uint32_t DllCount() const;
         void ProcessVerInfo();
@@ -92,6 +99,7 @@ class RelocsProcessor
         void ProcessRelocations(const T* elfRel, const RelocBlock& r);
         void UpdateRelocs(const LocalReloc& r);
         void SortRelocs();
+        void ApplyLocalReloc(const LocalReloc& rel);
 
     private:
         const ElfParser* iElf = nullptr;
@@ -101,7 +109,7 @@ class RelocsProcessor
         std::vector<LocalReloc> iCodeRelocations;
         std::vector<LocalReloc> iDataRelocations;
         const Symbols& iRelocSrc;
-        ImportLibs  iImports;
+        ImportLibs iImports;
         uint16_t* iVersionTbl = nullptr;  //= iElf->VersionTbl();
         uint32_t iImportsCount = 0;
         uint32_t iDllCount = 0;

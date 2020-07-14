@@ -428,7 +428,6 @@ ESegmentType ElfParser::SegmentType(Elf32_Addr addr) const
 		return ESegmentRO;
 	else if(phdr == iDataSegmentHdr)
 		return ESegmentRW;
-
 	return ESegmentUndefined;
 }
 
@@ -437,16 +436,14 @@ Elf32_Phdr* ElfParser::GetSegmentAtAddr(Elf32_Addr addr) const
     if(iCodeSegmentHdr)
     {
 		uint32_t base = iCodeSegmentHdr->p_vaddr;
-		if( base <= addr && addr < (base + iCodeSegmentHdr->p_memsz) ) {
+		if( (base <= addr) && (addr < (base + iCodeSegmentHdr->p_memsz)) )
 			return iCodeSegmentHdr;
-		}
 	}
 	if(iDataSegmentHdr)
 	{
 		uint32_t base = iDataSegmentHdr->p_vaddr;
-		if( base <= addr && addr < (base + iDataSegmentHdr->p_memsz) ) {
+		if( (base <= addr) && (addr < (base + iDataSegmentHdr->p_memsz)) )
 			return iDataSegmentHdr;
-		}
 	}
     return nullptr;
 }
@@ -561,6 +558,7 @@ uint32_t ElfParser::GetSymbolOrdinal(Elf32_Sym* aSym) const
     return ord;
 }
 
+/// return offset from section's start
 Elf32_Word ElfParser::GetRelocationOffset(Elf32_Addr r_offset) const
 {
     Elf32_Phdr* hdr = GetSegmentAtAddr(r_offset);
@@ -573,14 +571,6 @@ Elf32_Word* ElfParser::GetRelocationPlace(Elf32_Addr r_offset) const
 	uint32_t off = hdr->p_offset + r_offset - hdr->p_vaddr;
 	Elf32_Word* place = ELF_ENTRY_PTR(Elf32_Word, iElfHeader, off);
 	return place;
-}
-
-Elf32_Word* ElfParser::GetFixupLocation(Elf32_Addr place, bool ExportTableReloc)
-{
-    Elf32_Phdr* phdr = ExportTableReloc ?
-        iCodeSegmentHdr : GetSegmentAtAddr(place);
-    Elf32_Word offset = phdr->p_offset + place - phdr->p_vaddr;
-    return ELF_ENTRY_PTR(Elf32_Word, iElfHeader, offset);
 }
 
 uint16_t ElfParser::Segment(const Elf32_Sym* s) const

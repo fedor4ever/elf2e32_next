@@ -1,0 +1,13 @@
+# depslib dependency file v1.0
+1594933940 source:d:\codeblock\symbiantimetest\main.cpp
+	<iostream>
+	"symbiantime.h"
+
+1594846069 d:\codeblock\symbiantimetest\symbiantime.h
+	<time.h>
+	<stdint.h>
+
+1594934594 source:d:\codeblock\symbiantimetest\symbiantime.cpp
+	<iostream>
+	"symbiantime.h"
+

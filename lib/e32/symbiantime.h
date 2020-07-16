@@ -11,19 +11,20 @@
 // Contributors:
 //
 // Description:
-// Creates Symbian time
+// Convert Unix time to Symbian time
 //
 //
 
 #ifndef SYMBIANTIME_H
 #define SYMBIANTIME_H
 
+#include <time.h>
 #include <stdint.h>
 
 class SymbianTime
 {
     public:
-        SymbianTime();
+        SymbianTime(time_t t = time(nullptr));
         uint32_t TimeLo() const;
         uint32_t TimeHi() const;
     private:

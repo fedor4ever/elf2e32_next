@@ -152,9 +152,9 @@ void E32File::WriteE32File()
 }
 
 // Export Section consist of uint32_t array, zero element contains section's size
-// equal to .
+// equal to Elf::st_value.
 // Absent symbols values set E32 image entry point, other set to their elf st_value
-E32Section MakeExportSection(const Symbols& s)
+E32Section MakeExportSection(const Symbols& s, uintptr_t iExportTableAddress, bool symlook)
 {
     E32Section exports;
     if(s.empty())
@@ -164,11 +164,14 @@ E32Section MakeExportSection(const Symbols& s)
     exports.type = E32Sections::EXPORTS;
     // The export table has a header containing the number of entries
 	// before the entries themselves. So add 1 to number of exports
-    uint32_t sz = s.size() + 1;
-    exports.section.insert(exports.section.begin(), sz * sizeof(uint32_t), 0);
+    uint32_t sz = (s.size() + 1) * sizeof(uint32_t);
+    exports.section.insert(exports.section.begin(), sz, 0);
 
     uint32_t* iTable = (uint32_t*)exports.section.data();
     iTable[0] = s.size();
+    /// TODO (Administrator#1#07/19/20): Check how OS loader handle export section if --namedlookup used
+    if(symlook)
+        iTable[0] = sz + iExportTableAddress - 4;
 
     uint32_t i = 1;
     for(auto x: s)
@@ -197,9 +200,7 @@ E32Section DataSection(const ElfParser* parser)
 void E32File::PrepareData()
 {
     E32Section tmp;
-    printf("EntryPointOffset: 0x%x\n", iElfSrc->EntryPointOffset());
-
-    tmp = MakeExportSection(iSymbols);
+    tmp = MakeExportSection(iSymbols, iRelocs->ExportTableAddress(), iE32Opts->iNamedlookup);
     if(tmp.type > E32Sections::EMPTY_SECTION)
     {
         iE32image.push_back(tmp);

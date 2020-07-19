@@ -83,6 +83,7 @@ class RelocsProcessor
         void ProcessVerInfo();
         std::vector<std::string> StrTableData() const;
         uint16_t Fixup(const Elf32_Sym* s);
+        size_t ExportTableAddress() const;
 
     private:
         void RelocsFromSymbols();

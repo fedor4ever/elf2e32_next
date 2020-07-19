@@ -117,7 +117,6 @@ void RelocsProcessor::RelocsFromSymbols()
     for(auto x: iRelocSrc)
     {
         iExportTableAddress = (uintptr_t)aPlace;
-        /// TODO (Administrator#1#06/16/20): use to set reloc
         AddToLocalRelocations(iExportTableAddress, i, R_ARM_ABS32,
                               x->GetElf32_Sym(), x->Absent());
         aPlace++;
@@ -453,4 +452,9 @@ E32Section RelocsProcessor::DataRelocsSection()
     dataRel.type = E32Sections::DATARELOCKS;
     dataRel.info = "DATARELOCKS";
     return CreateRelocations(iDataRelocations, dataRel, this);
+}
+
+size_t RelocsProcessor::ExportTableAddress() const
+{
+    return iExportTableAddress;
 }

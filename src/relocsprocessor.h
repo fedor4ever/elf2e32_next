@@ -70,7 +70,7 @@ struct LocalReloc
 class RelocsProcessor
 {
     public:
-        RelocsProcessor(const ElfParser* elf, const Symbols& s);
+        RelocsProcessor(const ElfParser* elf, const Symbols& s, bool symlook);
         ~RelocsProcessor() {}
         void Process();
 
@@ -115,6 +115,7 @@ class RelocsProcessor
         uint32_t iImportsCount = 0;
         uint32_t iDllCount = 0;
         size_t iExportTableAddress = 0;
+        bool iSymLook = false;
 };
 
 #endif // RELOCSPROCESSOR_H

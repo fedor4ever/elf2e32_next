@@ -52,7 +52,8 @@ void RelocsProcessor::SortRelocs()
     std::sort(iDataRelocations.begin(), iDataRelocations.end(), Cmp);
 }
 
-RelocsProcessor::RelocsProcessor(const ElfParser* elf, const Symbols& s): iElf(elf), iRelocSrc(s) {}
+RelocsProcessor::RelocsProcessor(const ElfParser* elf, const Symbols& s, bool symlook):
+    iElf(elf), iRelocSrc(s), iSymLook(symlook) {}
 
 void RelocsProcessor::Process()
 {
@@ -126,6 +127,8 @@ void RelocsProcessor::RelocsFromSymbols()
 
 void RelocsProcessor::ProcessSymbolInfo()
 {
+    if(!iSymLook)
+        return;
     Elf32_Addr elfAddr = iExportTableAddress - 4;// This location points to 0th ord.;
     AddToLocalRelocations(elfAddr, 0, R_ARM_ABS32, nullptr);
 

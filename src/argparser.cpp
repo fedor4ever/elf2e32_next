@@ -76,7 +76,7 @@ static struct option long_opts[] =
     {"dump",      required_argument, 0, OptionsType::EDUMP},
     // common options
     {"log",             required_argument, 0, OptionsType::ELOG},
-    {"version",               no_argument, 0, OptionsType::EVERSION},
+    {"version",         required_argument, 0, OptionsType::EVERSION},
     {"man",                   no_argument, 0, OptionsType::EMAN},
     {"man-edit",              no_argument, 0, OptionsType::EMANEDIT},
     {"man-build",             no_argument, 0, OptionsType::EMANBUILD},

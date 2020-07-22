@@ -96,7 +96,7 @@ struct E32ImageHeader
     uint32_t iUidChecksum;
     const char iSignature[4] = {'E', 'P', 'O', 'C'};
     uint32_t iHeaderCrc = KImageCrcInitialiser; // CRC-32 of entire header
-    uint32_t iModuleVersion = 0x00010000u;      // Version number for this executable (used in link resolution)
+    uint32_t iModuleVersion = 0x000a0000u;      // Version number for this executable (used in link resolution)
     uint32_t iCompressionType = KUidCompressionDeflate;   // Type of compression used (UID or 0 for none)
     ToolVersion iVersion;        // Version of PETRAN/ELFTRAN which generated this file
     uint32_t iTimeLo;

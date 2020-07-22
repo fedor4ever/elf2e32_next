@@ -121,7 +121,7 @@ struct Args
     std::string iE32input;
     std::string iDump = "h";
     std::string iLog;
-    uint32_t iVersion = 0; // ex: elf2e32.exe --version
+    uint32_t iVersion = 0x000a0000u; // ex: elf2e32.exe --version
     std::string iHeader;
 };
 

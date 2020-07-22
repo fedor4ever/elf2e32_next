@@ -287,6 +287,8 @@ void SymbolProcessor::SetElf_st_value(const Symbols& fromElf)
                 (*it1)->SetAbsent(false);
             }
             it1++, it2++;
+            if(it1 == iSymbols.end())
+                break;
         }
     }
 
@@ -381,7 +383,7 @@ Symbols SymbolProcessor::FromSysdef()
 
         string funcname(line.substr(0, argpos));
         string ordnum(line.substr(argpos+1, endpos-argpos-1));
-        string ord(line.substr(argpos, endpos-argpos + 1)); // ,(ordinal);
+        string ord(line.substr(argpos, endpos-argpos + 1));
         line.erase(0, endpos+1);
 
         if(line.find(funcname) != string::npos)

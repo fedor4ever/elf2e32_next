@@ -81,11 +81,6 @@ void E32File::WriteE32File()
     E32HeaderSection header(iE32Opts);
     iHeader = header.MakeE32Header();
 
-    if(!iSymbols.empty())
-        iHeader.pop_back(); // remove E32ImageHeaderV::iExportDesc[1]
-
-    printf("header size: %u\n", iHeader.size());
-
     E32ImageHeader* hdr = (E32ImageHeader*)&iHeader[0];
     hdr->iDataSize = iElfSrc->DataSegmentSize();
     hdr->iBssSize = iElfSrc->BssSegmentSize();
@@ -213,7 +208,8 @@ void E32File::PrepareData()
             iE32image.push_back(tmp);
             iExportDescSize = proc->ExportDescSize();
             iExportDescType = proc->ExportDescType();
-        }
+        }else
+            iHeader.push_back(0);
         delete proc;
     }
 

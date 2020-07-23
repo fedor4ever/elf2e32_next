@@ -60,5 +60,6 @@ E32SectionUnit E32HeaderSection::MakeE32Header()
     v->iS.iCaps = ProcessCapabilities(iHeaderData->iCapability);
     iHeader.insert(iHeader.end(), (char*)v, (char*)v + sizeof(E32ImageHeaderV));
     delete v;
+    iHeader.pop_back(); // remove E32ImageHeaderV::iExportDesc[1]
     return iHeader;
 }

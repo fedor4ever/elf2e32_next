@@ -38,8 +38,8 @@ enum TargetType
 	EDll,
 	EExe,
 	EKDll,
-	EVar,  // exports "_Z17VariantInitialisev"
-	EVar2, // exports "VariantInitialise"
+	EVar,  // exports "_Z17VariantInitialisev,1"
+	EVar2, // exports "VariantInitialise,1"
 	EExexp,
 	EStdExe, //UID1 - 0x1000007a UID2 - 0x20004C45
 	EStdDll, //UID1 - 0x10000079 UID2 - 0x20004C45

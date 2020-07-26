@@ -206,6 +206,7 @@ void SymbolProcessor::ProcessElfSymbols()
 
     // dealing with new symbols
     std::list<string> ls;
+    Symbols filtered;
     for(auto x: newsymbols)
     {
         if(UnCallableSymbol(x->AliasName()))
@@ -217,6 +218,7 @@ void SymbolProcessor::ProcessElfSymbols()
 
         x->SetOrdinal(lastOrdinal++);
         ReportWarning(ErrorCodes::UNFROZENSYMBOLADDED, x->AliasName());
+        filtered.push_back(x);
         ls.push_back(x->AliasName());
     }
 
@@ -247,7 +249,7 @@ void SymbolProcessor::ProcessElfSymbols()
     SetElf_st_value(elfSym);
     CheckForErrors(iArgs->iUnfrozen, ls, iArgs->iElfinput);
     ls.clear();
-    iSymbols.merge(newsymbols);
+    iSymbols.merge(filtered);
 }
 
 void SymbolProcessor::CheckForErrors(bool unfrozen, list<string> missedSymbols, const string& src)

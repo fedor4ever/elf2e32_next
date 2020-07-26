@@ -357,17 +357,14 @@ void E32Info::DataSection()
 void E32Info::ExportTable()
 {
     printf("\nNumber of exports = %u\n", iHdr->iExportDirCount);
-    uint32_t* exports = (uint32_t*)(iE32->GetBufferedImage() + iHdr->iExportDirOffset);
-
+    uint32_t* exports = iE32->GetExportTable();
     uint32_t absentVal = iE32->EntryPoint();
-
-    for (uint32_t i = 0; i < iHdr->iExportDirCount; ++i)
+    for (uint32_t i = 1; i < iHdr->iExportDirCount; i++)
     {
-        uint32_t exp = exports[i];
-        if(exp == absentVal)
-            printf("\tOrdinal %5u:\tABSENT\n", i+1);
+        if(exports[i] == absentVal)
+            printf("\tOrdinal %5u:\tABSENT\n", i);
         else
-            printf("\tOrdinal %5u:\t%08x\n", i+1, exp);
+            printf("\tOrdinal %5u:\t%08x\n", i, exports[i]);
     }
 }
 

@@ -99,13 +99,15 @@ void E32File::WriteE32File()
 
     for(auto x: iE32image)
     {
+// we set this field outside switch because Symbian Post Linker, Elf2E32 V2.0
+// set this field for exes as KImageHdr_ExpD_FullBitmap.
+        hdrv->iExportDescType = this->iExportDescType;
         switch(x.type)
         {
         case E32Sections::HEADER:
             break;
         case E32Sections::BITMAP:
             hdrv->iExportDescSize = this->iExportDescSize;
-            hdrv->iExportDescType = this->iExportDescType;
             hdr->iCodeOffset = iHeader.size() + x.section.size();
             break;
         case E32Sections::EXPORTS:
@@ -192,10 +194,25 @@ E32Section DataSection(const ElfParser* parser)
     return data;
 }
 
+bool IsEXE(TargetType type)
+{
+    if( (type == TargetType::EExe) || (type == TargetType::EExexp) ||
+        (type == TargetType::EStdExe) )
+        return true;
+    return false;
+}
+
 void E32File::PrepareData()
 {
     E32Section tmp;
     tmp = MakeExportSection(iSymbols, iRelocs->ExportTableAddress(), iE32Opts->iNamedlookup);
+
+    if(IsEXE(iE32Opts->iTargettype))
+    {
+        iExportDescType = KImageHdr_ExpD_FullBitmap;
+        iHeader.push_back(0);
+    }
+
     if(tmp.type > E32Sections::EMPTY_SECTION)
     {
         iE32image.push_back(tmp);

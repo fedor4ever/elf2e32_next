@@ -111,7 +111,7 @@ void E32File::WriteE32File()
             hdr->iCodeOffset = iHeader.size() + x.section.size();
             break;
         case E32Sections::EXPORTS:
-            hdr->iExportDirOffset = iHeader.size();
+            hdr->iExportDirOffset = iHeader.size() + sizeof(uint32_t); // point directly to exports
         case E32Sections::CODE:    //falltru
         case E32Sections::SYMLOOK: //falltru
             hdr->iTextSize = hdr->iCodeSize = iHeader.size() + x.section.size() - hdr->iCodeOffset;
@@ -143,8 +143,8 @@ void E32File::WriteE32File()
     UpdateImportTable(iHeader.data(), iHeader.size(), iImportTabLocations);
     /// TODO (Administrator#1#06/20/20): implement compression
     // see E32Rebuilder::ReCompress()
-//    E32ImageHeaderJ* j = &iHeader[sizeof(E32ImageHeader)];
-//    j->iUncompressedSize = ;
+    E32ImageHeaderJ* j = (E32ImageHeaderJ*)&iHeader[sizeof(E32ImageHeader)];
+    j->iUncompressedSize = iHeader.size() - hdr->iCodeOffset;
     SaveFile(iE32Opts->iOutput.c_str(), iHeader.data(), iHeader.size());
 }
 

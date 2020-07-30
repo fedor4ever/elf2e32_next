@@ -99,9 +99,10 @@ ArgParser::~ArgParser()
     //dtor
 }
 
-void ArgName(const char *name); // long_opts[optIdx].name
-void ArgInfo(const char *name, const char* opt = nullptr); // long_opts[optIdx].name, optarg
+void ArgName(const char* name); // long_opts[optIdx].name
+void ArgInfo(const char* name, const char* opt = nullptr); // long_opts[optIdx].name, optarg
 void Help();
+uint32_t Str2Hex(const char* s);
 
 //const string man =
 //"Эта программа предназначена для создания E32Image и сопутствующих файлов"
@@ -177,36 +178,36 @@ bool ArgParser::Parse(Args* arg) const
         switch(rez)
         {
             case OptionsType::EUID1:
-                arg->iUid1 = std::stoi(optarg);
+                arg->iUid1 = Str2Hex(optarg);
                 ArgInfo(optname, optarg);
                 break;
             case OptionsType::EUID2:
-                arg->iUid2 = std::stoi(optarg);
+                arg->iUid2 = Str2Hex(optarg);
                 VarningForDeprecatedUID(arg->iUid2);
                 ArgInfo(optname, optarg);
                 break;
             case OptionsType::EUID3:
-                arg->iUid3 = std::stoi(optarg);
+                arg->iUid3 = Str2Hex(optarg);
                 ArgInfo(optname, optarg);
                 break;
             case OptionsType::ESID:
-                arg->iSid = std::stoi(optarg);
+                arg->iSid = Str2Hex(optarg);
                 ArgInfo(optname, optarg);
                 break;
             case OptionsType::EVID:
-                arg->iVid = std::stoi(optarg);
+                arg->iVid = Str2Hex(optarg);
                 ArgInfo(optname, optarg);
                 break;
             case OptionsType::EHEAP:
             {
-                arg->iHeapMin = std::stoi(optarg);
+                arg->iHeapMin = Str2Hex(optarg);
                 string t(optarg);
-                arg->iHeapMax = std::stoi(t.substr( t.find_first_of(",.;") + 1 ));
+                arg->iHeapMax = Str2Hex(t.substr( t.find_first_of(",.;") + 1 ).c_str());
                 ArgInfo(optname, optarg);
                 break;
             }
             case OptionsType::ESTACK:
-                arg->iStack = std::stoi(optarg);
+                arg->iStack = Str2Hex(optarg);
                 ArgInfo(optname, optarg);
                 break;
         // for E32ImageHeader::iFlags
@@ -363,7 +364,7 @@ bool ArgParser::Parse(Args* arg) const
                 break;
             case OptionsType::EVERSION:
                 arg->iVersion = SetToolVersion(optarg);
-                ArgInfo(optname);
+                ArgInfo(optname ,optarg);
                 break;
             case OptionsType::EMAN:
                 ReportLog(man);
@@ -503,4 +504,11 @@ void ArgInfo(const char *name, const char* opt) // long_opts[*optIdx].name, opta
         ReportLog(opt);
     }
     ReportLog("\n");
+}
+
+uint32_t Str2Hex(const char* s)
+{
+    if((s[0] == '0') && ((s[1] == 'x')||(s[1] == 'X')))
+        return std::stoi(optarg, nullptr, 16);
+    return std::stoi(optarg);
 }

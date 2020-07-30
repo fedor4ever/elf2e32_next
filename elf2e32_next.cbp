@@ -7,11 +7,11 @@
 		<Option compiler="gcc" />
 		<Build>
 			<Target title="Debug">
-				<Option output="bin/Debug/elf2e32_next" prefix_auto="1" extension_auto="1" />
+				<Option output="bin/Debug/elf2e32" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/Debug/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
-				<Option parameters='--capability=All-TCB --elfinput=&quot;tests\kf_Python_launcher.exe&quot; --output=&quot;tests\tmp\kf_Python_launcher.tst.exe&quot; --libpath=&quot;tests\SDK_libs&quot; --linkas=&quot;kf_Python_launcher{000a0000}.exe&quot; --fpu=softvfp --uid1=0x10000079 --uid2=0x20004c45 --uid3=0x00000000 --targettype=STDEXE --ignorenoncallable --uncompressed --debuggable --smpsafe' />
+				<Option parameters=' --capability=All-TCB --definput=&quot;tests\libcryptou.def&quot; --defoutput=&quot;tests\tmp\out.def&quot; --elfinput=&quot;tests\libcrypto.dll&quot; --output=&quot;tests\tmp\libcrypto-2.4.5.tst.dll&quot; --libpath=&quot;tests\SDK_libs&quot; --linkas=&quot;libcrypto{000a0000}.dll&quot; --dso=&quot;tests\tmp\libcrypto{000a0000}.dso&quot; --fpu=softvfp --uid1=0x10000079 --uid2=0x20004c45 --uid3=0x00000000 --targettype=STDDLL --dlldata --ignorenoncallable --uncompressed --debuggable --smpsafe --namedlookup' />
 				<Compiler>
 					<Add option="-O3" />
 					<Add option="-Winit-self" />
@@ -26,7 +26,7 @@
 				</Compiler>
 			</Target>
 			<Target title="Release">
-				<Option output="bin/Release/elf2e32_next" prefix_auto="1" extension_auto="1" />
+				<Option output="bin/Release/elf2e32" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/Release/" />
 				<Option type="1" />
 				<Option compiler="gcc" />

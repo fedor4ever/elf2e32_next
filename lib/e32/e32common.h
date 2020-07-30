@@ -120,14 +120,14 @@ struct E32ImageHeader
     uint32_t iImportOffset = 0;  // file offset to import section
     uint32_t iCodeRelocOffset = 0; // relocations for code and const
     uint32_t iDataRelocOffset = 0; // relocations for data
-    uint16_t iProcessPriority;   // executables priority
+    uint16_t iProcessPriority;   // executables priority, for DLLs set to EPriorityForeground
     uint16_t iCpuIdentifier = (uint16_t)TCpu::ECpuArmV5;     // 0x1000 = X86, 0x2000 = ARM;
 };
 
 /**< In e32 binary take place after E32Header */
 struct E32ImageHeaderJ
 {
-	uint32_t iUncompressedSize = 0;	///< Uncompressed size of file data after the header, or zero if file not compressed.
+	uint32_t iUncompressedSize = 0;	///< Uncompressed size of data after the header.
 };
 
 #pragma pack(push, 1)

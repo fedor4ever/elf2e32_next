@@ -155,7 +155,6 @@ const char var2ExportName[] = "VariantInitialise,1;";
  * This function correct multiple conflict opions
  * like --datapaging with different params,
  * also fix wrong uid1 for exe and dll
- *
  */
 void ValidateOptions(Args* arg)
 {
@@ -312,6 +311,8 @@ void ValidateOptions(Args* arg)
 	case TargetType::EPdd: //fallthru
 	case TargetType::EPdl: //fallthru
 	case TargetType::ETextNotifier2: //fallthru
+        if(noE32Image && noElfinput)
+            ReportError(ErrorCodes::NOREQUIREDOPTION, "--elfinput ""--output");
 		if(noElfinput)
             ReportError(ErrorCodes::NOREQUIREDOPTION, "--elfinput");
 		if(noE32Image)

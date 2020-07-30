@@ -18,6 +18,7 @@
 #define ELF2E32_OPT_HPP_INCLUDED
 
 #include <string>
+#include "e32common.h"
 #include "cmdlineprocessor.h"
 
 struct OptionsType
@@ -89,9 +90,9 @@ struct Args
     uint32_t iUid3 = 0;
     uint32_t iSid = 0;
     uint32_t iVid = 0;
-    uint32_t iHeapMin = 0;
-    uint32_t iHeapMax = 0;
-    uint32_t iStack = 0;
+    uint32_t iHeapMin = KHeapCommittedSize;
+    uint32_t iHeapMax = KHeapReservedSize;
+    uint32_t iStack = 0x2000;
     bool iFixedaddress = false;
     bool iCallentry = false;
     uint32_t iFpu;
@@ -107,7 +108,7 @@ struct Args
     std::string iCapability = "NONE";
     std::string iSysdef;
     bool iDlldata = false;
-    uint16_t iPriority; // executables priority
+    uint16_t iPriority = (uint16_t)TProcessPriority::EPriorityForeground; // executables priority
     bool iExcludeunwantedexports = false;
     bool iCustomdlltarget = false;
     bool iNamedlookup = false;

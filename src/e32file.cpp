@@ -110,10 +110,10 @@ void E32File::WriteE32File()
             hdrv->iExportDescSize = this->iExportDescSize;
             hdr->iCodeOffset = iHeader.size() + x.section.size();
             break;
-        case E32Sections::EXPORTS:
+        case E32Sections::EXPORTS: //falltru
             hdr->iExportDirOffset = iHeader.size() + sizeof(uint32_t); // point directly to exports
-        case E32Sections::CODE:    //falltru
         case E32Sections::SYMLOOK: //falltru
+        case E32Sections::CODE: //falltru
             hdr->iTextSize = hdr->iCodeSize = iHeader.size() + x.section.size() - hdr->iCodeOffset;
             break;
         case E32Sections::DATA:
@@ -148,9 +148,8 @@ void E32File::WriteE32File()
     SaveFile(iE32Opts->iOutput.c_str(), iHeader.data(), iHeader.size());
 }
 
-// Export Section consist of uint32_t array, zero element contains section's size
-// equal to Elf::st_value.
-// Absent symbols values set E32 image entry point, other set to their elf st_value
+// Export Section consist of uint32_t array, first element contains section's size.
+// Absent symbols values set E32 image entry point, other set to their elf st_value.
 E32Section MakeExportSection(const Symbols& s, uintptr_t iExportTableAddress, bool symlook)
 {
     E32Section exports;
@@ -188,6 +187,8 @@ E32Section CodeSection(const ElfParser* parser)
 E32Section DataSection(const ElfParser* parser)
 {
     E32Section data;
+    if(parser->DataSegmentSize() == 0)
+        return data;
     data.info = "DATA";
     data.type = E32Sections::DATA;
     data.section.insert(data.section.begin(), parser->DataSegment(), parser->DataSegment() + parser->DataSegmentSize());
@@ -208,10 +209,7 @@ void E32File::PrepareData()
     tmp = MakeExportSection(iSymbols, iRelocs->ExportTableAddress(), iE32Opts->iNamedlookup);
 
     if(IsEXE(iE32Opts->iTargettype))
-    {
         iExportDescType = KImageHdr_ExpD_FullBitmap;
-        iHeader.push_back(0);
-    }
 
     if(tmp.type > E32Sections::EMPTY_SECTION)
     {
@@ -222,11 +220,11 @@ void E32File::PrepareData()
         tmp = proc->CreateExportBitmap();
         if(tmp.type > E32Sections::EMPTY_SECTION)
         {
+            iHeader.pop_back(); // remove E32ImageHeaderV::iExportDesc[1]
             iE32image.push_back(tmp);
             iExportDescSize = proc->ExportDescSize();
             iExportDescType = proc->ExportDescType();
-        }else
-            iHeader.push_back(0);
+        }
         delete proc;
     }
 

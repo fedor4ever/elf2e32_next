@@ -1,8 +1,8 @@
 # encoding=utf-8
 import os, subprocess
 
-elf2e32=r"D:\codeblock\elf2e32\bin\Debug\elf2e32.exe"
-tstdir=r"D:\codeblock\elf2e32\tests"
+elf2e32=r"D:\codeblock\elf2e32_next\bin\Debug\elf2e32.exe"
+tstdir=r"D:\codeblock\elf2e32_next\tests"
 counter=0
 
 caps=" --capability=All-TCB"

@@ -83,6 +83,8 @@ static struct option long_opts[] =
     {"man-build-dsodump",     no_argument, 0, OptionsType::EMANDSODUMP},
     {"man-build-artifacts",   no_argument, 0, OptionsType::EMANARTIFACTS},
     {"help",                  no_argument, 0, OptionsType::EHELP},
+    // dev options
+    {"time",            required_argument, 0, OptionsType::TIME},
     // ignored options
     {"messagefile",     required_argument, 0, OptionsType::EMESSAGEFILE},
     {"dumpmessagefile", required_argument, 0, OptionsType::EDUMPMESSAGEFILE},
@@ -386,6 +388,13 @@ bool ArgParser::Parse(Args* arg) const
                 ReportLog(manArtifacts);
                 ArgInfo(optname);
                 break;
+        // dev options
+            case OptionsType::TIME: // --time=hi,low
+                arg->iTime[0] = Str2Hex(optarg); // iTimeHi
+                string t(optarg);
+                arg->iTime[1] = Str2Hex(t.substr( t.find_first_of(",") + 1 ).c_str());
+                ArgInfo(optname ,optarg);
+                break;
             case ':':
                 //optind always point to next argv instead current                ReportError(MISSEDARGUMENT, iArgv[optind-1], Help);
                 return false;
@@ -509,6 +518,6 @@ void ArgInfo(const char *name, const char* opt) // long_opts[*optIdx].name, opta
 uint32_t Str2Hex(const char* s)
 {
     if((s[0] == '0') && ((s[1] == 'x')||(s[1] == 'X')))
-        return std::stoi(optarg, nullptr, 16);
-    return std::stoi(optarg);
+        return std::stoi(s, nullptr, 16);
+    return std::stoi(s);
 }

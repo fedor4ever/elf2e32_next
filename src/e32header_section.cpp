@@ -38,6 +38,12 @@ E32SectionUnit E32HeaderSection::MakeE32Header()
     hdr->iTimeLo = t.TimeLo();
     hdr->iTimeHi = t.TimeHi();
 
+    if((iHeaderData->iTime[0] > 0) && ((iHeaderData->iTime[1] > 0)))
+    {
+        hdr->iTimeHi = iHeaderData->iTime[0];
+        hdr->iTimeLo = iHeaderData->iTime[1];
+    }
+
     E32Flags flags(iHeaderData);
     hdr->iFlags = flags.Run();
 

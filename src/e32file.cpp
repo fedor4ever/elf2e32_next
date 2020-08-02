@@ -53,15 +53,8 @@ void UpdateImportTable(const char* s, size_t bufsz, const std::vector<int32_t>& 
     size_t offSet = p->ExpSymInfoTableOffset();
     E32EpocExpSymInfoHdr* sInf = (E32EpocExpSymInfoHdr*)(p->GetBufferedImage() + offSet);
 //    printf("aBaseOffset: %08x\n", offSet);
-//    printf("symInf: %p\t sInf: %p\n", symInf, sInf);
-/// TODO (Administrator#1#06/15/20): Investigate why GetEpocExpSymInfoHdr() point to wrong offset.
-// In  E32Parset it works fine...
-//    offSet += symInf->iDepDllZeroOrdTableOffset; // This points to the ordinal zero offset table now
     offSet += sInf->iDepDllZeroOrdTableOffset; // This points to the ordinal zero offset table now
     offSet -= h->iCodeOffset;
-//    printf("symInf->iDepDllZeroOrdTableOffset: %08x\n", symInf->iDepDllZeroOrdTableOffset);
-//    printf("symInf->iSymCount: %08x\n", symInf->iSymCount);
-//    printf("h->iCodeOffset: %08x\n", h->iCodeOffset);
 
     uint32_t* aImportTab = (uint32_t*)p->GetImportSection();
     for(auto x: iImportTabLocations)

@@ -201,7 +201,7 @@ uint32_t* E32Parser::GetExportTable() const
 uint32_t E32Parser::ExpSymInfoTableOffset() const
 {
     return iHdr->iExportDirOffset +
-        (iHdr->iExportDirCount + 1) * sizeof(uint32_t);
+        iHdr->iExportDirCount * sizeof(uint32_t);
 }
 
 const E32EpocExpSymInfoHdr* E32Parser::GetEpocExpSymInfoHdr() const

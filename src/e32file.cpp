@@ -21,6 +21,7 @@
 #include "elfparser.h"
 #include "e32common.h"
 #include "e32parser.h"
+#include "e32validator.h"
 #include "elf2e32_opt.hpp"
 #include "import_section.h"
 #include "relocsprocessor.h"
@@ -138,6 +139,10 @@ void E32File::WriteE32File()
     // see E32Rebuilder::ReCompress()
     E32ImageHeaderJ* j = (E32ImageHeaderJ*)&iHeader[sizeof(E32ImageHeader)];
     j->iUncompressedSize = iHeader.size() - hdr->iCodeOffset;
+
+    E32Parser* p = new E32Parser(iHeader.data(), iHeader.size());
+    p->GetFileLayout();
+    ValidateE32Image(p);
     SaveFile(iE32Opts->iOutput.c_str(), iHeader.data(), iHeader.size());
 }
 

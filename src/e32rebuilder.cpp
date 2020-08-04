@@ -49,10 +49,10 @@ void E32Rebuilder::Run()
 	iHdr = iParser->GetFileLayout();
 	iFileSize = iParser->GetFileSize();
 	iFile = iParser->GetBufferedImage();
-//    ValidateE32Image(iParser);
 	EditHeader();
 	ReCompress();
 	SetE32ImageCrc(iFile);
+    ValidateE32Image(iParser);
 	SaveFile(iReBuildOptions->iOutput.c_str(), iFile, iFileSize);
 }
 

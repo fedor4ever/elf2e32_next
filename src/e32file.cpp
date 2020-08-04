@@ -84,6 +84,12 @@ void E32File::WriteE32File()
     hdr->iDllRefTableCount = iRelocs->DllCount();   // filling this in enables E32ROM to leave space for it
     hdr->iExportDirCount = iSymbols.size();
 
+    bool isDLL = iElfSrc->ImageIsDll();
+    if(isDLL && (iE32Opts->iTargettype == TargetType::EExexp))
+        hdr->iFlags |= KImageFixedAddressExe;
+    if(isDLL)
+        hdr->iFlags |= KImageDll;
+
     const uint32_t offset = sizeof(E32ImageHeader) + sizeof(E32ImageHeaderJ);
     E32ImageHeaderV* hdrv = (E32ImageHeaderV*)&iHeader[offset];
 
@@ -133,12 +139,12 @@ void E32File::WriteE32File()
         hdr = (E32ImageHeader*)&iHeader[0];
         hdrv = (E32ImageHeaderV*)&iHeader[offset];
     }
-    SetE32ImageCrc(iHeader.data());
     UpdateImportTable(iHeader.data(), iHeader.size(), iImportTabLocations);
     /// TODO (Administrator#1#06/20/20): implement compression
     // see E32Rebuilder::ReCompress()
     E32ImageHeaderJ* j = (E32ImageHeaderJ*)&iHeader[sizeof(E32ImageHeader)];
     j->iUncompressedSize = iHeader.size() - hdr->iCodeOffset;
+    SetE32ImageCrc(iHeader.data());
 
     E32Parser* p = new E32Parser(iHeader.data(), iHeader.size());
     p->GetFileLayout();

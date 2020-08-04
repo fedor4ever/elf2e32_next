@@ -82,6 +82,7 @@ class ElfParser
         std::vector<RelocBlock> GetRelocs();
     public:
         uint16_t Segment(const Elf32_Sym* s) const;
+        bool ImageIsDll() const;
     public:
         Elf32_Addr* ExportTable();
         Elf32_Sym* Lim() const;

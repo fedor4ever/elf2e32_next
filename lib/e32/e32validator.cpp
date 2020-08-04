@@ -108,8 +108,8 @@ void E32Validator::ValidateHeader()
 	// check iHeaderCrc...
 	char* buf = new char[iHdr->iCodeOffset]();
 	memcpy(buf, iHdr, iHdr->iCodeOffset);
-	((E32ImageHeader*)buf)->iHeaderCrc = KImageCrcInitialiser;
-	uint32_t crc = Crc32(buf, iHdr->iCodeOffset);
+	SetE32ImageCrc(buf);
+	uint32_t crc = ((E32ImageHeader*)buf)->iHeaderCrc;
 	delete[] buf;
 	ThrowIfTrue(crc != iHdr->iHeaderCrc, "E32Image header crc");
 

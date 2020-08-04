@@ -501,7 +501,7 @@ Elf32_Sym* ElfParser::LookupStaticSymbol(const char* aName)
         ReportError(ErrorCodes::NOSTATICSYMBOLS);
 
     Elf32_Sym* aSymTab = iSymTab;
-	while(aSymTab++ < iLim)
+    for(; aSymTab < iLim; aSymTab++)
 	{
 		if (!aSymTab->st_name) continue;
 		char* aSymName = iStrTab + aSymTab->st_name;
@@ -601,4 +601,9 @@ Elf32_Phdr* ElfParser::Segment(uint16_t aType)
     default:
         return nullptr;
 	}
+}
+
+bool ElfParser::ImageIsDll() const
+{
+    return (LookupStaticSymbol("_E32Dll") != nullptr);
 }

@@ -199,17 +199,10 @@ void DefFile::Tokenizer(std::string aLine, size_t aIndex)
     iSymbols.push_back(iSymbol);
 }
 
-
-/**
-Function to write DEF file from symbol entry List.
-@param fileName - Def file name
-@param newSymbols - pointer to Symbols which we get as an input for writing in DEF File
-@internalComponent
-@released
-*/
-void DefFile::WriteDefFile(const char *fileName, const Symbols& newSymbols)
+void DefFile::WriteDefFile(const char *fileName, const Symbols& s)
 {
-    if(newSymbols.empty())
+    bool isNewSymFound = true;
+    if(s.empty())
         ReportError(EMPTYDATAWRITING, fileName);
 
     std::fstream fs;
@@ -218,10 +211,13 @@ void DefFile::WriteDefFile(const char *fileName, const Symbols& newSymbols)
         ReportError(FILEOPENERROR,fileName);
 
     fs << "EXPORTS\n";
-    for(auto x: newSymbols)
+    for(auto x: s)
     {
-        if(x->GetSymbolStatus()==New)
+        if((x->GetSymbolStatus()==New) && isNewSymFound)
+        {
+            isNewSymFound = false;
             fs << "; NEW:\n";
+        }
 
         if(x->GetSymbolStatus()==Missing)
             fs << "; MISSING:";

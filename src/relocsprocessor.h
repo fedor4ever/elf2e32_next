@@ -98,7 +98,7 @@ class RelocsProcessor
                 bool veneerSymbol = false);
         template <class T>
         void ProcessRelocations(const T* elfRel, const RelocBlock& r);
-        void UpdateRelocs(const LocalReloc& r);
+        void SortReloc(const LocalReloc& r);
         void SortRelocs();
         void ApplyLocalReloc(const LocalReloc& rel);
 

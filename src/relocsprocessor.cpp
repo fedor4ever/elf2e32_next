@@ -341,7 +341,7 @@ void RelocsProcessor::AddToLocalRelocations(uint32_t index,
     loc.iRelType = relType;
     loc.iSymbol = iElf->GetSymbolTableEntity(index);
     loc.iSegmentType = iElf->SegmentType(rela.r_offset);
-    UpdateRelocs(loc);
+    SortReloc(loc);
 }
 
 //Elf32_Word aAddend = Addend(aElfRel);
@@ -361,10 +361,10 @@ void RelocsProcessor::AddToLocalRelocations(uint32_t aAddr, uint32_t index,
     loc.iDelSym = aDelSym; // true for absent symbols only
     loc.iVeneerSymbol = veneerSymbol;
     loc.iSegmentType = ESegmentType::ESegmentRO;
-    UpdateRelocs(loc);
+    SortReloc(loc);
 }
 
-void RelocsProcessor::UpdateRelocs(const LocalReloc& r)
+void RelocsProcessor::SortReloc(const LocalReloc& r)
 {
     ApplyLocalReloc(r);
     switch(r.iSegmentType)

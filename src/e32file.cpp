@@ -154,7 +154,8 @@ void E32File::WriteE32File()
 
 // Export Section consist of uint32_t array, first element contains section's size.
 // Absent symbols values set E32 image entry point, other set to their elf st_value.
-E32Section MakeExportSection(const Symbols& s, uintptr_t iExportTableAddress, bool symlook)
+E32Section MakeExportSection(const Symbols& s, uintptr_t iExportTableAddress,
+                             bool symlook, bool HasNoDefIn)
 {
     E32Section exports;
     if(s.empty())
@@ -169,9 +170,12 @@ E32Section MakeExportSection(const Symbols& s, uintptr_t iExportTableAddress, bo
 
     uint32_t* iTable = (uint32_t*)exports.section.data();
     iTable[0] = s.size();
+
     /// TODO (Administrator#1#07/19/20): Check how OS loader handle export section if --namedlookup used
+    if(HasNoDefIn && symlook) // original algorithm works as no symbols provided
+        sz = 4;
     if(symlook)
-        iTable[0] = sz + iExportTableAddress - 4;
+        iTable[0] = sz + iExportTableAddress;
 
     uint32_t i = 1;
     for(auto x: s)
@@ -210,7 +214,8 @@ bool IsEXE(TargetType type)
 void E32File::PrepareData()
 {
     E32Section tmp;
-    tmp = MakeExportSection(iSymbols, iRelocs->ExportTableAddress(), iE32Opts->iNamedlookup);
+    tmp = MakeExportSection(iSymbols, iRelocs->ExportTableAddress(),
+                    iE32Opts->iNamedlookup, iE32Opts->iDefinput.empty());
 
     if(IsEXE(iE32Opts->iTargettype))
         iExportDescType = KImageHdr_ExpD_FullBitmap;

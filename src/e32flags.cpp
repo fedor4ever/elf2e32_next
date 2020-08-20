@@ -47,7 +47,7 @@ void E32Flags::SetFPU()
 		iFlags |= KImageHWFloat_VFPv3D16;
 }
 
-/**< This function sets the Debuggable attribute in the E32 image. */
+/**< This function sets the Debuggable attribute in the E32 image. EXE only.*/
 void E32Flags::SetDebuggable()
 {
 	if (iArgs->iDebuggable)
@@ -63,15 +63,6 @@ void E32Flags::SetSmpSafe()
 		iFlags |= KImageSMPSafe;
 	else
 		iFlags &= ~KImageSMPSafe;
-}
-
-/**< This function sets the call entry point of the E32 image. */
-void E32Flags::SetCallEntryPoints()
-{
-	if (iArgs->iCallentry)
-		iFlags|=KImageNoCallEntryPoint;
-	else
-		iFlags&=~KImageNoCallEntryPoint;
 }
 
 /** \brief This function set most flags appropriate for E32ImageHeader::iFlags.
@@ -104,15 +95,16 @@ uint32_t E32Flags::Run()
 	iFlags |= KImageImpFmt_ELF;
 	// ABI is ARM EABI
 	iFlags |= KImageABI_EABI;
+
 	iFlags |= KImageEpt_Eka2;
     iFlags |= KImageHdrFmt_V;
+    iFlags |= KImageNoCallEntryPoint; // always set on
 
-    void SetSymbolLookup();
-    void SetFPU();
-    void SetDebuggable();
-    void SetSmpSafe();
-    void SetCallEntryPoints();
-    void SetPaged();
+    SetSymbolLookup();
+    SetFPU();
+    SetDebuggable();
+    SetSmpSafe();
+    SetPaged();
 
     return iFlags;
 }

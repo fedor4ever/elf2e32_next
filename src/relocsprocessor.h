@@ -22,6 +22,9 @@
 //      Elf32_Word* aLoc = iElf->GetRelocationPlace(rel.iRela.r_offset);
 //      aLoc[0] += rel.iSymbol->st_value;
 //
+// Note: if option "--namedlookup" supplied and "--definput" omitted E32
+// image generated that tool differs from SDK tool output for code relocs
+// section. Correctness unknown.
 
 #ifndef RELOCSPROCESSOR_H
 #define RELOCSPROCESSOR_H

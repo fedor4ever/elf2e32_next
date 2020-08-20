@@ -279,7 +279,6 @@ uint16_t RelocsProcessor::Fixup(const Elf32_Sym* s)
 
 void RelocsProcessor::ApplyLocalReloc(const LocalReloc& rel)
 {
-
 	if(IsLocalReloc(rel))
 	{
         Elf32_Word* aLoc = iElf->GetRelocationPlace(rel.iRela.r_offset);

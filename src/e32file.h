@@ -61,6 +61,7 @@ class E32File
         void WriteE32File();
     private:
         void PrepareData();
+        void SetFixedAddress(E32ImageHeader* hdr);
     private:
         const Args* iE32Opts = nullptr;
         const ElfParser* iElfSrc = nullptr;

@@ -217,10 +217,6 @@ bool ArgParser::Parse(Args* arg) const
                 arg->iFixedaddress = true;
                 ArgInfo(optname);
                 break;
-            case OptionsType::ECALLENTRY:
-                arg->iCallentry = true;
-                ArgInfo(optname);
-                break;
             case OptionsType::EFPU:
                 arg->iFpu = GetFpuType(optarg);
                 ArgInfo(optname ,optarg);
@@ -406,8 +402,9 @@ bool ArgParser::Parse(Args* arg) const
                 Help();
                 return false;
         //silently ignored options
+            case OptionsType::ECALLENTRY:
             case OptionsType::EMESSAGEFILE: // fallthru
-            case OptionsType::EDUMPMESSAGEFILE:
+            case OptionsType::EDUMPMESSAGEFILE: // fallthru
                 break;
             default:
                 Help();
@@ -460,7 +457,7 @@ const string ScreenOptions =
 "        --e32input=Input E32 Image file name\n"
 "        --priority=Specify the process priority for your executable EXE\n"
 "        --version=Module Version\n"
-"        --callentry=Call Entry Point\n"
+"        --callentry=Call Entry Point(ignored)\n"
 "        --fpu=FPU type [softvfp|vfpv2|vfpv3|vfpv3D16]\n"
 "        --codepaging=Code Paging Strategy [paged|unpaged|default]\n"
 "        --datapaging=Data Paging Strategy [paged|unpaged|default]\n"

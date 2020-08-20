@@ -53,18 +53,29 @@ void UpdateImportTable(const char* s, size_t bufsz, const std::vector<int32_t>& 
     const E32EpocExpSymInfoHdr* symInf = p->GetEpocExpSymInfoHdr();
     size_t offSet = p->ExpSymInfoTableOffset();
     E32EpocExpSymInfoHdr* sInf = (E32EpocExpSymInfoHdr*)(p->GetBufferedImage() + offSet);
-//    printf("aBaseOffset: %08x\n", offSet);
     offSet += sInf->iDepDllZeroOrdTableOffset; // This points to the ordinal zero offset table now
     offSet -= h->iCodeOffset;
 
     uint32_t* aImportTab = (uint32_t*)p->GetImportSection();
     for(auto x: iImportTabLocations)
     {
-//        printf("offSet: %08x\n", offSet);
         aImportTab[x] = offSet;
         offSet += sizeof(uint32_t);
     }
     delete p;
+}
+
+void E32File::SetFixedAddress(E32ImageHeader* hdr)
+{
+    if(iE32Opts->iFixedaddress)
+    {
+        if(iElfSrc->ImageIsDll())
+            ReportLog("Warning: Cannot set fixed address for DLL.\n");
+        else
+            hdr->iFlags|=KImageFixedAddressExe;
+    }
+    else
+        hdr->iFlags&=~KImageFixedAddressExe;
 }
 
 void E32File::WriteE32File()
@@ -84,10 +95,9 @@ void E32File::WriteE32File()
     hdr->iDllRefTableCount = iRelocs->DllCount();   // filling this in enables E32ROM to leave space for it
     hdr->iExportDirCount = iSymbols.size();
 
-    bool isDLL = iElfSrc->ImageIsDll();
-    if(isDLL && (iE32Opts->iTargettype == TargetType::EExexp))
-        hdr->iFlags |= KImageFixedAddressExe;
-    if(isDLL)
+    SetFixedAddress(hdr);
+
+    if(iElfSrc->ImageIsDll())
         hdr->iFlags |= KImageDll;
 
     const uint32_t offset = sizeof(E32ImageHeader) + sizeof(E32ImageHeaderJ);

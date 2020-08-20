@@ -29,6 +29,10 @@
 //   in case 4) already defined symbol gets new ordinal with next value after last ordinal
 //
 // In any case .def should be created because original elf2e32 does so.
+//
+// For a custom dll and for option "--excludeunwantedexports", the new exports should be filtered,
+// so that only the exports from the frozen DEF file are considered.
+//
 
 #ifndef SYMBOLPROCESSOR_H
 #define SYMBOLPROCESSOR_H

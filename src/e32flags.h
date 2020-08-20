@@ -13,10 +13,9 @@
 // Description:
 // Class for first-time initialization of E32ImageHeader::iFlags.
 //      For details see E32Flags::Run().
-// @internalComponent
-// @released
 //
-//
+// Errata: by mistake for dll some tools set on KImageDebuggable
+// flag if --debuggable option provided.
 
 #ifndef E32FLAGS_H
 #define E32FLAGS_H
@@ -37,7 +36,6 @@ class E32Flags
         void SetFPU();
         void SetDebuggable();
         void SetSmpSafe();
-        void SetCallEntryPoints();
         void SetPaged();
 
     private:

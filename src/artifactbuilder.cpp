@@ -151,6 +151,13 @@ const char textNotifierExportName[] = "_Z13NotifierArrayv,1;";
 const char varExportName[] = "_Z17VariantInitialisev,1;";
 const char var2ExportName[] = "VariantInitialise,1;";
 
+bool IsRunnable(TargetType type)
+{
+    if((type == TargetType::EExe) || (type == TargetType::EExexp)
+       || (type == TargetType::EStdExe))
+       return true;
+    return false;
+}
 /** \brief Verifies and correct wrong input options
  * This function correct multiple conflict opions
  * like --datapaging with different params,
@@ -159,6 +166,12 @@ const char var2ExportName[] = "VariantInitialise,1;";
 void ValidateOptions(Args* arg)
 {
     FixHeaderName(arg);
+
+    if((arg->iDebuggable) && !IsRunnable(arg->iTargettype))
+    {
+        arg->iDebuggable = false;
+        ReportLog("--debuggable option allowed for EXE's only!\n");
+    }
 
     if(!arg->iHeader.empty() && !arg->iElfinput.empty())
         return;
@@ -193,6 +206,11 @@ void ValidateOptions(Args* arg)
     bool noElfinput = arg->iElfinput.empty();
     bool noE32Image = arg->iOutput.empty();
     TargetType iTargetType = arg->iTargettype;
+
+    if(!hasDefinput && arg->iFixedaddress)
+        ReportLog("Note: if option \"--namedlookup\" supplied and \"--definput\" omitted E32"
+                "image generated that tool differs from SDK tool output for code relocs"
+                "section. Correctness unknown.\n");
 
 	if(iTargetType == TargetType::EInvalidTargetType || iTargetType == TargetType::ETargetTypeNotSet)
 	{

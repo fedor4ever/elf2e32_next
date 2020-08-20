@@ -213,7 +213,7 @@ const uint32_t KImageHdr_ExpD_Xip           = 0xff;  ///< XIP file
 
 // flag values for E32ImageHeader::iFlags
 const uint32_t KImageDll               = 0x00000001u;
-const uint32_t KImageNoCallEntryPoint  = 0x00000002u;
+const uint32_t KImageNoCallEntryPoint  = 0x00000002u; ///< Obsolete flag ignored since Symbian OS version 8.1b.
 const uint32_t KImageFixedAddressExe   = 0x00000004u;
 
 const uint32_t KImageOldJFlag      = 0x00000008u;  /// so we can run binaries built with pre 2.00 tools (hdrfmt=0)

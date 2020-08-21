@@ -386,9 +386,11 @@ bool ArgParser::Parse(Args* arg) const
                 break;
         // dev options
             case OptionsType::TIME: // --time=hi,low
+            {
                 arg->iTime[0] = Str2Hex(optarg); // iTimeHi
                 string t(optarg);
                 arg->iTime[1] = Str2Hex(t.substr( t.find_first_of(",") + 1 ).c_str());
+            }
                 ArgInfo(optname ,optarg);
                 break;
             case ':':

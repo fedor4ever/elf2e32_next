@@ -15,6 +15,8 @@
 //
 //
 
+#include <vector>
+
 #include "common.hpp"
 #include "e32common.h"
 #include "e32parser.h"
@@ -49,11 +51,20 @@ void E32Rebuilder::Run()
 	iHdr = iParser->GetFileLayout();
 	iFileSize = iParser->GetFileSize();
 	iFile = iParser->GetBufferedImage();
+
 	EditHeader();
 	ReCompress();
 	SetE32ImageCrc(iFile);
+// We create copy of file object because ValidateE32Image(iParser) break it's consistency.
+    std::vector<char> file;
+    file.assign(iFile, iFile + iFileSize);
+// We reinit E32Parser object because it's consistency broken.
+    delete iParser;
+    iParser = new E32Parser(iFile, iFileSize);
+    iParser->GetFileLayout();
+
     ValidateE32Image(iParser);
-	SaveFile(iReBuildOptions->iOutput.c_str(), iFile, iFileSize);
+	SaveFile(iReBuildOptions->iOutput.c_str(), file.data(), iFileSize);
 }
 
 E32Rebuilder::~E32Rebuilder()

@@ -25,7 +25,7 @@ elf2e32 --capability=All-TCB --definput="libcryptou.def" --defoutput="tmp\out.de
 --capability=ProtServ --defoutput=tmp\AlternateReaderRecog{000a0000}.def --elfinput="AlternateReaderRecog.dll" --output="tmp\AlternateReaderRecog.tst.dll" --libpath=SDK_libs --linkas=AlternateReaderRecog{000a0000}[101ff1ec].dll --dso=tmp\AlternateReaderRecog{000a0000}.dso --fpu=softvfp --uid1=0x10000079 --uid2=0x10009d8d --uid3=0x101ff1ec --targettype=PLUGIN --sysdef=_Z24ImplementationGroupProxyRi,1; --sid=0x101ff1ec --version=10.0 --ignorenoncallable --uncompressed
  --debuggable --smpsafe
  
-  --e32input="tests\AlternateReaderRecogE32.dll" --output="tests\tmp\AlternateReaderRecog.inflate.dll" --compressionmethod=inflate
+  --e32input="tests\AlternateReaderRecog.SDK.dll" --output="tests\tmp\AlternateReaderRecog.inflate.dll" --compressionmethod=inflate
 
  --e32input="tests\tmp\AlternateReaderRecog.inflate.dll"  --output="tests\tmp\AlternateReaderRecog.inflate2bytepair.dll" --compressionmethod=bytepair
 

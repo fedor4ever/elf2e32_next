@@ -365,9 +365,9 @@ Function LitLenL
 @released
 */
 void TDeflateStats::LitLenL(int32_t aCode)
-	{
+{
 	++iEncoding.iLitLen[aCode];
-	}
+}
 
 /*
 @Leave ArrayIndexOutOfBounds
@@ -377,9 +377,9 @@ Finction OffsetL
 @released
 */
 void TDeflateStats::OffsetL(int32_t aCode)
-	{
+{
 	++iEncoding.iDistance[aCode];
-	}
+}
 
 /**
 Constructor of Class TDeflater
@@ -402,9 +402,9 @@ Function LitLenL
 @released
 */
 void TDeflater::LitLenL(int32_t aCode)
-	{
+{
 	iOutput.HuffmanL(iEncoding.iLitLen[aCode]);
-	}
+}
 
 /*
 Function OffsetL
@@ -414,9 +414,9 @@ Function OffsetL
 @released
 */
 void TDeflater::OffsetL(int32_t aCode)
-	{
+{
 	iOutput.HuffmanL(iEncoding.iDistance[aCode]);
-	}
+}
 
 /*
 Function ExtraL
@@ -427,9 +427,9 @@ Function ExtraL
 @released
 */
 void TDeflater::ExtraL(int32_t aLen,uint32_t aBits)
-	{
+{
 	iOutput.WriteL(aBits,aLen);
-	}
+}
 /*
 Function DoDeflateL
 @Leave
@@ -441,7 +441,7 @@ Function DoDeflateL
 @released
 */
 void DoDeflateL(const uint8_t* aBuf,int32_t aLength,TBitOutput& aOutput,TEncoding& aEncoding)
-	{
+{
 // analyse the data for symbol frequency
 	TDeflateStats analyser(aEncoding);
 	analyser.DeflateL(aBuf,aLength);
@@ -461,7 +461,7 @@ void DoDeflateL(const uint8_t* aBuf,int32_t aLength,TBitOutput& aOutput,TEncodin
 	TDeflater deflater(aOutput,aEncoding);
 	deflater.DeflateL(aBuf,aLength);
 	aOutput.PadL(1);
-	}
+}
 
 /*
 Function DeflateL
@@ -473,11 +473,11 @@ Function DeflateL
 @released
 */
 void DeflateL(const uint8_t* aBuf, int32_t aLength, TBitOutput& aOutput)
-	{
+{
 	TEncoding* encoding=new TEncoding();
 	DoDeflateL(aBuf,aLength,aOutput,*encoding);
 	delete encoding;
-	}
+}
 /*
 Function DeflateCompress
 @param bytes
@@ -487,13 +487,13 @@ Function DeflateCompress
 @released
 */
 void DeflateCompress(char *bytes,size_t size, std::ofstream & os)
-	{
+{
 	TFileOutput* output=new TFileOutput(os);
 	output->iDataCount = 0;
 	DeflateL((uint8_t*)bytes,size,*output);
 	output->FlushL();
 	delete output;
-	}
+}
 
 size_t CompressDeflate(unsigned char* src, int srcsize, unsigned char* dst, int dstsize)
 {

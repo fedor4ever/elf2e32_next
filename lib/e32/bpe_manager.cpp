@@ -11,7 +11,7 @@
 // Contributors:
 //
 // Description:
-// functions to (de)compress E32Images with bytepair algorythm
+// functions to (de)compress E32Images with bytepair algorithm
 //
 //
 

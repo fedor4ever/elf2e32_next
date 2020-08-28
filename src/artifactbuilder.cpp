@@ -158,6 +158,28 @@ bool IsRunnable(TargetType type)
        return true;
     return false;
 }
+
+std::string GetEcomExportName(TargetType type)
+{
+    if((type == TargetType::EPlugin) || (type == TargetType::EPlugin3))
+        return ecomExportName;
+    else if(type == TargetType::EAni)
+        return aniExportName;
+    else if(type == TargetType::EFsy)
+        return fsyExportName;    else if(type == TargetType::ELdd)
+        return lddExportName;
+    else if(type == TargetType::EPdd)
+        return pddExportName;
+    else if(type == TargetType::EPdl)
+        return pdlExportName;
+    else if(type == TargetType::ETextNotifier2)
+        return textNotifierExportName;
+    else if(type == TargetType::EVar)
+        return varExportName;
+    else if(type == TargetType::EVar2)
+        return var2ExportName;
+}
+
 /** \brief Verifies and correct wrong input options
  * This function correct multiple conflict opions
  * like --datapaging with different params,
@@ -176,7 +198,11 @@ void ValidateOptions(Args* arg)
     if(!arg->iHeader.empty() && !arg->iElfinput.empty())
         return;
 
-    if(arg->iLinkas.empty())
+// convert .dso to .def
+    if(!arg->iElfinput.empty() && !arg->iDefoutput.empty() && arg->iOutput.empty())
+        return;
+
+    if(arg->iLinkas.empty() && (arg->iTargettype != TargetType::EInvalidTargetType))
     {
         std::string linkas;
         if(!arg->iOutput.empty())
@@ -222,32 +248,17 @@ void ValidateOptions(Args* arg)
             arg->iTargettype = TargetType::EDll;
         else
             arg->iTargettype = TargetType::EExe;
+        iTargetType = arg->iTargettype;
 	}
-	if((iTargetType == TargetType::EPlugin) && arg->iSysdef.empty())
 
-    if(arg->iSysdef.empty())
-    {
-        if((iTargetType == TargetType::EPlugin) || (iTargetType == TargetType::EPlugin3))
-            arg->iSysdef = ecomExportName;
-        else if(iTargetType == TargetType::EAni)
-            arg->iSysdef = aniExportName;
-        else if(iTargetType == TargetType::EFsy)
-            arg->iSysdef = fsyExportName;        else if(iTargetType == TargetType::ELdd)
-            arg->iSysdef = lddExportName;
-        else if(iTargetType == TargetType::EPdd)
-            arg->iSysdef = pddExportName;
-        else if(iTargetType == TargetType::EPdl)
-            arg->iSysdef = pdlExportName;
-        else if(iTargetType == TargetType::ETextNotifier2)
-            arg->iSysdef = textNotifierExportName;
-        else if(iTargetType == TargetType::EVar)
-            arg->iSysdef = varExportName;
-        else if(iTargetType == TargetType::EVar2)
-            arg->iSysdef = var2ExportName;
-    }
+	if((iTargetType == TargetType::EPlugin) && arg->iSysdef.empty())
+        arg->iSysdef = GetEcomExportName(iTargetType);
 
     if(hasDefinput && noElfinput)
+    {
         arg->iTargettype = TargetType::EImportLib;
+        iTargetType = arg->iTargettype;
+    }
 
     uint32_t UID1 = arg->iUid1, UID2 = arg->iUid2, UID3 = arg->iUid3;
 	if(!arg->iSid)

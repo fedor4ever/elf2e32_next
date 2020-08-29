@@ -180,6 +180,21 @@ std::string GetEcomExportName(TargetType type)
         return var2ExportName;
 }
 
+void WarnForNonDllUID()
+{
+    ReportLog("********************\n");
+    ReportLog("Wrong UID1\n");
+    ReportLog("Set uid1 to KDynamicLibraryUidValue\n");
+    ReportLog("********************\n");
+}
+
+void WarnForNonExeUID()
+{
+    ReportLog("********************\n");
+    ReportLog("Wrong UID1\n");
+    ReportLog("Set uid1 to KExecutableImageUidValue\n");    ReportLog("********************\n");
+}
+
 /** \brief Verifies and correct wrong input options
  * This function correct multiple conflict opions
  * like --datapaging with different params,
@@ -283,12 +298,7 @@ void ValidateOptions(Args* arg)
             ReportError(ErrorCodes::NOREQUIREDOPTION, "--output");
 
 		if(UID1 != KDynamicLibraryUidValue) //< guard against wrong uids
-		{
-		    ReportLog("********************\n");
-		    ReportLog("Wrong UID1\n");
-		    ReportLog("Set uid1 to KDynamicLibraryUidValue\n");
-		    ReportLog("********************\n");
-		}
+            WarnForNonDllUID();
         arg->iUid1 = KDynamicLibraryUidValue;
         arg->iUid2 = KSTDTargetUid2Value;
 
@@ -301,12 +311,7 @@ void ValidateOptions(Args* arg)
             ReportError(ErrorCodes::NOREQUIREDOPTION, "--output");
 
 		if(UID1 != KDynamicLibraryUidValue) //< guard against wrong uids
-		{
-		    ReportLog("********************\n");
-		    ReportLog("Wrong UID1\n");
-		    ReportLog("Set uid1 to KDynamicLibraryUidValue\n");
-		    ReportLog("********************\n");
-		}
+            WarnForNonDllUID();
         arg->iUid1 = KDynamicLibraryUidValue;
 		if(!UID2)
 		{
@@ -322,12 +327,7 @@ void ValidateOptions(Args* arg)
 		if(noE32Image)
             ReportError(ErrorCodes::NOREQUIREDOPTION, "--output");
 		if(UID1 != KExecutableImageUidValue)
-		{
-		    ReportLog("********************\n");
-		    ReportLog("Wrong UID1\n");
-		    ReportLog("Set uid1 to KExecutableImageUidValue\n");
-		    ReportLog("********************\n");
-		}
+            WarnForNonExeUID();
         arg->iUid1 = KExecutableImageUidValue;
 		if(!UID3) ReportLog("Missed --uid3 option!\n");
 		break;
@@ -347,12 +347,7 @@ void ValidateOptions(Args* arg)
 		if(noE32Image)
             ReportError(ErrorCodes::NOREQUIREDOPTION, "--output");
 		if(UID1 != KDynamicLibraryUidValue)
-		{
-		    ReportLog("********************\n");
-		    ReportLog("Wrong UID1\n");
-		    ReportLog("Set uid1 to KDynamicLibraryUidValue\n");
-		    ReportLog("********************\n");
-		}
+            WarnForNonDllUID();
         arg->iUid1 = KDynamicLibraryUidValue;
 		if(!UID2)
         {
@@ -373,12 +368,7 @@ void ValidateOptions(Args* arg)
             ReportError(ErrorCodes::NOREQUIREDOPTION, "--output");
 
 		if(UID1 != KExecutableImageUidValue)
-		{
-		    ReportLog("********************\n");
-		    ReportLog("Wrong UID1\n");
-		    ReportLog("Set uid1 to KExecutableImageUidValue\n");
-		    ReportLog("********************\n");
-        }
+            WarnForNonExeUID();
         arg->iUid1 = KExecutableImageUidValue;
 		if(!UID2) ReportLog("Missed --uid2 option!\n");
 		if(!UID3) ReportLog("Missed --uid3 option!\n");
@@ -389,11 +379,7 @@ void ValidateOptions(Args* arg)
 		if (noE32Image)
             ReportError(ErrorCodes::NOREQUIREDOPTION, "--output");
 		if(UID1 != KExecutableImageUidValue)
-        {
-		    ReportLog("********************\n");
-		    ReportLog("Wrong UID1\n");
-		    ReportLog("Set uid1 to KExecutableImageUidValue\n");		    ReportLog("********************\n");
-        }
+            WarnForNonExeUID();
         arg->iUid1 = KExecutableImageUidValue;
         arg->iUid2 = KSTDTargetUid2Value;
 

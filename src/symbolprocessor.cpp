@@ -338,6 +338,9 @@ Symbols SymbolProcessor::GetDSOSymbols()
         SymbolType type = SymbolTypeCodeOrData(symTableEntity);
         Symbol* sym = new Symbol(symName, type, symTableEntity, ordinals[i - 1]);
         sym->SetSymbolSize(symTableEntity->st_size);
+        sym->SetSymbolStatus(SymbolStatus::Matching);
+        if(sym->AliasName().find("_._.absent_export_") != string::npos)
+            sym->SetAbsent(true);
         result.push_back(sym);
     }
     return result;

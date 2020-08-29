@@ -80,7 +80,6 @@ static struct option long_opts[] =
     {"man",                   no_argument, nullptr, OptionsType::EMAN},
     {"man-edit",              no_argument, nullptr, OptionsType::EMANEDIT},
     {"man-build",             no_argument, nullptr, OptionsType::EMANBUILD},
-    {"man-build-dsodump",     no_argument, nullptr, OptionsType::EMANDSODUMP},
     {"man-build-artifacts",   no_argument, nullptr, OptionsType::EMANARTIFACTS},
     {"help",                  no_argument, nullptr, OptionsType::EHELP},
     // dev options
@@ -125,11 +124,8 @@ const string manBuild =
 "\t* creating artifacts from def, sysdef, elf (--man-build-artifacts).\n"
 ;
 
-//const string manDsoDump =
-//"Для включения режима создания артефактов из .dso используется опция --dsodump, для"
-//" загрузки данных используется --elfinput, артефакты сборки задаются через --header и --defoutput\n";
 const string manDsoDump =
-"--dsodump option is used to enable the creation of artifacts from .dso mode,"
+" Options --elfinput and --defoutput are used together to enable the creation of artifacts from .dso mode,"
 " --elfinput is used to load data, assembly artifacts are specified via --header and --defoutput\n"
 ;
 //const string manArtifacts =
@@ -380,10 +376,6 @@ bool ArgParser::Parse(Args* arg) const
                 ReportLog(manDsoDump);
                 ArgInfo(optname);
                 break;
-            case OptionsType::EMANARTIFACTS:
-                ReportLog(manArtifacts);
-                ArgInfo(optname);
-                break;
         // dev options
             case OptionsType::TIME: // --time=hi,low
             {
@@ -471,7 +463,7 @@ const string ScreenOptions =
 "        --namedlookup: Enable named lookup of symbols\n"
 "        --debuggable: Debuggable by run-mode debug subsystem\n"
 "        --smpsafe: SMP Safe\n"
-"        --header: Generate header file for dynamic linking.\n"
+"        --header: Generate C++ header file for dynamic linking.\n"
 "        --man: Describe advanced usage new features.\n"
 "        --help: This command.\n"
 ;

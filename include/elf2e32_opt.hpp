@@ -77,7 +77,6 @@ struct OptionsType
         EMAN,
         EMANEDIT,
         EMANBUILD,
-        EMANDSODUMP,
         EMANARTIFACTS,
         EHELP,
         // dev options

@@ -16,7 +16,7 @@ uid3=r" --uid3=0x00000000"
 tgttype=r" --targettype=STDDLL"
 tail=r" --dlldata --ignorenoncallable --uncompressed"
 
-elf2e32=r"D:\codeblock\elf2e32\bin\Debug\elf2e32.exe"
+elf2e32=r"D:\codeblock\elf2e32_next\bin\Debug\elf2e32.exe"
 elf2e32+=r" --debuggable --smpsafe"
 
 # elf2e32=r"elf2e32.exe"
@@ -35,18 +35,6 @@ elf2e32+caps+defout+elfin+longtail+r" --unfrozen"+r""" --definput="libcryptou_op
 ("Test #%d: Full options list",
 elf2e32+caps+defin+defout+elfin+longtail,
 "Full options list!",
-),
-("Test #%d: defin without args",
-elf2e32+caps+defin.split("=")[0]+defout+elfin+longtail,
-defin.split("=")[0],
-),
-("Test #%d: defin and defout without args",
-elf2e32+caps+defin.split("=")[0]+defout.split("=")[0]+elfin+longtail,
-defin.split("=")[0]+defout.split("=")[0],
-),
-("Test #%d: create all except defoutput",
-elf2e32+caps+defin+defout.split("=")[0]+elfin+longtail,
-defout.split("=")[0],
 ),
 ("Test #%d: dso2def conversion",
 elf2e32+""" --elfinput="libcrypto{000a0000}.dso" """+defout,
@@ -87,6 +75,18 @@ args=(
 ("Test #%d: elfin without args",
 elf2e32+caps+defin+defout+elfin.split("=")[0]+longtail,
 elfin.split("=")[0],
+),
+("Test #%d: defin without args",
+elf2e32+caps+defin.split("=")[0]+defout+elfin+longtail,
+defin.split("=")[0],
+),
+("Test #%d: defin and defout without args",
+elf2e32+caps+defin.split("=")[0]+defout.split("=")[0]+elfin+longtail,
+defin.split("=")[0]+defout.split("=")[0],
+),
+("Test #%d: create all except defoutput",
+elf2e32+caps+defin+defout.split("=")[0]+elfin+longtail,
+defout.split("=")[0],
 ),
 ("Test #%d: e32image creation without args in params defin defout elfin",
 elf2e32+caps+defin.split("=")[0]+defout.split("=")[0]+elfin.split("=")[0]+longtail,

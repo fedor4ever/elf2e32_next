@@ -29,6 +29,8 @@ class E32Rebuilder: public Task
 		E32Rebuilder(Args* param);
 		virtual ~E32Rebuilder();
 		virtual void Run() final;
+		E32Rebuilder(Args* param, const char* file, std::streamsize filesize);
+		void Compress();
 	private:
 		void EditHeader();
 		void ReCompress();

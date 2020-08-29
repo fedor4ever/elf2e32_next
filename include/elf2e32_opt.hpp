@@ -104,7 +104,7 @@ struct Args
     bool iSmpsafe = false;
     TargetType iTargettype = TargetType::EInvalidTargetType;
     std::string iLinkas;
-    uint32_t iCompressionMethod = 0;
+    uint32_t iCompressionMethod = KUidCompressionDeflate;
     bool iUnfrozen = false;
     bool iIgnorenoncallable = false;
     std::string iCapability = "NONE";

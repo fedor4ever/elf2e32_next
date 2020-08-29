@@ -14,6 +14,7 @@
 // Create E32Image.
 //
 //
+/// FIXME (Administrator#5#08/27/20): broken compression and remove E32Rebuilder usage.
 
 #ifndef E32FILE_H
 #define E32FILE_H
@@ -62,6 +63,7 @@ class E32File
     private:
         void PrepareData();
         void SetFixedAddress(E32ImageHeader* hdr);
+        void Compress(uint32_t compression);
     private:
         const Args* iE32Opts = nullptr;
         const ElfParser* iElfSrc = nullptr;

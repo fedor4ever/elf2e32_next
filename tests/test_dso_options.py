@@ -1,8 +1,8 @@
 # encoding=utf-8
 import os, subprocess
 
-elf2e32=r"D:\codeblock\elf2e32\bin\Debug\elf2e32.exe"
-tstdir=r"D:\codeblock\elf2e32\tests"
+elf2e32=r"D:\codeblock\elf2e32_next\bin\Debug\elf2e32.exe"
+tstdir=r"D:\codeblock\elf2e32_next\tests"
 
 defin=r""" --definput="libcryptou.def" """
 dsoout=r""" --dso="tmp\libcrypto{000a0000}.def2dso.dso" """
@@ -14,7 +14,7 @@ dsodefTests=(
 (elf2e32+defin+dsoout+linkas+tgttype, "Simple def2dso creation.\n Options are: %s\n"),
 (elf2e32+""" --elfinput="tmp\libcrypto{000a0000}.def2dso.dso" """ + """ --defoutput="tmp\dso2def.(01).def" """,
 "dso2def creation with simplified syntax.\n Options are: %s\n"),
-(elf2e32+""" --definput="tmp\dso2def.(01).def" """ + """ --dso="tmp\dso2def2dso.(02).dso" """,
+(elf2e32+""" --definput="tmp\dso2def.(01).def" """ + """ --dso="tmp\dso2def2dso.(02).dso" """ + """  --dsodump """,
 "Make dso from def generated from dso.\n Options are: %s\n"),
 (elf2e32+defin+ """--dso="tmp\def2dso.(03).dso""", "Make dso from def which made from dso... Options are: %s\n"),
 (elf2e32+"""--elfinput="tmp\def2dso.(03).dso""" + """ --defoutput="tmp\def2dso2def.(04).def" """,

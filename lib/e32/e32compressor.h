@@ -17,13 +17,16 @@
 
 #ifndef E32COMPRESSOR_H_INCLUDED
 #define E32COMPRESSOR_H_INCLUDED
+#include <vector>
 
 //! set input buffer as nullptr to decompress next block
 uint32_t DecompressBPE(const char* src, char* dst);
 //! set input and output buffers as nullptr to decompress next block
 uint32_t CompressBPE(const char* src, uint32_t srcSize, char* dst, uint32_t dstSize);
+std::vector<char> CompressBPE(std::vector<char> src);
 
-void DeCompressInflate(unsigned char* source, int sourcesize,unsigned char* dest, int destsize);
-uint32_t CompressDeflate(unsigned char* source, int sourcesize,unsigned char* dest, int destsize);
+void DeCompressInflate(unsigned char* source, int sourcesize, unsigned char* dest, int destsize);
+uint32_t CompressDeflate(unsigned char* source, int sourcesize, unsigned char* dest, int destsize);
+std::vector<char> CompressDeflate(std::vector<char> source);
 
 #endif // E32COMPRESSOR_H_INCLUDED

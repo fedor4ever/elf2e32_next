@@ -114,9 +114,11 @@ void E32Rebuilder::EditHeader()
 
 void E32Rebuilder::ReCompress()
 {
-    iHdr->iCompressionType = iReBuildOptions->iCompressionMethod;
-    if(!iHdr->iCompressionType)
+    if(!iHdr)
+        ReportError(ErrorCodes::ZEROBUFFER, __func__);
+    if(!iReBuildOptions->iCompressionMethod)
         return;
+    iHdr->iCompressionType = iReBuildOptions->iCompressionMethod;
 
     const char* compressed = new char[iFileSize * 2]();
     uint32_t compressedSize = 0;
@@ -142,4 +144,21 @@ void E32Rebuilder::ReCompress()
     iFile = nullptr;
     iFile = compressed;
     iFileSize = offset + compressedSize;
+}
+
+E32Rebuilder::E32Rebuilder(Args* param, const char* file, std::streamsize filesize):
+    iReBuildOptions(param), iFile(file), iFileSize(filesize) {}
+
+void E32Rebuilder::Compress()
+{
+    iHdr = (E32ImageHeader*)iFile;
+    ReCompress();
+	// We create copy of file object because ValidateE32Image(iParser) break it's consistency.
+    std::vector<char> file;
+    file.assign(iFile, iFile + iFileSize);
+    iParser = new E32Parser(iFile, iFileSize);
+    iParser->GetFileLayout();
+
+    ValidateE32Image(iParser);
+	SaveFile(iReBuildOptions->iOutput.c_str(), file.data(), iFileSize);
 }

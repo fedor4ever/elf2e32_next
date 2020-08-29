@@ -21,7 +21,9 @@
 #include "elfparser.h"
 #include "e32common.h"
 #include "e32parser.h"
+#include "e32rebuilder.h"
 #include "e32validator.h"
+#include "e32compressor.h"
 #include "elf2e32_opt.hpp"
 #include "import_section.h"
 #include "relocsprocessor.h"
@@ -94,6 +96,7 @@ void E32File::WriteE32File()
     hdr->iDataBase = iElfSrc->RWVirtualAddress();
     hdr->iDllRefTableCount = iRelocs->DllCount();   // filling this in enables E32ROM to leave space for it
     hdr->iExportDirCount = iSymbols.size();
+    hdr->iCompressionType = 0;
 
     SetFixedAddress(hdr);
 
@@ -150,16 +153,28 @@ void E32File::WriteE32File()
         hdrv = (E32ImageHeaderV*)&iHeader[offset];
     }
     UpdateImportTable(iHeader.data(), iHeader.size(), iImportTabLocations);
-    /// TODO (Administrator#1#06/20/20): implement compression
-    // see E32Rebuilder::ReCompress()
     E32ImageHeaderJ* j = (E32ImageHeaderJ*)&iHeader[sizeof(E32ImageHeader)];
     j->iUncompressedSize = iHeader.size() - hdr->iCodeOffset;
+
+//    Compress(iE32Opts->iCompressionMethod);
+    hdr = (E32ImageHeader*)&iHeader[0];
+    hdr->iCompressionType = iE32Opts->iCompressionMethod;
+
     SetE32ImageCrc(iHeader.data());
 
-    E32Parser* p = new E32Parser(iHeader.data(), iHeader.size());
-    p->GetFileLayout();
-    ValidateE32Image(p);
-    SaveFile(iE32Opts->iOutput.c_str(), iHeader.data(), iHeader.size());
+// Compression doesn't work so we use E32Rebuilder to compress.
+//    E32SectionUnit s(iHeader);
+//    E32Parser* p = new E32Parser(s.data(), s.size());
+//    p->GetFileLayout();
+//    ValidateE32Image(p);
+
+    Args arg;
+    arg.iCompressionMethod = iE32Opts->iCompressionMethod;
+    arg.iOutput = iE32Opts->iOutput;
+    E32Rebuilder* rb = new E32Rebuilder(&arg, iHeader.data(), iHeader.size());
+    rb->Compress();
+    delete rb;
+//    SaveFile(iE32Opts->iOutput.c_str(), iHeader.data(), iHeader.size());
 }
 
 // Export Section consist of uint32_t array, first element contains section's size.
@@ -284,9 +299,20 @@ void E32File::PrepareData()
     iE32image.sort([](auto A, auto B){return A.type < B.type;});
 }
 
-
 void BuildE32Image(const Args* args, const ElfParser* elfParser, const Symbols& s)
 {
     E32File file(args, elfParser, s);
     file.WriteE32File();
+}
+
+void E32File::Compress(uint32_t compression)
+{
+    if(!compression)
+        return;
+    if(compression == KUidCompressionDeflate)
+        iHeader = CompressDeflate(iHeader);
+    else if(compression == KUidCompressionBytePair)
+        iHeader = CompressBPE(iHeader);
+    else
+        ReportError(INVALIDARGUMENT, "--compressionmethod", std::to_string(compression));
 }

@@ -66,7 +66,6 @@ static struct option long_opts[] =
     {"definput",  required_argument, nullptr, OptionsType::EDEFINPUT},
     {"defoutput", required_argument, nullptr, OptionsType::EDEFOUTPUT},
     {"elfinput",  required_argument, nullptr, OptionsType::EELFINPUT},
-    {"dsodump",         no_argument, nullptr, OptionsType::EDSODUMP},
     {"output",    required_argument, nullptr, OptionsType::EOUTPUT},
     {"dso",       required_argument, nullptr, OptionsType::EDSO},
     {"libpath",   required_argument, nullptr, OptionsType::ELIBPATH},
@@ -80,6 +79,7 @@ static struct option long_opts[] =
     {"man",                   no_argument, nullptr, OptionsType::EMAN},
     {"man-edit",              no_argument, nullptr, OptionsType::EMANEDIT},
     {"man-build",             no_argument, nullptr, OptionsType::EMANBUILD},
+    {"man-build-dsodump",     no_argument, nullptr, OptionsType::EMANDSODUMP},
     {"man-build-artifacts",   no_argument, nullptr, OptionsType::EMANARTIFACTS},
     {"help",                  no_argument, nullptr, OptionsType::EHELP},
     // dev options
@@ -320,10 +320,6 @@ bool ArgParser::Parse(Args* arg) const
                 arg->iElfinput = optarg;
                 ArgInfo(optname, optarg);
                 break;
-            case OptionsType::EDSODUMP:
-                arg->iDSODump = true;
-                ArgInfo(optname, optarg);
-                break;
             case OptionsType::EOUTPUT:
                 arg->iOutput = optarg;
                 ArgInfo(optname, optarg);
@@ -374,6 +370,10 @@ bool ArgParser::Parse(Args* arg) const
                 break;
             case OptionsType::EMANDSODUMP:
                 ReportLog(manDsoDump);
+                ArgInfo(optname);
+                break;
+            case OptionsType::EMANARTIFACTS:
+                ReportLog(manArtifacts);
                 ArgInfo(optname);
                 break;
         // dev options

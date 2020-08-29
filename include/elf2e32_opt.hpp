@@ -61,7 +61,6 @@ struct OptionsType
         EDEFINPUT,
         EDEFOUTPUT,
         EELFINPUT,
-        EDSODUMP,
         EOUTPUT,
         EDSO,
         ELIBPATH,
@@ -77,6 +76,7 @@ struct OptionsType
         EMAN,
         EMANEDIT,
         EMANBUILD,
+        EMANDSODUMP,
         EMANARTIFACTS,
         EHELP,
         // dev options

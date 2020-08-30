@@ -195,28 +195,8 @@ void WarnForNonExeUID()
     ReportLog("Set uid1 to KExecutableImageUidValue\n");    ReportLog("********************\n");
 }
 
-/** \brief Verifies and correct wrong input options
- * This function correct multiple conflict opions
- * like --datapaging with different params,
- * also fix wrong uid1 for exe and dll
- */
-void ValidateOptions(Args* arg)
+void DeduceLINKAS(Args* arg)
 {
-    FixHeaderName(arg);
-
-    if((arg->iDebuggable) && !IsRunnable(arg->iTargettype))
-    {
-        arg->iDebuggable = false;
-        ReportLog("--debuggable option allowed for EXE's only!\n");
-    }
-
-    if(!arg->iHeader.empty() && !arg->iElfinput.empty())
-        return;
-
-// convert .dso to .def
-    if(!arg->iElfinput.empty() && !arg->iDefoutput.empty() && arg->iOutput.empty())
-        return;
-
     if(arg->iLinkas.empty() && (arg->iTargettype != TargetType::EInvalidTargetType))
     {
         std::string linkas;
@@ -241,19 +221,45 @@ void ValidateOptions(Args* arg)
         }
         arg->iLinkas = linkas;
     }
+}
+
+/** \brief Verifies and correct wrong input options
+ * This function correct multiple conflict opions
+ * like --datapaging with different params,
+ * also fix wrong uid1 for exe and dll
+ */
+void ValidateOptions(Args* arg)
+{
+    FixHeaderName(arg);
+
+    if((arg->iDebuggable) && !IsRunnable(arg->iTargettype))
+    {
+        arg->iDebuggable = false;
+        ReportLog("--debuggable option allowed for EXE's only!\n");
+    }
 
     bool hasDefinput = !arg->iDefinput.empty();
     bool noDefOut = arg->iDefoutput.empty();
     bool noElfinput = arg->iElfinput.empty();
     bool noE32Image = arg->iOutput.empty();
-    TargetType iTargetType = arg->iTargettype;
+    TargetType targetType = arg->iTargettype;
 
-    if(!hasDefinput && arg->iFixedaddress)
+    if(!arg->iHeader.empty() && !noElfinput)
+        return;
+
+// convert .dso to .def
+    if(!noElfinput && !noDefOut && noE32Image)
+    {
+        arg->iDSODump = true;
+        return;
+    }
+
+    if(!hasDefinput && arg->iNamedlookup)
         ReportLog("Note: if option \"--namedlookup\" supplied and \"--definput\" omitted E32"
                 "image generated that tool differs from SDK tool output for code relocs"
                 "section. Correctness unknown.\n");
 
-	if(iTargetType == TargetType::EInvalidTargetType || iTargetType == TargetType::ETargetTypeNotSet)
+	if(targetType == TargetType::EInvalidTargetType || targetType == TargetType::ETargetTypeNotSet)
 	{
 	    ReportWarning(ErrorCodes::NOREQUIREDOPTION, "--targettype");
         if(hasDefinput)
@@ -263,17 +269,16 @@ void ValidateOptions(Args* arg)
             arg->iTargettype = TargetType::EDll;
         else
             arg->iTargettype = TargetType::EExe;
-        iTargetType = arg->iTargettype;
+        targetType = arg->iTargettype;
 	}
 
-	if((iTargetType == TargetType::EPlugin) && arg->iSysdef.empty())
-        arg->iSysdef = GetEcomExportName(iTargetType);
+    DeduceLINKAS(arg);
+
+	if((targetType == TargetType::EPlugin) && arg->iSysdef.empty())
+        arg->iSysdef = GetEcomExportName(targetType);
 
     if(hasDefinput && noElfinput)
-    {
         arg->iTargettype = TargetType::EImportLib;
-        iTargetType = arg->iTargettype;
-    }
 
     uint32_t UID1 = arg->iUid1, UID2 = arg->iUid2, UID3 = arg->iUid3;
 	if(!arg->iSid)
@@ -288,7 +293,7 @@ void ValidateOptions(Args* arg)
 	case TargetType::EImportLib:
 		if(!hasDefinput)
             ReportError(ErrorCodes::NOREQUIREDOPTION, "--definput");
-        if(!arg->iDso.empty())
+        if(arg->iDso.empty())
             ReportError(ErrorCodes::NOREQUIREDOPTION, "--dso");
 		break;
     case TargetType::EStdDll:

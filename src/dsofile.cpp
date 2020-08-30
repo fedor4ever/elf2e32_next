@@ -124,11 +124,11 @@ void DSOFile::WriteDSOFile(const string& dsoFile, const string& linkAs, const Sy
 {
     iNSymbols = s.size() + 1;
     if(iNSymbols == 1)
-        ReportError(ErrorCodes::EMPTYARGUMENT, "DSOFile::WriteDSOFile()", "symbols");
+        ReportError(ErrorCodes::EMPTYARGUMENT, "DSOFile::WriteDSOFile()", "--symbols");
     if(dsoFile.empty())
-        ReportError(ErrorCodes::EMPTYARGUMENT, "DSOFile::WriteDSOFile()", "filename");
+        ReportError(ErrorCodes::EMPTYARGUMENT, "DSOFile::WriteDSOFile()", "--filename");
     if(linkAs.empty())
-        ReportError(ErrorCodes::EMPTYARGUMENT, "DSOFile::WriteDSOFile()", "linkas");
+        ReportError(ErrorCodes::EMPTYARGUMENT, "DSOFile::WriteDSOFile()", "--linkas");
 
     CreateSectionHeaders();
     CreateHashTable();

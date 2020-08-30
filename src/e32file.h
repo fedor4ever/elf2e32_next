@@ -73,7 +73,6 @@ class E32File
         uint8_t  iExportDescType = 0;
         E32image iE32image;
         E32SectionUnit iHeader;
-        ExportBitmapSection* iExportBitmap;
         RelocsProcessor* iRelocs = nullptr;
         std::vector<int32_t> iImportTabLocations;
 };

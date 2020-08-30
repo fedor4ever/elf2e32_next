@@ -69,6 +69,8 @@ void ReportError(const ErrorCodes err, const std::string& str,
     ReportLog(e32Error);
     if(s.empty())
         Logger::Instance()->Log(err, str);
+    else if(x == 0)
+        Logger::Instance()->Log(err, str, s);
     else
         Logger::Instance()->Log(err, str, x, s);
     throw err;

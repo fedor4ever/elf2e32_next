@@ -171,9 +171,14 @@ void E32File::WriteE32File()
     Args arg;
     arg.iCompressionMethod = iE32Opts->iCompressionMethod;
     arg.iOutput = iE32Opts->iOutput;
-    E32Rebuilder* rb = new E32Rebuilder(&arg, iHeader.data(), iHeader.size());
+    //does that crap because E32Rebuilder free filebuf itself
+    char* t = new char[iHeader.size()]();
+    memcpy(t, &iHeader[0], iHeader.size());
+
+    E32Rebuilder* rb = new E32Rebuilder(&arg, t, iHeader.size());
     rb->Compress();
     delete rb;
+    iHeader.clear();
 //    SaveFile(iE32Opts->iOutput.c_str(), iHeader.data(), iHeader.size());
 }
 

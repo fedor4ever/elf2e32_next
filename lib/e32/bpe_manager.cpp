@@ -58,20 +58,20 @@ uint32_t DecompressBPE(const char* src, char* dst)
     if(!BPEBlock && !src)
         return 0;
     if(src)
-        BPEBlock = src;
+        BPEBlock = (uint8_t*)src;
 
 	const IndexTableHeader* h = (IndexTableHeader*)BPEBlock;
 
 	uint32_t sz = 0;
 	uint8_t* p;
 	const uint16_t* pageIndexTable = (const uint16_t*)(BPEBlock + sizeof(IndexTableHeader));
-	const uint8_t* pages = (const uint8_t*)(pageIndexTable + h->iNumberOfPages);
+	uint8_t* pages = (uint8_t*)(pageIndexTable + h->iNumberOfPages);
 
 //	iterate over Page index table and pages.
 // Every element contain compressed page size
 	for(int i = 0; i < h->iNumberOfPages; i++)
 	{
-		sz += Unpak( (dst + i * PAGE_SIZE), pages, *pageIndexTable, p);
+		sz += Unpak( ((uint8_t*)dst + i * PAGE_SIZE), pages, *pageIndexTable, p);
 		pages = pages + *pageIndexTable++;
 	}
     BPEBlock = BPEBlock + h->iSizeOfData;
@@ -84,9 +84,9 @@ static uint8_t* outBlock = nullptr;
 uint32_t CompressBPE(const char* src, const uint32_t srcSize, char* dst, uint32_t dstSize)
 {
     if(src)
-        inBlock = src;
+        inBlock = (uint8_t*)src;
     if(dst)
-        outBlock = dst;
+        outBlock = (uint8_t*)dst;
 
     if(!inBlock && !outBlock)
         return 0;
@@ -95,9 +95,9 @@ uint32_t CompressBPE(const char* src, const uint32_t srcSize, char* dst, uint32_
 
     uint16_t numOfPages = (uint16_t)((srcSize + PAGE_SIZE - 1) / PAGE_SIZE);
 
-    IndexTableHeader* indexHdr = (const IndexTableHeader*)outBlock;
-    uint16_t* pageIndexTable = (const uint16_t*)(outBlock + sizeof(IndexTableHeader));
-    uint8_t* pagesOut = (const uint8_t*)(pageIndexTable + numOfPages);
+    IndexTableHeader* indexHdr = (IndexTableHeader*)outBlock;
+    uint16_t* pageIndexTable = (uint16_t*)(outBlock + sizeof(IndexTableHeader));
+    uint8_t* pagesOut = (uint8_t*)(pageIndexTable + numOfPages);
 
     indexHdr->iNumberOfPages = numOfPages;
     indexHdr->iDecompressedSize = srcSize;

@@ -162,7 +162,7 @@ uint64_t ProcessALLCapabilities(const std::string& fromArgument)
     }
 
     string tmp;
-    const char* token = strtok(fromArgument.c_str(), "-");
+    char* token = strtok(fromArgument.c_str(), "-");
     token = strtok(nullptr, "-"); // skip "All" capability
     while(token)
     {

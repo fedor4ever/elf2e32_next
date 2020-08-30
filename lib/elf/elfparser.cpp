@@ -580,6 +580,7 @@ uint16_t ElfParser::Segment(const Elf32_Sym* s) const
     Elf32_Phdr* hdr = GetSegmentAtAddr(s->st_value);
     if (hdr == iCodeSegmentHdr) return KTextRelocType;
     else if (hdr == iDataSegmentHdr) return KDataRelocType;
+    return KReservedRelocType;
 }
 
 Elf32_Addr* ElfParser::ExportTable()

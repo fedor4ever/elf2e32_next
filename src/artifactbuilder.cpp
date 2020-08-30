@@ -178,6 +178,7 @@ std::string GetEcomExportName(TargetType type)
         return varExportName;
     else if(type == TargetType::EVar2)
         return var2ExportName;
+    ReportError(ErrorCodes::INVALIDARGUMENT, "--targettype", std::to_string(type));
 }
 
 void WarnForNonDllUID()

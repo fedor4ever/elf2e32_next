@@ -25,8 +25,8 @@ uint32_t DecompressBPE(const char* src, char* dst);
 uint32_t CompressBPE(const char* src, uint32_t srcSize, char* dst, uint32_t dstSize);
 std::vector<char> CompressBPE(std::vector<char> src);
 
-void DeCompressInflate(unsigned char* source, int sourcesize, unsigned char* dest, int destsize);
-uint32_t CompressDeflate(unsigned char* source, int sourcesize, unsigned char* dest, int destsize);
+void DeCompressInflate(unsigned char* source, int sourcesize, unsigned char* dst, int destsize);
+uint32_t CompressDeflate(const char* source, int sourcesize, const char* dst, int destsize);
 std::vector<char> CompressDeflate(std::vector<char> source);
 
 #endif // E32COMPRESSOR_H_INCLUDED

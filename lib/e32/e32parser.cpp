@@ -93,7 +93,7 @@ void E32Parser::DecompressImage()
             ReportWarning(ErrorCodes::BYTEPAIRINCONSISTENTSIZE);
     }else if(compr == KUidCompressionDeflate)
     {
-        DeCompressInflate(iBufferedFile + offset, iE32Size - offset, uncompressed + offset, expectedSize);
+        DeCompressInflate((unsigned char*)iBufferedFile + offset, iE32Size - offset, (unsigned char*)uncompressed + offset, expectedSize);
     }else
         ReportError(ErrorCodes::UNKNOWNCOMPRESSION);
 

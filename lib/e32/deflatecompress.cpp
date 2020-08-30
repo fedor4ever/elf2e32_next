@@ -495,7 +495,7 @@ void DeflateCompress(char *bytes,size_t size, std::ofstream & os)
 	delete output;
 }
 
-size_t CompressDeflate(unsigned char* src, int srcsize, unsigned char* dst, int dstsize)
+size_t CompressDeflate(const char* src, int srcsize, const char* dst, int dstsize)
 {
 	TBufferedOutput* output=new TBufferedOutput(dst, dstsize);
 	DeflateL((const uint8_t*)src, srcsize, *output);

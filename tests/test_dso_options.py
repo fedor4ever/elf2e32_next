@@ -14,10 +14,10 @@ dsodefTests=(
 (elf2e32+defin+dsoout+linkas+tgttype, "Simple def2dso creation.\n Options are: %s\n"),
 (elf2e32+""" --elfinput="tmp\libcrypto{000a0000}.def2dso.dso" """ + """ --defoutput="tmp\dso2def.(01).def" """,
 "dso2def creation with simplified syntax.\n Options are: %s\n"),
-(elf2e32+""" --definput="tmp\dso2def.(01).def" """ + """ --dso="tmp\dso2def2dso.(02).dso" """ + """  --dsodump """,
+(elf2e32+""" --definput="tmp\dso2def.(01).def" """ + """ --dso="tmp\dso2def2dso.(02).dso" """,
 "Make dso from def generated from dso.\n Options are: %s\n"),
 (elf2e32+defin+ """--dso="tmp\def2dso.(03).dso""", "Make dso from def which made from dso... Options are: %s\n"),
-(elf2e32+"""--elfinput="tmp\def2dso.(03).dso""" + """ --defoutput="tmp\def2dso2def.(04).def" """,
+(elf2e32+""" --elfinput="tmp\def2dso.(03).dso" """ + """ --defoutput="tmp\def2dso2def.(04).def" """,
 "Make def from dso which made from def...\n Options are: %s\n"),
 )
 

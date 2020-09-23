@@ -79,6 +79,8 @@ TargetType GetTarget(const std::string& fromArgument)
         return TargetType::EDll; //revisit
     else if(data == "kext")
         return TargetType::EDll; //revisit
+    else if(data == "exe")
+        return TargetType::EExe;
     else if(data == "epocexe")
         return TargetType::EExe;
     else if(data == "exedll")

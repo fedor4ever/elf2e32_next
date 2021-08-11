@@ -57,6 +57,7 @@ Properties of each section:
 #include "elfdefs.h"
 
 struct Elf32_Ehdr;
+struct Args;
 
 #define DEFAULT_VERSION 2
 
@@ -113,45 +114,46 @@ private:
     /*DSO content Fields*/
 
     /** The Elf version definition auxiliary section*/
-    Elf32_Verdaux    *iDSODaux=nullptr;
+    Elf32_Verdaux*   iDSODaux=nullptr;
 
     /** The Elf Dynamic section table*/
     Elf32_Dyn        iDSODynTbl[MAX_DYN_ENTS+1];
 
     /** The code section*/
-    uint32_t        *iCodeSectionData=nullptr;
+    uint32_t*        iCodeSectionData=nullptr;
 
     /** The Elf string table*/
-    std::string            iDSOSymNameStrTbl;
+    std::string      iDSOSymNameStrTbl;
 
     /** The Elf Section-header string table*/
-    std::string            iDSOSectionNames;
-
+    std::string      iDSOSectionNames;
 
 private:
+    Args*          iOpts = nullptr;
+private:
     /** The elf header pointer which points to the base of the file records */
-    Elf32_Ehdr*     iElfHeader = nullptr;
+    Elf32_Ehdr*    iElfHeader = nullptr;
 
     /** This member points to the base of the section header table. */
-    Elf32_Shdr*     iSections   = nullptr;
-    Elf32_Verdef*   iVersionDef = nullptr;
-    Elf32_Half*     iVersionTbl = nullptr;
+    Elf32_Shdr*    iSections   = nullptr;
+    Elf32_Verdef*  iVersionDef = nullptr;
+    Elf32_Half*    iVersionTbl = nullptr;
 
     /** The dynamic program header of the elf file */
     Elf32_Phdr*    iProgHeader = nullptr;
 
     /** The dynamic symbol array. */
-    Elf32_Sym*  iElfDynSym = nullptr;//The ELF symbol
+    Elf32_Sym*     iElfDynSym = nullptr;//The ELF symbol
 
 private:
     Elf32_Word*        iHashBuf = nullptr;
 
     Elf32_HashTable*   iHashTbl = nullptr;
     /** The Buckets for the hash table*/
-    Elf32_Word        *iDSOBuckets=nullptr;
+    Elf32_Word*        iDSOBuckets=nullptr;
 
     /** The chains pointed to by the buckets belonging to the hash table*/
-    Elf32_Word        *iDSOChains=nullptr;
+    Elf32_Word*        iDSOChains=nullptr;
 };
 
 #endif // DSOFILE_H

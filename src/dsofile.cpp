@@ -105,7 +105,9 @@ void DSOFile::CreateTablesFromSymbols(const Symbols& s)
         {
             char *symName = new char[length]();
             sprintf(symName, "_._.absent_export_%d", x->Ordinal());
+            iDSOSymNameStrTbl.push_back('"');
             iDSOSymNameStrTbl += symName;
+            iDSOSymNameStrTbl.push_back('"');
             delete[] symName;
         }
         else
@@ -152,7 +154,7 @@ void DSOFile::WriteDSOFile(const string& dsoFile, const string& linkAs, const Sy
 
 void DSOFile::CreateSectionHeaders()
 {
-    iElfHeader        = ::CreateElfHeader();
+    iElfHeader        = CreateElfHeader();
     iSections        = new Elf32_Shdr[MAX_SECTIONS+1]();
 
     iElfDynSym        = new Elf32_Sym[iNSymbols]();

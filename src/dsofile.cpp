@@ -126,7 +126,8 @@ void DSOFile::CreateTablesFromSymbols(const Symbols& s)
     }
 }
 
-void DSOFile::WriteDSOFile(const Args* arg, const Symbols& s)
+void DSOFile::WriteDSOFile(const Args* arg, const Symbols& s,
+                           std::vector<string> dsoNames)
 {
     iNSymbols = s.size() + 1;
     if(iNSymbols == 1)

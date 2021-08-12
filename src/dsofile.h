@@ -87,7 +87,8 @@ class DSOFile
 {
 public:
     ~DSOFile();
-    void WriteDSOFile(const Args* opts, const Symbols& sym);
+    void WriteDSOFile(const Args* opts, const Symbols& sym,
+                      std::vector<std::string> dsoNames);
 private:
     void CreateSectionHeaders();
     void CreateTablesFromSymbols(const Symbols& s);

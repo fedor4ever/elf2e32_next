@@ -608,3 +608,8 @@ bool ElfParser::ImageIsDll() const
 {
     return (LookupStaticSymbol("_E32Dll") != nullptr);
 }
+
+vector<string> ElfParser::DsoImpLibName()
+{
+    return iDsoImpLibName;
+}

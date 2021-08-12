@@ -67,6 +67,8 @@ void ArtifactBuilder::PrepareBuild()
     DefFile d;
     d.GetSymbols(iOpts->iDefinput.c_str());
     iDsoImpLibName = d.GetDsoImpLibName();
+    if(iOpts->iDSODump)
+        iDsoImpLibName = iElfParser->DsoImpLibName();
 }
 
 void ArtifactBuilder::MakeDSO()
@@ -74,7 +76,7 @@ void ArtifactBuilder::MakeDSO()
     if(iOpts->iDso.empty())
         return;
     DSOFile* dso = new DSOFile();
-    dso->WriteDSOFile(iOpts, iSymbols);
+    dso->WriteDSOFile(iOpts, iSymbols, iDsoImpLibName);
     delete dso;
 }
 

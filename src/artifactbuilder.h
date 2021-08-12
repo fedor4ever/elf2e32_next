@@ -19,6 +19,7 @@
 #define ARTIFACTBUILDER_H
 
 #include <list>
+#include <vector>
 #include "task.hpp"
 
 class Args;
@@ -42,6 +43,7 @@ class ArtifactBuilder: public Task
         Args* iOpts = nullptr;
         ElfParser* iElfParser = nullptr;
         Symbols iSymbols;
+        std::vector<std::string> iDsoImpLibName;
 };
 
 #endif // ARTIFACTBUILDER_H

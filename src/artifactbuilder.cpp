@@ -16,6 +16,7 @@
 //
 
 #include <fstream>
+#include <vector>
 
 #include "task.hpp"
 #include "symbol.h"
@@ -62,6 +63,10 @@ void ArtifactBuilder::PrepareBuild()
     }
     SymbolProcessor processor(iOpts, iElfParser);
     iSymbols = processor.GetExports();
+
+    DefFile d;
+    d.GetSymbols(iOpts->iDefinput.c_str());
+    iDsoImpLibName = d.GetDsoImpLibName();
 }
 
 void ArtifactBuilder::MakeDSO()
@@ -78,6 +83,10 @@ void ArtifactBuilder::MakeDef()
     if(iOpts->iDefoutput.empty())
         return;
     DefFile deffile;
+
+    std::vector<std::string> tmp;
+    if(iOpts->iDSODump)
+        deffile.SetDsoImpLibName(iDsoImpLibName);
 	deffile.WriteDefFile(iOpts->iDefoutput.c_str(), iSymbols);
 }
 

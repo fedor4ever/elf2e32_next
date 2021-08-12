@@ -16,6 +16,7 @@
 //
 
 #include <vector>
+#include <string.h>
 
 #include "common.hpp"
 #include "e32common.h"

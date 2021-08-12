@@ -15,6 +15,9 @@
 //
 //
 
+
+#include <string.h>
+
 #include "symbol.h"
 #include "e32file.h"
 #include "argparser.h"

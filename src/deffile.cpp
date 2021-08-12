@@ -96,6 +96,17 @@ void DefFile::ParseDefFile()
 	size_t PreviousOrdinal=0;
 	size_t LineNum = 0;
 
+	auto t = iDefFile[0];
+	if(string::npos != t.find("DSONAME"))
+	{
+        iDsoNames.push_back(t.erase(0, 1)); // trim comment
+        t = iDefFile[1];
+	    if(string::npos == t.find("LINKAS"))
+            ReportError(ErrorCodes::BADFILE, iFileName,
+                        "has DSONAME and missed LINKAS definition");
+        iDsoNames.push_back(t.erase(0, 1)); // trim comment
+	}
+
 	for(auto str: iDefFile)
     {
         if(str.find("NONAME") != string::npos)
@@ -234,6 +245,10 @@ void DefFile::WriteDefFile(const char *fileName, const Symbols& s)
 
 void DefFile::SetDsoImpLibName(std::vector<std::string> names) {
     iDsoNames = names;
+}
+
+std::vector<std::string> DefFile::GetDsoImpLibName() {
+    return iDsoNames;
 }
 
 void WriteDefString(Symbol *sym, std::fstream &fstr)

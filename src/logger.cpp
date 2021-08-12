@@ -79,14 +79,15 @@ struct Message Messages[]=
     {ErrorCodes::ELFPIEERROR, "Found elf file %s builded with -pie option. Symbian has no support for it.\n"},
     {ErrorCodes::DEPRECATEDTARGET, "This target deprecated at v9.0. Application must be converted to EXE or PLUGIN (ECOM).\n"},
     {ErrorCodes::UNDEFINEDENTRYPOINT, "Entry point and Text segment base both 0, can't tell if entry point set for elf.\n"},
-    {ErrorCodes::ENTRYPOINTNOTSET, "Entry point is not set for elf\n"},
+    {ErrorCodes::ENTRYPOINTNOTSET, "Entry point is not set for elf.\n"},
     {ErrorCodes::MISSEDEXCEPTIONDESCRIPTOR, "Input ELF File has not found(or missed) exception descriptor.\n"},
     {ErrorCodes::OUTOFBOUNDSEXCEPTIONDESCRIPTOR, "Input ELF File has invalid exception descriptor.\n"},
     {ErrorCodes::NOSTATICSYMBOLS, "Input ELF File contains no static symbols.\n"},
     {ErrorCodes::UNKNOWNSECTION, "Detected unknown section while building E32Image.\n"},
     {ErrorCodes::UNFROZENSYMBOLADDED, "New Symbol %s found, export(s) not yet Frozen.\n"},
     {ErrorCodes::ELF_ST_VALUE, "Copying elf symbols failed.\n"},
-    {ErrorCodes::ILLEGALEXPORTFROMDATASEGMENT, "'%s' : '%s' Import relocation does not refer to code segment.\n"}//,
+    {ErrorCodes::ILLEGALEXPORTFROMDATASEGMENT, "'%s' : '%s' Import relocation does not refer to code segment.\n"},
+    {ErrorCodes::BADFILE, "File %s has %s.\n"}//,
 //    {ErrorCodes::, ".\n"}//,
 };
 

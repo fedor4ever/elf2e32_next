@@ -57,6 +57,7 @@ class DefFile
 		Symbols GetSymbols(const char* defFile);
 		void WriteDefFile(const char* fileName, const Symbols& symbols);
 		void SetDsoImpLibName(std::vector<std::string> names);
+		std::vector<std::string> GetDsoImpLibName();
 	private:
 		void ReadDefFile(const char* defFile);
 		void ParseDefFile();

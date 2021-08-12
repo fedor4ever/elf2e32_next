@@ -17,6 +17,7 @@
 
 #include <string>
 #include <string.h>
+#include <strings.h>
 
 #include "getopt.h"
 #include "common.hpp"
@@ -187,6 +188,7 @@ bool ArgParser::Parse(Args* arg) const
             case OptionsType::EUID3:
                 arg->iUid3 = Str2Hex(optarg);
                 ArgInfo(optname, optarg);
+                arg->iLinkasUid = optarg;
                 break;
             case OptionsType::ESID:
                 arg->iSid = Str2Hex(optarg);

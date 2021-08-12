@@ -136,3 +136,9 @@ void SaveFile(const char* filename, const char* filebuf, int fsize)
     	ReportError(FILESTORERROR, filename);
 	fs.close();
 }
+
+string FileNameFromPath(string& s)
+{
+    std::size_t found = s.find_last_of("/\\");
+    return s.substr(found+1);
+}

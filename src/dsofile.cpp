@@ -20,9 +20,10 @@
 #include <fstream>
 
 #include "symbol.h"
-#include "elfdefs.h"
 #include "dsofile.h"
+#include "elfdefs.h"
 #include "common.hpp"
+#include "elf2e32_opt.hpp"
 
 using std::string;
 using std::fstream;
@@ -31,6 +32,9 @@ Elf32_Ehdr* CreateElfHeader();
 void AlignString(std::string& aStr);
 void InfoPrint(const char* hdr, uint32_t& pos, const uint32_t offset);
 void SetElfSymbols(Symbol* symbol, Elf32_Sym* elfSymbol, uint32_t index);
+
+string DSOName(const string& linkAs);
+string Linkas(Args* arg);
 
 //enum for section index
 enum SECTION_INDEX
@@ -122,23 +126,25 @@ void DSOFile::CreateTablesFromSymbols(const Symbols& s)
     }
 }
 
-void DSOFile::WriteDSOFile(const string& dsoFile, const string& linkAs, const Symbols& s)
+void DSOFile::WriteDSOFile(const Args* arg, const Symbols& s)
 {
     iNSymbols = s.size() + 1;
     if(iNSymbols == 1)
         ReportError(ErrorCodes::EMPTYARGUMENT, "DSOFile::WriteDSOFile()", "--symbols");
-    if(dsoFile.empty())
+    if(arg->iDso.empty())
         ReportError(ErrorCodes::EMPTYARGUMENT, "DSOFile::WriteDSOFile()", "--filename");
-    if(linkAs.empty())
+    if(arg->iLinkas.empty())
         ReportError(ErrorCodes::EMPTYARGUMENT, "DSOFile::WriteDSOFile()", "--linkas");
 
     CreateSectionHeaders();
     CreateHashTable();
     CreateTablesFromSymbols(s);
 
-    string DSOName(dsoFile);
-    std::size_t found = DSOName.find_last_of("/\\");
-    InitVersionTable(DSOName.substr(found+1), linkAs);
+    string DSOName1(arg->iLinkas);
+    std::size_t found = DSOName1.find_last_of(".");
+    DSOName1.erase(found + 1);
+    DSOName1 += "dso";
+    InitVersionTable(arg);
 
     //Fill section headers...
     InitProgramHeaderTable();
@@ -149,7 +155,7 @@ void DSOFile::WriteDSOFile(const string& dsoFile, const string& linkAs, const Sy
     //create code section data - this has the ordinal numbers...
     InitProgHeader();
 
-    WriteElfContents(dsoFile.c_str());
+    WriteElfContents(arg->iDso.c_str());
 }
 
 void DSOFile::CreateSectionHeaders()
@@ -180,13 +186,14 @@ void DSOFile::CreateHashTable()
     iDSOChains = iHashBuf + sizeof(Elf32_HashTable)/sizeof(Elf32_Word) + iHashTbl->nBuckets;
 }
 
-void DSOFile::InitVersionTable(const string& DSOName, const string& linkAs)
+void DSOFile::InitVersionTable(const Args* opts)
 {
+    string tmp = DSOName(opts->iLinkas);
     //Fill verdef table...
     iVersionDef[0].vd_ndx = 1;
     iVersionDef[0].vd_cnt = 1;
     iVersionDef[0].vd_flags = 1;
-    iVersionDef[0].vd_hash = elf_hash((const uint8_t*)DSOName.c_str());
+    iVersionDef[0].vd_hash = elf_hash((const uint8_t*)tmp.c_str());
     iVersionDef[0].vd_version = 1;
 
     iVersionDef[0].vd_aux = sizeof(Elf32_Verdef);
@@ -195,13 +202,14 @@ void DSOFile::InitVersionTable(const string& DSOName, const string& linkAs)
     iDSODaux[0].vda_name = iDSOSymNameStrTbl.size();
     iDSODaux[0].vda_next = 0;
 
-    iDSOSymNameStrTbl += DSOName;
+    iDSOSymNameStrTbl += tmp;
     iDSOSymNameStrTbl.push_back(0);
 
+    tmp = Linkas(opts);
     iVersionDef[1].vd_ndx = DEFAULT_VERSION;
     iVersionDef[1].vd_cnt = 1;
     iVersionDef[1].vd_flags = 0;
-    iVersionDef[1].vd_hash = elf_hash((const uint8_t*)linkAs.c_str());
+    iVersionDef[1].vd_hash = elf_hash((const uint8_t*)tmp.c_str());
     iVersionDef[1].vd_version = 1;
 
     iVersionDef[1].vd_aux = sizeof(Elf32_Verdef);
@@ -210,7 +218,7 @@ void DSOFile::InitVersionTable(const string& DSOName, const string& linkAs)
     iDSODaux[1].vda_name = iDSOSymNameStrTbl.size();
     iDSODaux[1].vda_next = 0;
 
-    iDSOSymNameStrTbl += linkAs;
+    iDSOSymNameStrTbl += tmp;
     iDSOSymNameStrTbl.push_back(0);
 }
 
@@ -560,3 +568,31 @@ void InfoPrint(const char* hdr, uint32_t& pos, const uint32_t offset)
 #endif // EXPLORE_DSO_BUILD
 }
 
+string Linkas(Args* arg)
+{
+    if(arg->iLinkas.empty())
+        return;
+
+    string tmp = arg->iLinkas;
+
+    string DSOName(tmp);
+    std::size_t found = DSOName.find_last_of(".");
+    DSOName.erase(found + 1);
+    DSOName += "dso";
+
+    arg->iLinkasUid.insert(arg->iLinkasUid.begin(), '[');
+    arg->iLinkasUid += ']';
+    found = tmp.find_last_of(".");
+    tmp.insert(found, arg->iLinkasUid);
+
+    return tmp;
+}
+
+string DSOName(const string& linkAs)
+{
+    string tmp = linkAs;
+    std::size_t found = tmp.find_last_of(".");
+    tmp.erase(found + 1);
+    tmp += "dso";
+    return tmp;
+}

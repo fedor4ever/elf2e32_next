@@ -56,12 +56,12 @@ Properties of each section:
 #include <vector>
 #include "elfdefs.h"
 
-struct Elf32_Ehdr;
-struct Args;
-
 #define DEFAULT_VERSION 2
 
+struct Args;
+struct Elf32_Ehdr;
 class Symbol;
+
 typedef std::list<Symbol*> Symbols;
 /// TODO (Administrator#9#05/08/20): Use smartpointers to prevent memory leaks
 //typedef std::list   <std::shared_ptr<Symbol*>> Symbols;
@@ -87,11 +87,11 @@ class DSOFile
 {
 public:
     ~DSOFile();
-    void WriteDSOFile(const std::string& dsoFile, const std::string& aLinkAs, const Symbols& sym);
+    void WriteDSOFile(const Args* opts, const Symbols& sym);
 private:
     void CreateSectionHeaders();
     void CreateTablesFromSymbols(const Symbols& s);
-    void InitVersionTable(const std::string& DSOName, const std::string& linkAs);
+    void InitVersionTable(const Args* opts);
     void InitProgramHeaderTable();
     void InitDynamicEntries();
     void InitProgHeader();
@@ -128,8 +128,6 @@ private:
     /** The Elf Section-header string table*/
     std::string      iDSOSectionNames;
 
-private:
-    Args*          iOpts = nullptr;
 private:
     /** The elf header pointer which points to the base of the file records */
     Elf32_Ehdr*    iElfHeader = nullptr;

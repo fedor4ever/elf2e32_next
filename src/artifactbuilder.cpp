@@ -69,7 +69,7 @@ void ArtifactBuilder::MakeDSO()
     if(iOpts->iDso.empty())
         return;
     DSOFile* dso = new DSOFile();
-    dso->WriteDSOFile(iOpts->iDso, iOpts->iLinkas, iSymbols);
+    dso->WriteDSOFile(iOpts, iSymbols);
     delete dso;
 }
 
@@ -220,7 +220,7 @@ void DeduceLINKAS(Args* arg)
             linkas.erase(linkas.find_last_of("."));
             linkas += ".dll";
         }
-        arg->iLinkas = linkas;
+        arg->iLinkas = FileNameFromPath(linkas);
     }
 }
 

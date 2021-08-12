@@ -18,6 +18,7 @@
 #ifndef E32COMMON_H_INCLUDED
 #define E32COMMON_H_INCLUDED
 
+#include <string>
 #include <cstdint>
 #include <cstddef>
 
@@ -26,6 +27,7 @@
 void SetE32ImageCrc(const char* buf);
 uint32_t Crc32(const void* ptr, uint32_t length);
 uint32_t GetUidChecksum(uint32_t uid1, uint32_t uid2, uint32_t uid3);
+std::string FileNameFromPath(std::string& s);
 
 /** This holds info for entire symbol name lookup section
 

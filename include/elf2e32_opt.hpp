@@ -89,6 +89,7 @@ struct Args
     uint32_t iUid1 = 0;
     uint32_t iUid2 = 0;
     uint32_t iUid3 = 0;
+    std::string iLinkasUid;
     uint32_t iSid = 0;
     uint32_t iVid = 0;
     uint32_t iHeapMin = KHeapCommittedSize;

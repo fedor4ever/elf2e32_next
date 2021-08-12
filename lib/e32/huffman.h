@@ -22,6 +22,7 @@
 #define __HUFFMAN_H__
 
 #include <fstream>
+#include <stddef.h>
 
 /** Bit output stream.
 	Good for writing bit streams for packed, compressed or huffman data algorithms.

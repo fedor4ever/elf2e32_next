@@ -14,10 +14,10 @@
 // Description:
 //
 
-#include <fstream>
 #include <cassert>
-#include <algorithm>
+#include <fstream>
 #include <string.h>
+#include <algorithm>
 #include <type_traits>
 
 #include "farray.h"

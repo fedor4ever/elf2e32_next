@@ -210,6 +210,10 @@ void DefFile::WriteDefFile(const char *fileName, const Symbols& s)
     if(!fs.is_open())
         ReportError(FILEOPENERROR,fileName);
 
+    for(auto x: iDsoNames) {
+        fs << x;
+    }
+
     fs << "EXPORTS\n";
     for(auto x: s)
     {
@@ -226,6 +230,10 @@ void DefFile::WriteDefFile(const char *fileName, const Symbols& s)
 
     fs << "\n";
     fs.close();
+}
+
+void DefFile::SetDsoImpLibName(std::vector<std::string> names) {
+    iDsoNames = names;
 }
 
 void WriteDefString(Symbol *sym, std::fstream &fstr)

@@ -54,17 +54,18 @@ Class for DEF File operations.
 class DefFile
 {
 	public:
-		Symbols GetSymbols(const char *defFile);
-		void WriteDefFile(const char *fileName, const Symbols &aSymbols);
-
+		Symbols GetSymbols(const char* defFile);
+		void WriteDefFile(const char* fileName, const Symbols& symbols);
+		void SetDsoImpLibName(std::vector<std::string> names);
 	private:
-		void ReadDefFile(const char *defFile);
+		void ReadDefFile(const char* defFile);
 		void ParseDefFile();
 		void Tokenizer(std::string aLine, size_t aIndex);
     private:
 		Symbols iSymbols;
-		Symbol *iSymbol = nullptr;
+		Symbol* iSymbol = nullptr;
 		std::vector<std::string> iDefFile;
+		std::vector<std::string> iDsoNames;
 		std::string iFileName;
 };
 

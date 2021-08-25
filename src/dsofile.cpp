@@ -141,10 +141,6 @@ void DSOFile::WriteDSOFile(const Args* arg, const Symbols& s,
     CreateHashTable();
     CreateTablesFromSymbols(s);
 
-    string DSOName1(arg->iLinkas);
-    std::size_t found = DSOName1.find_last_of(".");
-    DSOName1.erase(found + 1);
-    DSOName1 += "dso";
     InitVersionTable(arg);
 
     //Fill section headers...

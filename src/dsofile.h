@@ -129,6 +129,9 @@ private:
     /** The Elf Section-header string table*/
     std::string      iDSOSectionNames;
 
+    /** Hold DSOName and Linkas*/
+    std::vector<std::string> iDsoImpLibName;
+
 private:
     /** The elf header pointer which points to the base of the file records */
     Elf32_Ehdr*    iElfHeader = nullptr;

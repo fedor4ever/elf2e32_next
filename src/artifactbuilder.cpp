@@ -63,7 +63,13 @@ void ArtifactBuilder::PrepareBuild()
     }
     SymbolProcessor processor(iOpts, iElfParser);
     iSymbols = processor.GetExports();
+    DsoImpLibName();
+}
 
+void ArtifactBuilder::DsoImpLibName()
+{
+    if(iOpts->iDefinput.empty())
+        return;
     DefFile d;
     d.GetSymbols(iOpts->iDefinput.c_str());
     iDsoImpLibName = d.GetDsoImpLibName();

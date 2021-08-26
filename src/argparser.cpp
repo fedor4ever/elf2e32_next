@@ -497,9 +497,6 @@ void Help()
 
 void ArgName(const char *name) // long_opts[*optIdx].name
 {
-    #if !_DEBUG
-    return;
-    #endif
     if(!name)
     {
         ReportLog("Option not send!!!\n");
@@ -511,11 +508,8 @@ void ArgName(const char *name) // long_opts[*optIdx].name
 
 void ArgInfo(const char *name, const char* opt) // long_opts[*optIdx].name, optarg
 {
-//    #if !_DEBUG
-
     if(!VerboseOutput)
         return;
-//    #endif
     ArgName(name);
     if(name && opt)
     {

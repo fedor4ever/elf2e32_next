@@ -29,6 +29,8 @@
 
 using std::string;
 
+static bool VerboseOutput = false;
+
 static struct option long_opts[] =
 {
     {"uid1",  required_argument, nullptr, OptionsType::EUID1},
@@ -85,6 +87,7 @@ static struct option long_opts[] =
     {"help",                  no_argument, nullptr, OptionsType::EHELP},
     // dev options
     {"time",            required_argument, nullptr, OptionsType::TIME},
+    {"verbose",                no_argument, nullptr, OptionsType::VERBOSE},
     // ignored options
     {"messagefile",     required_argument, nullptr, OptionsType::EMESSAGEFILE},
     {"dumpmessagefile", required_argument, nullptr, OptionsType::EDUMPMESSAGEFILE},
@@ -101,7 +104,6 @@ ArgParser::~ArgParser()
     //dtor
 }
 
-void ArgName(const char* name); // long_opts[optIdx].name
 void ArgInfo(const char* name, const char* opt = nullptr); // long_opts[optIdx].name, optarg
 void Help();
 
@@ -183,6 +185,10 @@ bool ArgParser::Parse(Args* arg) const
 
         switch(rez)
         {
+            case OptionsType::VERBOSE:
+                VerboseOutput = true;
+                arg->iVerbose = true;
+                ArgInfo(optname);
             case OptionsType::EUID1:
                 arg->iUid1 = std::stoul(optarg);
                 ArgInfo(optname, optarg);
@@ -474,6 +480,7 @@ const string ScreenOptions =
 "        --smpsafe: SMP Safe\n"
 "        --header: Generate C++ header file for dynamic linking.\n"
 "        --man: Describe advanced usage new features.\n"
+"        --verbose: Display the operations inside elf2e32.\n"
 "        --help: This command.\n"
 ;
 
@@ -503,9 +510,11 @@ void ArgName(const char *name) // long_opts[*optIdx].name
 
 void ArgInfo(const char *name, const char* opt) // long_opts[*optIdx].name, optarg
 {
-    #if !_DEBUG
-    return;
-    #endif
+//    #if !_DEBUG
+
+    if(!VerboseOutput)
+        return;
+//    #endif
     ArgName(name);
     if(name && opt)
     {

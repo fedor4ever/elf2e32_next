@@ -80,7 +80,8 @@ struct OptionsType
         EMANARTIFACTS,
         EHELP,
         // dev options
-        TIME
+        TIME,
+        VERBOSE
     };
 };
 
@@ -127,6 +128,7 @@ struct Args
     uint32_t iVersion = 0x000a0000u; // ex: elf2e32.exe --version
     std::string iHeader;
     uint32_t iTime[2] = {0};
+    bool iVerbose = false;
 };
 
 #endif // ELF2E32_OPT_HPP_INCLUDED

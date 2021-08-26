@@ -24,7 +24,7 @@ append=implibs+fpu+compress
 longtail=e32bin+iud1+uid2+uid3+tgttype+append
 
 args1=(
-("Test #%d: ful binary creation for ECOM plugin",
+("Test #%d: full binary creation for ECOM plugin",
 elf2e32+append+""" --capability=ProtServ --defoutput=tmp\AlternateReaderRecog{000a0000}.def --elfinput="AlternateReaderRecog.dll" --output="tmp\AlternateReaderRecogE32.dll"  --linkas=AlternateReaderRecog{000a0000}[101ff1ec].dll --dso=tmp\AlternateReaderRecog{000a0000}.dso  --uid1=0x10000079 --uid2=0x10009d8d --uid3=0x101ff1ec --targettype=PLUGIN --sid=0x101ff1ec --version=10.0 --ignorenoncallable --debuggable --sysdef=_Z24ImplementationGroupProxyRi,1; """,
 "creation ECOM plugin failed!",
 ),

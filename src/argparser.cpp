@@ -189,6 +189,7 @@ bool ArgParser::Parse(Args* arg) const
                 VerboseOutput = true;
                 arg->iVerbose = true;
                 ArgInfo(optname);
+                break;
             case OptionsType::EUID1:
                 arg->iUid1 = std::stoul(optarg);
                 ArgInfo(optname, optarg);

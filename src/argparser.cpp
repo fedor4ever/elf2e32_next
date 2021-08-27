@@ -183,37 +183,37 @@ bool ArgParser::Parse(Args* arg) const
                 ArgInfo(optname);
                 break;
             case OptionsType::EUID1:
-                arg->iUid1 = std::stoul(optarg);
+                arg->iUid1 = strtoul(optarg, nullptr, 16);
                 ArgInfo(optname, optarg);
                 break;
             case OptionsType::EUID2:
-                arg->iUid2 = std::stoul(optarg);
+                arg->iUid2 = strtoul(optarg, nullptr, 16);
                 VarningForDeprecatedUID(arg->iUid2);
                 ArgInfo(optname, optarg);
                 break;
             case OptionsType::EUID3:
-                arg->iUid3 = std::stoul(optarg);
+                arg->iUid3 = strtoul(optarg, nullptr, 16);
                 ArgInfo(optname, optarg);
                 arg->iLinkasUid = optarg;
                 break;
             case OptionsType::ESID:
-                arg->iSid = std::stoul(optarg);
+                arg->iSid = strtoul(optarg, nullptr, 16);
                 ArgInfo(optname, optarg);
                 break;
             case OptionsType::EVID:
-                arg->iVid = std::stoul(optarg);
+                arg->iVid = strtoul(optarg, nullptr, 16);
                 ArgInfo(optname, optarg);
                 break;
             case OptionsType::EHEAP:
             {
-                arg->iHeapMin = std::stoul(optarg);
+                arg->iHeapMin = strtoul(optarg, nullptr, 16);
                 string t(optarg);
-                arg->iHeapMax = std::stoul(t.substr( t.find_first_of(",.;") + 1 ).c_str());
+                arg->iHeapMax = strtoul(t.substr( t.find_first_of(",.;") + 1 ).c_str(), nullptr, 16);
                 ArgInfo(optname, optarg);
                 break;
             }
             case OptionsType::ESTACK:
-                arg->iStack = std::stoul(optarg);
+                arg->iStack = strtoul(optarg, nullptr, 16);
                 ArgInfo(optname, optarg);
                 break;
         // for E32ImageHeader::iFlags
@@ -387,9 +387,9 @@ bool ArgParser::Parse(Args* arg) const
         // dev options
             case OptionsType::TIME: // --time=hi,low
             {
-                arg->iTime[0] = std::stoul(optarg); // iTimeHi
+                arg->iTime[0] = strtoul(optarg, nullptr, 16); // iTimeHi
                 string t(optarg);
-                arg->iTime[1] = std::stoul(t.substr( t.find_first_of(",") + 1 ).c_str());
+                arg->iTime[1] = strtoul(t.substr( t.find_first_of(",") + 1 ).c_str(), nullptr, 16);
             }
                 ArgInfo(optname ,optarg);
                 break;

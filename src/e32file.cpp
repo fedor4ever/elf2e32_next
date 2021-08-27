@@ -20,6 +20,7 @@
 
 #include "symbol.h"
 #include "e32file.h"
+#include "e32info.h"
 #include "argparser.h"
 #include "elfparser.h"
 #include "e32common.h"
@@ -149,8 +150,12 @@ void E32File::WriteE32File()
             break;
         }
 
-        printf("Added Chunks has size: %06zx for section: %s at address: %08zx\n",
+        if(iE32Opts->iVerbose) {
+            printf("Added Chunks has size: %06zx for section:"
+               " %s at address: %08zx\n",
                x.section.size(), x.info.c_str(), iHeader.size());
+        }
+
         iHeader.insert(iHeader.end(), x.section.begin(), x.section.end());
         hdr = (E32ImageHeader*)&iHeader[0];
         hdrv = (E32ImageHeaderV*)&iHeader[offset];
@@ -177,6 +182,20 @@ void E32File::WriteE32File()
     //does that crap because E32Rebuilder free filebuf itself
     char* t = new char[iHeader.size()]();
     memcpy(t, &iHeader[0], iHeader.size());
+
+    //call E32Info::HeaderInfo() for verbose output
+    if(iE32Opts->iVerbose)
+    {
+        hdr = (E32ImageHeader*)&t[0];
+        hdr->iCompressionType = KFormatNotCompressed;
+
+        auto sz = iHeader.size();
+        E32Info* info = new E32Info(t, sz);
+        info->HeaderInfo();
+        delete info;
+
+        hdr->iCompressionType = iE32Opts->iCompressionMethod;
+    }
 
     E32Rebuilder* rb = new E32Rebuilder(&arg, t, iHeader.size());
     rb->Compress();

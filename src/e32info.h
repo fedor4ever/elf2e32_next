@@ -35,6 +35,7 @@ class E32Info: public Task
 {
     public:
         E32Info(Args* param);
+        E32Info(const char* buf, std::streamsize filesize);
         virtual ~E32Info();
         virtual void Run() final;
     public:
@@ -51,7 +52,7 @@ class E32Info: public Task
         void ImagePriority(TProcessPriority priority) const;
     private:
         Args* iParam = nullptr;
-        std::string iFlags = nullptr;
+        std::string iFlags;
         const char* iE32File = nullptr;
         E32Parser* iE32 = nullptr;
         const E32ImageHeader* iHdr = nullptr;

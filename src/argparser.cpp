@@ -162,14 +162,6 @@ const string manEdit =
 
 bool ArgParser::Parse(Args* arg) const
 {
-#if DUMP_ARGS
-    printf("Args to parse: \n");
-    for(int i = 0; i<iArgc; i++)
-    {
-        printf("    %s\n", iArgv[i]);
-    }
-    printf("******************");
-#endif // DUMP_ARGS
     if(iArgc == 1)
     {
         Help();
@@ -421,6 +413,16 @@ bool ArgParser::Parse(Args* arg) const
                 return false;
         }
     };
+
+    if(VerboseOutput)
+    {
+        printf("Args to parse: \n");
+        for(int i = 0; i<iArgc; i++)
+        {
+            printf("    %s\n", iArgv[i]);
+        }
+        printf("******************");
+    }
     return true;
 }
 

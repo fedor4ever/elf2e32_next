@@ -36,10 +36,17 @@ void PrintHexData(const void* pos, size_t lenth);
 E32Info::E32Info(Args* param): iParam(param),
     iFlags(param->iDump) {}
 
+E32Info::E32Info(const char* buf, std::streamsize filesize) :iE32File(buf)
+{
+    iE32 = new E32Parser(iE32File, filesize);
+    iHdr = iE32->GetFileLayout();
+}
+
 E32Info::~E32Info()
 {
     delete iE32;
-    delete[] iE32File;
+    if(iParam) //E32Info(const char* buf) not own buf
+        delete[] iE32File;
 }
 
 void E32Info::HeaderInfo()

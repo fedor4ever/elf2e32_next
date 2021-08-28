@@ -263,6 +263,13 @@ bool IsEXE(TargetType type)
     return false;
 }
 
+bool IsSimpleEXE(TargetType type)
+{
+    if( (type == TargetType::EExe) || (type == TargetType::EStdExe) )
+        return true;
+    return false;
+}
+
 void E32File::PrepareData()
 {
     E32Section tmp;
@@ -274,7 +281,7 @@ void E32File::PrepareData()
 
     if(tmp.type > E32Sections::EMPTY_SECTION)
     {
-        if(iE32Opts->iVerbose) {
+        if(iE32Opts->iVerbose && IsSimpleEXE(iE32Opts->iTargettype)) {
             ReportLog("***************\n");
             ReportLog("Exported symbols:\n");
             for(auto x: iSymbols) {

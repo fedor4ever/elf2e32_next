@@ -274,6 +274,16 @@ void E32File::PrepareData()
 
     if(tmp.type > E32Sections::EMPTY_SECTION)
     {
+        if(iE32Opts->iVerbose) {
+            ReportLog("***************\n");
+            ReportLog("Exported symbols:\n");
+            for(auto x: iSymbols) {
+                ReportLog(x->Name());
+                ReportLog("\n");
+            }
+            ReportLog("***************\n");
+        }
+
         iE32image.push_back(tmp);
 
         ExportBitmapSection* proc =

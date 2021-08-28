@@ -22,6 +22,7 @@
 #include <list>
 #include <vector>
 #include "common.hpp"
+#include "e32common.h"
 
 struct Args;
 class ElfParser;
@@ -70,7 +71,7 @@ class E32File
         const Symbols& iSymbols;
     private:
         uint16_t iExportDescSize = 0;
-        uint8_t  iExportDescType = 0;
+        uint8_t  iExportDescType = KImageHdr_ExpD_NoHoles;
         E32image iE32image;
         E32SectionUnit iHeader;
         RelocsProcessor* iRelocs = nullptr;

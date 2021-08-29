@@ -1,8 +1,7 @@
 # encoding=utf-8
 import os, subprocess
 
-elf2e32=r"D:\codeblock\elf2e32\bin\Debug\elf2e32.exe"
-tstdir=r"D:\codeblock\elf2e32\tests"
+elf2e32=r"D:\codeblock\elf2e32_next\bin\Debug\elf2e32.exe"
 implibs=r""" --libpath="D:\Symbian\S60_5th_Edition_SDK_v1.0\epoc32\release\armv5\lib" """
 
 counter=0

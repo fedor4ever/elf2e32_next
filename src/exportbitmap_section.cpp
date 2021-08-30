@@ -1,3 +1,17 @@
+// Copyright (c) 2021 Strizhniou Fiodar.
+// All rights reserved.
+// This component and the accompanying materials are made available
+// under the terms of "Eclipse Public License v1.0"
+// which accompanies this distribution, and is available
+// at the URL "http://www.eclipse.org/legal/epl-v10.html".
+//
+// Initial Contributors:
+// Strizhniou Fiodar - initial contribution.
+//
+// Description:
+// This class creates Exports bitmap
+//
+
 #include <assert.h>
 #include "e32common.h"
 #include "exportbitmap_section.h"
@@ -39,11 +53,11 @@ E32Section ExportBitmapSection::CreateExportBitmap()
     delete[] bitMap;
 
     if(absentExportsCnt == 0)
-    {
+    { // No "missed export" == no Exports bitmap.
         exportBitMap.section.clear();
         exportBitMap.section.push_back(0);
         exportBitMap.type = E32Sections::EMPTY_SECTION;
-        iExportDescType = 0;
+        iExportDescType = KImageHdr_ExpD_NoHoles;
         iExportDescSize = 0;
         return exportBitMap;
     }

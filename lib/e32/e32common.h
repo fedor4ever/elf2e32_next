@@ -85,6 +85,12 @@ const uint32_t KImageCrcInitialiser  = 0xc90fdaa2u;
 const int32_t KHeapCommittedSize = 0x1000;
 const int32_t KHeapReservedSize = 0x100000;
 
+// export description type E32ImageHeaderV::iExportDescType
+const uint32_t KImageHdr_ExpD_NoHoles       = 0x00;  ///< No holes, all exports present.
+const uint32_t KImageHdr_ExpD_FullBitmap    = 0x01;  ///< Full bitmap present at E32ImageHeaderV::iExportDesc
+const uint32_t KImageHdr_ExpD_SparseBitmap8 = 0x02;  ///< Sparse bitmap present at E32ImageHeaderV::iExportDesc, granularity 8
+const uint32_t KImageHdr_ExpD_Xip           = 0xff;  ///< XIP file
+
 enum TCpu
 {
 	ECpuUnknown=0, ECpuX86=0x1000, ECpuArmV4=0x2000, ECpuArmV5=0x2001, ECpuArmV6=0x2002, ECpuMCore=0x4000
@@ -99,7 +105,7 @@ struct E32ImageHeader
     const char iSignature[4] = {'E', 'P', 'O', 'C'};
     uint32_t iHeaderCrc = KImageCrcInitialiser; // CRC-32 of entire header
     uint32_t iModuleVersion = 0x000a0000u;      // Version number for this executable (used in link resolution)
-    uint32_t iCompressionType = KUidCompressionDeflate;   // Default compression is deflate
+    uint32_t iCompressionType = KUidCompressionDeflate;   // Default compression is deflate //0x1F
     ToolVersion iVersion;        // Version of PETRAN/ELFTRAN which generated this file
     uint32_t iTimeLo;
     uint32_t iTimeHi;
@@ -107,13 +113,13 @@ struct E32ImageHeader
     uint32_t iCodeSize = 0;      // size of code, import address table, constant data and export dir
     uint32_t iDataSize = 0;      // size of initialised data
     int32_t iHeapSizeMin = KHeapCommittedSize;
-    int32_t iHeapSizeMax = KHeapReservedSize;
+    int32_t iHeapSizeMax = KHeapReservedSize; //0x1F
     int32_t iStackSize = 0x2000;
     int32_t iBssSize = 0;
     uint32_t iEntryPoint = 0;    // offset into code of entry point
     uint32_t iCodeBase;          // where the code is linked for
     uint32_t iDataBase;          // where the data is linked for
-    int32_t iDllRefTableCount;   // filling this in enables E32ROM to leave space for it
+    int32_t  iDllRefTableCount = 0;   // filling this in enables E32ROM to leave space for it
     uint32_t iExportDirOffset = 0;  // offset into the file of the export address table
     uint32_t iExportDirCount;
     uint32_t iTextSize;          // size of just the text section, also doubles as the offset for the iat w.r.t. the code section
@@ -206,12 +212,6 @@ const int32_t KErrNoMemory     = (-4);
 const int32_t KErrNotSupported = (-5);
 const int32_t KErrCorrupt      = (-20);
 const int32_t KErrTooBig       = (-40);
-
-// export description type E32ImageHeaderV::iExportDescType
-const uint32_t KImageHdr_ExpD_NoHoles       = 0x00;  ///< No holes, all exports present.
-const uint32_t KImageHdr_ExpD_FullBitmap    = 0x01;  ///< Full bitmap present at E32ImageHeaderV::iExportDesc
-const uint32_t KImageHdr_ExpD_SparseBitmap8 = 0x02;  ///< Sparse bitmap present at E32ImageHeaderV::iExportDesc, granularity 8
-const uint32_t KImageHdr_ExpD_Xip           = 0xff;  ///< XIP file
 
 // flag values for E32ImageHeader::iFlags
 const uint32_t KImageDll               = 0x00000001u;

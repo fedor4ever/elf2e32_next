@@ -10,7 +10,7 @@ caps=" --capability=All-TCB"
 # defout=r""" --defoutput="tmp\out.(%02d).def" """
 elfin=r""" --elfinput="kf_Python_launcher.exe" """
 e32bin=r""" --output="tmp\kf_Python_launcher.exe" """
-implibs=r""" --libpath="D:\Symbian\S60_5th_Edition_SDK_v1.0\epoc32\release\armv5\lib" """
+implibs=r""" --libpath="\Symbian\S60_5th_Edition_SDK_v1.0\epoc32\release\armv5\lib" """
 linkas=r""" --linkas="kf_Python_launcher{000a0000}.dll" """
 # dsoout=r""" --dso="tmp\libcrypto{000a0000}.(%02d).dso" """
 fpu=r" --fpu=softvfp"
@@ -22,19 +22,32 @@ tail=r" --dlldata --ignorenoncallable --debuggable --smpsafe --uncompressed"
 
 longtail=e32bin+implibs+linkas+fpu+iud1+uid2+uid3+tgttype+tail
 
-def run():
+
+args=(
+("Test #%d: Simple exe creation.",
+elf2e32+caps+elfin+longtail,
+"Simple exe creation failed!",
+),
+("Test #%d: exe creation with implicit export _ZdlPvj.",
+elf2e32+implibs+fpu+r""" --sid=0xe8181dba --version=10.0 --uid1=0x1000007a --uid2=0x00000000 --uid3=0xe8181dba --capability=none --targettype=EXE --output=tmp\cmd_teste32.exe --elfinput=cmd_test.exe.elf --linkas=cmd_test{000a0000}[e8181dba].exe --libpath=\Symbian\S60_5th_Edition_SDK_v1.0\epoc32\release\armv5\LIB --verbose  --uncompressed""",
+"exe creation with implicit export _ZdlPvj failed!",
+) )
+
+def SuceededTests(*args):
    """These tests must alwais pass!"""
    global counter
+   tmp=args[0]
    try:
-      print "Simple exe creation. Options are: %s\n" %(elf2e32+caps+elfin+longtail)
-      subprocess.check_call(elf2e32+caps+elfin+longtail)
-      print "EXE created!"
+      print tmp[0] %counter
+      print tmp[1]
+      subprocess.check_call(tmp[1])
    except:
-      print "Unexpectable test failure: elf->exe"
-      print "With options: %s" %(elf2e32+caps+elfin+longtail)
+      print "Unexpectable test elf->exe failure:\n %s" %tmp[2]
    finally:
       print "\n"
+      counter+=1
 
 if __name__ == "__main__":
-   # execute only if run as a script
-   run()
+   print "exe tests running"
+   for x in args:
+      SuceededTests(x)

@@ -35,7 +35,6 @@
 #include "exportbitmap_section.h"
 #include "symbollookup_section.h"
 
-E32Section ExportTable(const Symbols& s);
 E32Section CodeSection(const ElfParser* parser);
 E32Section DataSection(const ElfParser* parser);
 
@@ -281,7 +280,7 @@ void E32File::PrepareData()
 
     if(tmp.type > E32Sections::EMPTY_SECTION)
     {
-        if(iE32Opts->iVerbose && IsSimpleEXE(iE32Opts->iTargettype)) {
+        if(iE32Opts->iVerbose || IsSimpleEXE(iE32Opts->iTargettype)) {
             ReportLog("***************\n");
             ReportLog("Exported symbols:\n");
             for(auto x: iSymbols) {

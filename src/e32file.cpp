@@ -205,7 +205,7 @@ void E32File::WriteE32File()
 
 // Export Section consist of uint32_t array, first element contains section's size.
 // Absent symbols values set E32 image entry point, other set to their elf st_value.
-E32Section MakeExportSection(const Symbols& s, uintptr_t iExportTableAddress,
+E32Section ExportSection(const Symbols& s, uintptr_t iExportTableAddress,
                              bool symlook, bool HasNoDefIn)
 {
     E32Section exports;
@@ -272,7 +272,7 @@ bool IsSimpleEXE(TargetType type)
 void E32File::PrepareData()
 {
     E32Section tmp;
-    tmp = MakeExportSection(iSymbols, iRelocs->ExportTableAddress(),
+    tmp = ExportSection(iSymbols, iRelocs->ExportTableAddress(),
                     iE32Opts->iNamedlookup, iE32Opts->iDefinput.empty());
 
     if(IsEXE(iE32Opts->iTargettype))

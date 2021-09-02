@@ -54,11 +54,7 @@ E32Section ExportBitmapSection::CreateExportBitmap()
 
     if(absentExportsCnt == 0)
     { // No "missed export" == no Exports bitmap.
-        exportBitMap.section.clear();
-        exportBitMap.section.push_back(0);
         exportBitMap.type = E32Sections::EMPTY_SECTION;
-        iExportDescType = KImageHdr_ExpD_NoHoles;
-        iExportDescSize = 0;
         return exportBitMap;
     }
 

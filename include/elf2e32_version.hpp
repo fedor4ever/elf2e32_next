@@ -21,7 +21,7 @@
 struct ToolVersion
 {
     uint8_t iMajor = 3;
-    uint8_t iMinor = 0;
+    uint8_t iMinor = 1;
     int16_t iBuild = 0;
 };
 

@@ -227,6 +227,9 @@ void SymbolProcessor::ProcessElfSymbols()
     Elf32_Sym* dummy = m.get();
     dummy->st_value = iElfParser->EntryPoint();
 
+    if(!absentSymbols.empty())
+        iAbsent = true;
+
     auto it = iSymbols.begin();
     for(auto x: absentSymbols)
     {
@@ -434,6 +437,11 @@ Symbols SymbolProcessor::FromSysdef()
     return sysdef;
 }
 
+bool SymbolProcessor::IsAbsentFound()
+{
+    return iAbsent;
+}
+
 uint64_t OrdinalFromString(const string& str)
 {
     char* p;
@@ -518,7 +526,11 @@ bool UnWantedSymbol(const char* aSymbol)
 	for (size_t i = 0; i<symbollistsize; i++)
 	{
 		if (strstr(Unwantedruntimesymbols[i], aSymbol))
+        {
+            ReportLog("Unwantedruntimesymbol: ");
+            ReportLog(aSymbol);
 			return true;
+        }
 	}
 	return false;
 }

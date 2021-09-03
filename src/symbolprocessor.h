@@ -50,6 +50,7 @@ class SymbolProcessor
     public:
         SymbolProcessor(const Args* args, const ElfParser* elfParser = nullptr);
         Symbols GetExports();
+        bool IsAbsentFound();
         ~SymbolProcessor();
     private:
         void ProcessPredefinedSymbols();
@@ -64,6 +65,7 @@ class SymbolProcessor
         const Args* iArgs = nullptr;
         const ElfParser* iElfParser = nullptr;
         Symbols iSymbols;
+        bool iAbsent = false;
 };
 
 bool IsImportedSymbol(uint32_t symIdx, const ElfParser* parser);

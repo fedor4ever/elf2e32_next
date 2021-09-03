@@ -9,7 +9,7 @@
 // Strizhniou Fiodar - initial contribution.
 //
 // Description:
-// This class creates Exports bitmap
+// This class creates export description for the absent symbols.
 //
 // ***************FAQ*****************
 // What is Exports bitmap?

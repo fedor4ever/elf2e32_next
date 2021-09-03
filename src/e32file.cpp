@@ -37,6 +37,7 @@
 
 E32Section CodeSection(const ElfParser* parser);
 E32Section DataSection(const ElfParser* parser);
+bool IsSimpleEXE(TargetType type);
 
 bool CmpSections(E32Section first, E32Section second)
 {
@@ -85,6 +86,21 @@ void E32File::SetFixedAddress(E32ImageHeader* hdr)
 
 void E32File::WriteE32File()
 {
+    /**< SDK versions ignore exported symbols for EXE */
+    if(IsSimpleEXE(iE32Opts->iTargettype)) {
+        const char t[] = "has exported symbol(s)\n";
+        ReportWarning(ErrorCodes::BADFILE, iE32Opts->iOutput.c_str(), t);
+        if(iE32Opts->iVerbose)
+        {
+            ReportLog("*********************\n");
+            for(auto x: iSymbols)
+                ReportLog(x->AliasName() + "\n");
+            ReportLog("*********************\n");
+        }
+        Symbols s;
+        iSymbols = s;
+    }
+
     iRelocs = new RelocsProcessor(iElfSrc, iSymbols, iE32Opts->iNamedlookup);
     iRelocs->Process();
 

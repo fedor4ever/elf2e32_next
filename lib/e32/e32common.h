@@ -119,9 +119,9 @@ struct E32ImageHeader
     uint32_t iEntryPoint = 0;    // offset into code of entry point
     uint32_t iCodeBase;          // where the code is linked for
     uint32_t iDataBase;          // where the data is linked for
-    int32_t  iDllRefTableCount = 0;   // filling this in enables E32ROM to leave space for it
+    int32_t  iDllRefTableCount = 0; // filling this in enables E32ROM to leave space for it
     uint32_t iExportDirOffset = 0;  // offset into the file of the export address table
-    uint32_t iExportDirCount;
+    uint32_t iExportDirCount;    ///< Number of entries in the export directory.
     uint32_t iTextSize;          // size of just the text section, also doubles as the offset for the iat w.r.t. the code section
     uint32_t iCodeOffset = 0;    // file offset to code section, also doubles as header size
     uint32_t iDataOffset = 0;    // file offset to data section

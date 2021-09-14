@@ -87,8 +87,8 @@ void E32File::SetFixedAddress(E32ImageHeader* hdr)
 void E32File::WriteE32File()
 {
     /**< SDK versions ignore exported symbols for EXE */
-    if(IsSimpleEXE(iE32Opts->iTargettype)) {
-        const char t[] = "has exported symbol(s)\n";
+    if(!iSymbols.empty() && IsSimpleEXE(iE32Opts->iTargettype)) {
+        const char t[] = "exported symbol(s)\n";
         ReportWarning(ErrorCodes::BADFILE, iE32Opts->iOutput.c_str(), t);
         if(iE32Opts->iVerbose)
         {

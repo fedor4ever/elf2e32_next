@@ -81,7 +81,8 @@ struct OptionsType
         EHELP,
         // dev options
         TIME,
-        VERBOSE
+        VERBOSE,
+        FORCEE32BUILD
     };
 };
 
@@ -129,6 +130,7 @@ struct Args
     std::string iHeader;
     uint32_t iTime[2] = {0};
     bool iVerbose = false;
+    bool iForceE32Build = false;
 };
 
 #endif // ELF2E32_OPT_HPP_INCLUDED

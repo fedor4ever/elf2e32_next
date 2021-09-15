@@ -121,4 +121,6 @@ Symbols SymbolsFromDef(const char *defFile);
 
 void BuildE32Image(const Args* args, const ElfParser* elfParser, const Symbols& s);
 
+bool VerboseOut();
+
 #endif // COMMON_HPP_INCLUDED

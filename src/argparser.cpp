@@ -31,6 +31,8 @@ using std::string;
 
 static bool VerboseOutput = false;
 
+bool VerboseOut() {return VerboseOutput;}
+
 static struct option long_opts[] =
 {
     {"uid1",  required_argument, nullptr, OptionsType::EUID1},
@@ -177,11 +179,6 @@ bool ArgParser::Parse(Args* arg) const
 
         switch(rez)
         {
-            case OptionsType::VERBOSE:
-                VerboseOutput = true;
-                arg->iVerbose = true;
-                ArgInfo(optname);
-                break;
             case OptionsType::EUID1:
                 arg->iUid1 = strtoul(optarg, nullptr, 16);
                 ArgInfo(optname, optarg);
@@ -393,6 +390,15 @@ bool ArgParser::Parse(Args* arg) const
             }
                 ArgInfo(optname ,optarg);
                 break;
+            case OptionsType::VERBOSE:
+                VerboseOutput = true;
+                arg->iVerbose = true;
+                ArgInfo(optname);
+                break;
+            case OptionsType::FORCEE32BUILD:
+                arg->iForceE32Build = true;
+                ArgInfo(optname);
+                break;
             case ':':
                 //optind always point to next argv instead current                ReportError(MISSEDARGUMENT, iArgv[optind-1], Help);
                 return false;
@@ -484,6 +490,7 @@ const string ScreenOptions =
 "        --header: Generate C++ header file for dynamic linking.\n"
 "        --man: Describe advanced usage new features.\n"
 "        --verbose: Display the operations inside elf2e32.\n"
+"        --force: Force E32Image biuld. All error checks off.\n"
 "        --help: This command.\n"
 ;
 

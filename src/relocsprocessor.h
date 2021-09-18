@@ -57,9 +57,9 @@ typedef std::map<std::string, Relocations> ImportLibs;
 
 struct LocalReloc
 {
-    Elf32_Phdr* iSegment      = nullptr;
     uint32_t	iSymNdx;
     Elf32_Rela  iRela;
+    Elf32_Phdr* iSegment      = nullptr;
     Elf32_Sym*  iSymbol       = nullptr;
     bool        iHasRela      = false;
     uint8_t	    iRelType      = 0;
@@ -69,6 +69,8 @@ struct LocalReloc
     //      KReservedRelocType, KTextRelocType, KDataRelocType, KInferredRelocType
     ESegmentType iSegmentType = ESegmentUndefined;
 };
+
+typedef std::map<std::string, std::vector<LocalReloc> > BadRelocs;
 
 class RelocsProcessor
 {
@@ -87,6 +89,8 @@ class RelocsProcessor
         std::vector<std::string> StrTableData() const;
         uint16_t Fixup(const Elf32_Sym* s);
         size_t ExportTableAddress() const;
+        void ValidateLocalReloc(const LocalReloc& r,
+                    uint16_t relocType, const std::string& name) const;
 
     private:
         void RelocsFromSymbols();
@@ -119,6 +123,11 @@ class RelocsProcessor
         uint32_t iDllCount = 0;
         size_t iExportTableAddress = 0;
         bool iSymLook = false;
+
+    public: //TODO: make them private
+        void PrintBadRelocs(const std::string& type, const BadRelocs& rel);
+        BadRelocs iBadCodeReloc;
+        BadRelocs iBadDataReloc;
 };
 
 #endif // RELOCSPROCESSOR_H

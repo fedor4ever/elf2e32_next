@@ -253,7 +253,17 @@ E32Section CreateRelocations(std::vector<LocalReloc>& aRelocations, E32Section& 
         uint16_t relocType = rp->Fixup(r.iSymbol);
         *data++ = (uint16_t)((r.iRela.r_offset & 0xfff) | relocType);
         pagesize += sizeof(uint16_t);
+
+        rp->ValidateLocalReloc(r, relocType, aRelocs.info);
     }
+
+    if(aRelocs.info == "CODERELOCKS")
+        rp->PrintBadRelocs(aRelocs.info, rp->iBadCodeReloc);
+    else if(aRelocs.info == "DATARELOCKS")
+        rp->PrintBadRelocs(aRelocs.info, rp->iBadDataReloc);
+    else
+        ReportError(ErrorCodes::UNKNOWNERROR);
+
     if (pagesize%4 != 0)
     {
         *data++ = 0;
@@ -262,6 +272,40 @@ E32Section CreateRelocations(std::vector<LocalReloc>& aRelocations, E32Section& 
     block->iPageOffset = page - aBase;
     block->iBlockSize = pagesize;
     return aRelocs;
+}
+
+void RelocsProcessor::ValidateLocalReloc(const LocalReloc& r,
+                     uint16_t relocType, const string& name) const
+{
+    uint16_t t = (uint16_t)((r.iRela.r_offset & 0xfff) | relocType);
+    uint32_t entryType = t & 0xf000;
+    if(entryType!=KTextRelocType && entryType!=KDataRelocType && entryType!=KInferredRelocType) {
+        if(name == "CODERELOCKS")
+            iBadCodeReloc[iElf->GetSymbolNameFromStringTable(r.iSymNdx)].push_back(r);
+        else if(name == "DATARELOCKS")
+            iBadDataReloc[iElf->GetSymbolNameFromStringTable(r.iSymNdx)].push_back(r);
+        else
+            ReportError(ErrorCodes::UNKNOWNERROR);
+    }
+}
+
+void RelocsProcessor::PrintBadRelocs(const std::string& type, const BadRelocs& rel)
+{
+    if(rel.empty())
+        return;
+    ReportLog("\n*******************\n");
+    for(auto x: rel) {
+        ReportLog("Found invalid reloc type for symbol: ");
+        ReportLog(x.first);
+        ReportLog("\n");
+        for(auto r: x.second) {
+            uint16_t relocType = Fixup(r.iSymbol);
+            uint16_t t = (uint16_t)((r.iRela.r_offset & 0xfff) | relocType);
+            uint32_t entryType = t & 0xf000;
+            ReportLog(" %d\t", t);
+        }
+    }
+    ReportLog("\n*******************\n");
 }
 
 bool IsLocalReloc(const LocalReloc& rel)

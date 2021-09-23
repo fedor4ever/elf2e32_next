@@ -160,6 +160,7 @@ void E32Rebuilder::Compress()
     iParser = new E32Parser(iFile, iFileSize);
     iParser->GetFileLayout();
 
-    ValidateE32Image(iParser);
+    if(iReBuildOptions->iForceE32Build == false) // can't build invalid E32Image while validate on
+        ValidateE32Image(iParser);
 	SaveFile(iReBuildOptions->iOutput.c_str(), file.data(), iFileSize);
 }

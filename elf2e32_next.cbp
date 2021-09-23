@@ -11,7 +11,7 @@
 				<Option object_output="obj/Debug/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
-				<Option parameters='--capability=All-TCB --elfinput=&quot;tests\kf_Python_launcher.exe&quot;  --output=&quot;tests\tmp\kf_Python_launcher.tst.exe&quot;  --libpath=&quot;D:\Symbian\S60_5th_Edition_SDK_v1.0\epoc32\release\armv5\lib&quot;  --linkas=&quot;kf_Python_launcher{000a0000}.dll&quot;  --fpu=softvfp --uid1=0x10000079 --uid2=0x20004c45 --uid3=0x00000000 --targettype=EXE --dlldata --ignorenoncallable --debuggable --uncompressed' />
+				<Option parameters='--sid=0xe8181dba --version=10.0 --uid1=0x1000007a --uid2=0x00000000 --uid3=0xe8181dba --capability=none --fpu=softvfp --targettype=EXE --output=cmd_teste32.exe --elfinput=&quot;tests\Neverhoode.exe.elf&quot; --linkas=cmd_test{000a0000}[e8181dba].exe --libpath=\Symbian\S60_5th_Edition_SDK_v1.0\epoc32\release\armv5\LIB --force' />
 				<Compiler>
 					<Add option="-O3" />
 					<Add option="-Winit-self" />
@@ -30,7 +30,7 @@
 				<Option object_output="obj/Release/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
-				<Option parameters='--definput=D:\codeblock\elf2e32_next\bin\Release\apmime.def --dso=D:\codeblock\elf2e32_next\bin\Release\apmime.dso --uid3=&quot;10003a1a&quot;' />
+				<Option parameters="--elfinput=Neverhoode.exe --output=Neverhood.exe" />
 				<Compiler>
 					<Add option="-O2" />
 					<Add directory="lib/e32" />
@@ -45,6 +45,7 @@
 		<Compiler>
 			<Add option="-Wall" />
 			<Add option="-fexceptions -fpermissive" />
+			<Add option="-D_DEBUG" />
 			<Add directory="include" />
 			<Add directory="src" />
 			<Add directory="lib/elf" />

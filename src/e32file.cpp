@@ -194,6 +194,7 @@ void E32File::WriteE32File()
     Args arg;
     arg.iCompressionMethod = iE32Opts->iCompressionMethod;
     arg.iOutput = iE32Opts->iOutput;
+    arg.iForceE32Build = iE32Opts->iForceE32Build;
     //does that crap because E32Rebuilder free filebuf itself
     char* t = new char[iHeader.size()]();
     memcpy(t, &iHeader[0], iHeader.size());

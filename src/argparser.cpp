@@ -89,7 +89,8 @@ static struct option long_opts[] =
     {"help",                  no_argument, nullptr, OptionsType::EHELP},
     // dev options
     {"time",            required_argument, nullptr, OptionsType::TIME},
-    {"verbose",                no_argument, nullptr, OptionsType::VERBOSE},
+    {"verbose",               no_argument, nullptr, OptionsType::VERBOSE},
+    {"force",                 no_argument, nullptr, OptionsType::FORCEE32BUILD},
     // ignored options
     {"messagefile",     required_argument, nullptr, OptionsType::EMESSAGEFILE},
     {"dumpmessagefile", required_argument, nullptr, OptionsType::EDUMPMESSAGEFILE},
@@ -490,7 +491,7 @@ const string ScreenOptions =
 "        --header: Generate C++ header file for dynamic linking.\n"
 "        --man: Describe advanced usage new features.\n"
 "        --verbose: Display the operations inside elf2e32.\n"
-"        --force: Force E32Image biuld. All error checks off.\n"
+"        --force: Force E32Image build. All error checks off.\n"
 "        --help: This command.\n"
 ;
 

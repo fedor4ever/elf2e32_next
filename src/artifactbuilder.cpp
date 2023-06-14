@@ -422,7 +422,7 @@ void ValidateCaps(Args* arg)
     std::string caps = ToLower(arg->iCapability);
 
     if(caps.empty())
-        ReportError(ErrorCodes::EMPTYARGUMENT, "ValidateCaps()", "capability"); //internal error caps allways set
+        ReportError(ErrorCodes::ZEROBUFFER, "Internal error! Default capabilities value lost!");
     if((caps[0] == '-') || (caps[0] == '+'))
         ReportError(ErrorCodes::INVALIDARGUMENT, "capability", caps);
     if( (caps.substr(0, 3) == "all") && (caps.find('+') < std::string::npos) )

@@ -34,7 +34,6 @@ void FixHeaderName(Args* fix);
 void MakeImportHeader(Symbols symbols, std::string dllName);
 void ValidateOptions(Args* arg);
 void ValidateCaps(Args* arg);
-std::string ToLower(const std::string& s);
 
 ArtifactBuilder::ArtifactBuilder(Args* param): iOpts(param)
 {

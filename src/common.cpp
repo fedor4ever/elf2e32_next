@@ -17,6 +17,7 @@
 
 #include <string>
 #include <fstream>
+#include <algorithm>
 
 using std::string;
 
@@ -118,8 +119,8 @@ const char* ReadFile(const char* filename, std::streamsize& fsize)
     fs.read(bufferedFile, fsize);
     if(!fs)
     {
-    	delete[] bufferedFile;
-    	ReportError(FILEREADERROR, filename);
+        delete[] bufferedFile;
+        ReportError(FILEREADERROR, filename);
     }
     fs.close();
     return bufferedFile;
@@ -133,12 +134,20 @@ void SaveFile(const char* filename, const char* filebuf, int fsize)
     fs.write(filebuf, fsize);
 
     if(!fs)
-    	ReportError(FILESTORERROR, filename);
-	fs.close();
+        ReportError(FILESTORERROR, filename);
+    fs.close();
 }
 
 string FileNameFromPath(string& s)
 {
     std::size_t found = s.find_last_of("/\\");
     return s.substr(found+1);
+}
+
+string ToLower(const string& s)
+{
+    string data = s;
+    std::transform(data.begin(), data.end(), data.begin(),
+    [](unsigned char c){ return std::tolower(c); });
+    return data;
 }

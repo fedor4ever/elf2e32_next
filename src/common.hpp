@@ -123,4 +123,6 @@ void BuildE32Image(const Args* args, const ElfParser* elfParser, const Symbols& 
 
 bool VerboseOut();
 
+std::string ToLower(const std::string& s);
+
 #endif // COMMON_HPP_INCLUDED

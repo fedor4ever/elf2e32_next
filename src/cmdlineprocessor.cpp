@@ -16,7 +16,6 @@
 //
 
 #include <cstring>
-#include <algorithm>
 
 #include "common.hpp"
 #include "e32common.h"
@@ -24,14 +23,6 @@
 #include "cmdlineprocessor.h"
 
 using std::string;
-
-string ToLower(const std::string& fromArgument)
-{
-    string data = fromArgument;
-    std::transform(data.begin(), data.end(), data.begin(),
-    [](unsigned char c){ return std::tolower(c); });
-    return data;
-}
 
 uint32_t GetFpuType(const std::string& fromArgument)
 {

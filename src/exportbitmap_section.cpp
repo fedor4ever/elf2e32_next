@@ -13,6 +13,7 @@
 //
 
 #include <assert.h>
+#include <cstring>
 #include "e32common.h"
 #include "exportbitmap_section.h"
 
@@ -32,7 +33,8 @@ E32Section ExportBitmapSection::CreateExportBitmap()
 
     size_t memsz = (iExportsCount + 7) >> 3;  // size of complete bitmap
     size_t mbs = (memsz + 7) >> 3;    // size of meta-bitmap
-    uint8_t* bitMap = new uint8_t[memsz](0xff);
+    uint8_t* bitMap = new uint8_t[memsz];
+    memset(bitMap, 0xff, memsz);
 
     uint32_t* exports = ((uint32_t*)iExportTable.data());
     exports++; // skip header

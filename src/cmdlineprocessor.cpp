@@ -152,9 +152,6 @@ uint16_t ProcessPriority(const std::string& fromArgument)
 // parse negative capabilities "ALL-TCB-TrustedUI" but "ALL+TCB-TrustedUI" not allowed
 uint64_t ProcessALLCapabilities(const std::string& fromArgument)
 {
-    if(fromArgument.find('+') < string::npos)
-        ReportError(ErrorCodes::INVALIDARGUMENT, "capability", fromArgument);
-
     uint64_t flag = 0;
     const Property* p = capabilities;
     while(p->name != nullptr)
@@ -190,12 +187,6 @@ uint64_t ProcessALLCapabilities(const std::string& fromArgument)
 //! looks like "ALL-TCB-TrustedUI" or "TCB+TrustedUI"
 uint64_t ProcessCapabilities(const std::string& fromArgument)
 {
-    if(fromArgument.empty())
-        ReportError(ErrorCodes::EMPTYARGUMENT, "ProcessCapabilities()", "capability");
-
-    if(fromArgument[0] == '-')
-        ReportError(ErrorCodes::INVALIDARGUMENT, "capability", fromArgument);
-
     string str = ToLower(fromArgument);
 
     if(str.substr(0, 4) == "none")

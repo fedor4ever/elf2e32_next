@@ -33,6 +33,8 @@
 void FixHeaderName(Args* fix);
 void MakeImportHeader(Symbols symbols, std::string dllName);
 void ValidateOptions(Args* arg);
+void ValidateCaps(Args* arg);
+std::string ToLower(const std::string& s);
 
 ArtifactBuilder::ArtifactBuilder(Args* param): iOpts(param)
 {
@@ -250,6 +252,8 @@ void ValidateOptions(Args* arg)
 {
     FixHeaderName(arg);
 
+    ValidateCaps(arg);
+
     if((arg->iDebuggable) && !IsRunnable(arg->iTargettype))
     {
         arg->iDebuggable = false;
@@ -413,3 +417,14 @@ void ValidateOptions(Args* arg)
 	}
 }
 
+void ValidateCaps(Args* arg)
+{
+    std::string caps = ToLower(arg->iCapability);
+
+    if(caps.empty())
+        ReportError(ErrorCodes::EMPTYARGUMENT, "ValidateCaps()", "capability"); //internal error caps allways set
+    if((caps[0] == '-') || (caps[0] == '+'))
+        ReportError(ErrorCodes::INVALIDARGUMENT, "capability", caps);
+    if( (caps.substr(0, 3) == "all") && (caps.find('+') < std::string::npos) )
+        ReportError(ErrorCodes::INVALIDARGUMENT, "capability", caps);
+}

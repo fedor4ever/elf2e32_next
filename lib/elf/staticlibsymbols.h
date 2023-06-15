@@ -14,7 +14,7 @@
 // Header file containing the list of symbols exported by static libraries
 // @internalComponent
 // @released
-// 
+//
 //
 
 #if !defined STATICLIBS_SYMBOLS_H

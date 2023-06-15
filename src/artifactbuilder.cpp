@@ -96,7 +96,7 @@ void ArtifactBuilder::MakeDef()
     std::vector<std::string> tmp;
     if(iOpts->iDSODump)
         deffile.SetDsoImpLibName(iDsoImpLibName);
-	deffile.WriteDefFile(iOpts->iDefoutput.c_str(), iSymbols);
+    deffile.WriteDefFile(iOpts->iDefoutput.c_str(), iSymbols);
 }
 
 void ArtifactBuilder::MakeE32()
@@ -280,9 +280,9 @@ void ValidateOptions(Args* arg)
                 "image generated that tool differs from SDK tool output for code relocs"
                 "section. Correctness unknown.\n");
 
-	if(targetType == TargetType::EInvalidTargetType || targetType == TargetType::ETargetTypeNotSet)
-	{
-	    ReportWarning(ErrorCodes::NOREQUIREDOPTION, "--targettype");
+    if(targetType == TargetType::EInvalidTargetType || targetType == TargetType::ETargetTypeNotSet)
+    {
+        ReportWarning(ErrorCodes::NOREQUIREDOPTION, "--targettype");
         if(hasDefinput)
             arg->iTargettype = TargetType::EImportLib;
 // handle special Custom target
@@ -291,129 +291,129 @@ void ValidateOptions(Args* arg)
         else
             arg->iTargettype = TargetType::EExe;
         targetType = arg->iTargettype;
-	}
+    }
 
     DeduceLINKAS(arg);
 
-	if((targetType == TargetType::EPlugin) && arg->iSysdef.empty())
+    if((targetType == TargetType::EPlugin) && arg->iSysdef.empty())
         arg->iSysdef = GetEcomExportName(targetType);
 
     if(hasDefinput && noElfinput)
         arg->iTargettype = TargetType::EImportLib;
 
     uint32_t UID1 = arg->iUid1, UID2 = arg->iUid2, UID3 = arg->iUid3;
-	if(!arg->iSid)
+    if(!arg->iSid)
         arg->iSid = UID3;
 
     switch(arg->iTargettype)
-	{
-	case TargetType::ETargetTypeNotSet:
-		break;
-	case TargetType::EInvalidTargetType:
-		break;
-	case TargetType::EImportLib:
-		if(!hasDefinput)
+    {
+    case TargetType::ETargetTypeNotSet:
+        break;
+    case TargetType::EInvalidTargetType:
+        break;
+    case TargetType::EImportLib:
+        if(!hasDefinput)
             ReportError(ErrorCodes::NOREQUIREDOPTION, "--definput");
         if(arg->iDso.empty())
             ReportError(ErrorCodes::NOREQUIREDOPTION, "--dso");
-		break;
+        break;
     case TargetType::EStdDll:
         if(noElfinput)
             ReportError(ErrorCodes::NOREQUIREDOPTION, "--elfinput");
-		if(noE32Image)
+        if(noE32Image)
             ReportError(ErrorCodes::NOREQUIREDOPTION, "--output");
 
-		if(UID1 != KDynamicLibraryUidValue) //< guard against wrong uids
+        if(UID1 != KDynamicLibraryUidValue) //< guard against wrong uids
             WarnForNonDllUID();
         arg->iUid1 = KDynamicLibraryUidValue;
         arg->iUid2 = KSTDTargetUid2Value;
 
-		if(!UID3) ReportLog("Missed --uid3 option!\n");
-		break;
-	case TargetType::EDll:
-		if(noElfinput)
+        if(!UID3) ReportLog("Missed --uid3 option!\n");
+        break;
+    case TargetType::EDll:
+        if(noElfinput)
             ReportError(ErrorCodes::NOREQUIREDOPTION, "--elfinput");
-		if(noE32Image)
+        if(noE32Image)
             ReportError(ErrorCodes::NOREQUIREDOPTION, "--output");
 
-		if(UID1 != KDynamicLibraryUidValue) //< guard against wrong uids
+        if(UID1 != KDynamicLibraryUidValue) //< guard against wrong uids
             WarnForNonDllUID();
         arg->iUid1 = KDynamicLibraryUidValue;
-		if(!UID2)
-		{
-		    ReportLog("********************\n");
-		    ReportLog("missed value for UID2\n");		    ReportLog("********************\n");
-		}
-		if(arg->iTargettype == TargetType::EStdDll) arg->iUid2 = KSTDTargetUid2Value; // only that uid2 accepted for STDDLL & STDEXE
-		if(!UID3) ReportLog("Missed --uid3 option!\n");
-		break;
-	case TargetType::EExe:
-		if(noElfinput)
+        if(!UID2)
+        {
+            ReportLog("********************\n");
+            ReportLog("missed value for UID2\n");            ReportLog("********************\n");
+        }
+        if(arg->iTargettype == TargetType::EStdDll) arg->iUid2 = KSTDTargetUid2Value; // only that uid2 accepted for STDDLL & STDEXE
+        if(!UID3) ReportLog("Missed --uid3 option!\n");
+        break;
+    case TargetType::EExe:
+        if(noElfinput)
             ReportError(ErrorCodes::NOREQUIREDOPTION, "--elfinput");
-		if(noE32Image)
+        if(noE32Image)
             ReportError(ErrorCodes::NOREQUIREDOPTION, "--output");
-		if(UID1 != KExecutableImageUidValue)
+        if(UID1 != KExecutableImageUidValue)
             WarnForNonExeUID();
         arg->iUid1 = KExecutableImageUidValue;
-		if(!UID3) ReportLog("Missed --uid3 option!\n");
-		break;
-	case TargetType::EAni:
-	case TargetType::EFep: //fallthru
-	case TargetType::EFsy: //fallthru
-	case TargetType::ELdd: //fallthru
-	case TargetType::EPlugin: //fallthru
-	case TargetType::EPlugin3: //fallthru
-	case TargetType::EPdd: //fallthru
-	case TargetType::EPdl: //fallthru
-	case TargetType::ETextNotifier2: //fallthru
+        if(!UID3) ReportLog("Missed --uid3 option!\n");
+        break;
+    case TargetType::EAni:
+    case TargetType::EFep: //fallthru
+    case TargetType::EFsy: //fallthru
+    case TargetType::ELdd: //fallthru
+    case TargetType::EPlugin: //fallthru
+    case TargetType::EPlugin3: //fallthru
+    case TargetType::EPdd: //fallthru
+    case TargetType::EPdl: //fallthru
+    case TargetType::ETextNotifier2: //fallthru
         if(noE32Image && noElfinput)
             ReportError(ErrorCodes::NOREQUIREDOPTION, "--elfinput ""--output");
-		if(noElfinput)
+        if(noElfinput)
             ReportError(ErrorCodes::NOREQUIREDOPTION, "--elfinput");
-		if(noE32Image)
+        if(noE32Image)
             ReportError(ErrorCodes::NOREQUIREDOPTION, "--output");
-		if(UID1 != KDynamicLibraryUidValue)
+        if(UID1 != KDynamicLibraryUidValue)
             WarnForNonDllUID();
         arg->iUid1 = KDynamicLibraryUidValue;
-		if(!UID2)
+        if(!UID2)
         {
             ReportLog("********************\n");
             ReportLog("Wrong UID2\n");
-		    ReportLog("Set UID2 to %u\n", arg->iTargettype);
+            ReportLog("Set UID2 to %u\n", arg->iTargettype);
             ReportLog("********************\n");
         }
         arg->iUid2 = arg->iTargettype;
-		if(!UID3) ReportLog("Missed --uid3 option!\n");
-		break;
-	case EExexp:
-		if(noElfinput)
+        if(!UID3) ReportLog("Missed --uid3 option!\n");
+        break;
+    case EExexp:
+        if(noElfinput)
             ReportError(ErrorCodes::NOREQUIREDOPTION, "--elfinput");
-		if(noDefOut)
+        if(noDefOut)
             ReportError(ErrorCodes::NOREQUIREDOPTION, "--defoutput");
-		if(noE32Image)
+        if(noE32Image)
             ReportError(ErrorCodes::NOREQUIREDOPTION, "--output");
 
-		if(UID1 != KExecutableImageUidValue)
+        if(UID1 != KExecutableImageUidValue)
             WarnForNonExeUID();
         arg->iUid1 = KExecutableImageUidValue;
-		if(!UID2) ReportLog("Missed --uid2 option!\n");
-		if(!UID3) ReportLog("Missed --uid3 option!\n");
-		break;
-	case EStdExe:
-		if(noElfinput)
+        if(!UID2) ReportLog("Missed --uid2 option!\n");
+        if(!UID3) ReportLog("Missed --uid3 option!\n");
+        break;
+    case EStdExe:
+        if(noElfinput)
             ReportError(ErrorCodes::NOREQUIREDOPTION, "--elfinput");
-		if (noE32Image)
+        if (noE32Image)
             ReportError(ErrorCodes::NOREQUIREDOPTION, "--output");
-		if(UID1 != KExecutableImageUidValue)
+        if(UID1 != KExecutableImageUidValue)
             WarnForNonExeUID();
         arg->iUid1 = KExecutableImageUidValue;
         arg->iUid2 = KSTDTargetUid2Value;
 
-		if(!UID3) ReportLog("Missed --uid3 option!\n");
-		break;
-	default:
-		break;
-	}
+        if(!UID3) ReportLog("Missed --uid3 option!\n");
+        break;
+    default:
+        break;
+    }
 }
 
 void ValidateCaps(Args* arg)

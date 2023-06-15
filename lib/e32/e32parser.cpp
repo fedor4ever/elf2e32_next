@@ -112,8 +112,8 @@ const TExceptionDescriptor* E32Parser::GetExceptionDescriptor() const
 
 const E32ImageHeader* E32Parser::GetE32Hdr() const
 {
-	if(!iHdr)
-		ReportError(ZEROBUFFER, "Buffer in E32Parser. Call first E32ImageHeader* GetFileLayout()");
+    if(!iHdr)
+        ReportError(ZEROBUFFER, "Buffer in E32Parser. Call first E32ImageHeader* GetFileLayout()");
     return iHdr;
 }
 
@@ -223,83 +223,83 @@ This function creates the export description after reading the E32 image file
 */
 int32_t E32Parser::GetExportDescription()
 {
-	uint32_t fm = HdrFmtFromFlags(iHdr->iFlags);
-	if (fm < KImageHdrFmt_V && iMissingExports)
-		return KErrCorrupt;
+    uint32_t fm = HdrFmtFromFlags(iHdr->iFlags);
+    if (fm < KImageHdrFmt_V && iMissingExports)
+        return KErrCorrupt;
 
     if(!iHdrV)
         iHdrV = GetE32HdrV();
 
-	if (iHdrV->iExportDescType == KImageHdr_ExpD_NoHoles)
-		return iMissingExports ? KErrCorrupt : KErrNone;
+    if (iHdrV->iExportDescType == KImageHdr_ExpD_NoHoles)
+        return iMissingExports ? KErrCorrupt : KErrNone;
 
-	int32_t nexp = iHdr->iExportDirCount;
-	int32_t memsz = (nexp + 7) >> 3;	// size of complete bitmap
-	int32_t mbs = (memsz + 7) >> 3;	// size of meta-bitmap
-	int32_t eds = iHdrV->iExportDescSize;
+    int32_t nexp = iHdr->iExportDirCount;
+    int32_t memsz = (nexp + 7) >> 3;	// size of complete bitmap
+    int32_t mbs = (memsz + 7) >> 3;	// size of meta-bitmap
+    int32_t eds = iHdrV->iExportDescSize;
 
-	if (iHdrV->iExportDescType == KImageHdr_ExpD_FullBitmap)
-	{
-		if (eds != memsz)
-			return KErrCorrupt;
-		if (memcmp(iHdrV->iExportDesc, iExportBitMap, eds) == 0)
-			return KErrNone;
-		return KErrCorrupt;
-	}
+    if (iHdrV->iExportDescType == KImageHdr_ExpD_FullBitmap)
+    {
+        if (eds != memsz)
+            return KErrCorrupt;
+        if (memcmp(iHdrV->iExportDesc, iExportBitMap, eds) == 0)
+            return KErrNone;
+        return KErrCorrupt;
+    }
 
-	if (iHdrV->iExportDescType != KImageHdr_ExpD_SparseBitmap8)
-		return KErrNotSupported;
+    if (iHdrV->iExportDescType != KImageHdr_ExpD_SparseBitmap8)
+        return KErrNotSupported;
 
-	int32_t nbytes = 0;
-	for (int32_t i=0; i<memsz; ++i)
-		if (iExportBitMap[i] != 0xff)
-			++nbytes;				// number of groups of 8
+    int32_t nbytes = 0;
+    for (int32_t i=0; i<memsz; ++i)
+        if (iExportBitMap[i] != 0xff)
+            ++nbytes;				// number of groups of 8
 
-	int32_t exp_extra = mbs + nbytes;
-	if (eds != exp_extra)
-		return KErrCorrupt;
+    int32_t exp_extra = mbs + nbytes;
+    if (eds != exp_extra)
+        return KErrCorrupt;
 
-	const uint8_t* mptr = iHdrV->iExportDesc;
-	const uint8_t* gptr = mptr + mbs;
-	for (int32_t i=0; i<memsz; ++i)
-	{
-		uint32_t mbit = mptr[i>>3] & (1u << (i&7));
-		if (iExportBitMap[i] != 0xff)
-		{
-			if (!mbit || *gptr++ != iExportBitMap[i])
-				return KErrCorrupt;
-		}
-		else if (mbit)
-			return KErrCorrupt;
-	}
+    const uint8_t* mptr = iHdrV->iExportDesc;
+    const uint8_t* gptr = mptr + mbs;
+    for (int32_t i=0; i<memsz; ++i)
+    {
+        uint32_t mbit = mptr[i>>3] & (1u << (i&7));
+        if (iExportBitMap[i] != 0xff)
+        {
+            if (!mbit || *gptr++ != iExportBitMap[i])
+                return KErrCorrupt;
+        }
+        else if (mbit)
+            return KErrCorrupt;
+    }
 
-	return KErrNone;
+    return KErrNone;
 }
 
 void E32Parser::ParseExportBitMap()
 {
-	int32_t nexp = iHdr->iExportDirCount;
-	int32_t memsz = (nexp + 7) >> 3;
-	iExportBitMap = new uint8_t[memsz];
-	memset(iExportBitMap, 0xff, memsz);
-	uint32_t* exports = (uint32_t*)(iBufferedFile + iHdr->iExportDirOffset);
-	uint32_t hdrfmt = HdrFmtFromFlags(iHdr->iFlags);
+    int32_t nexp = iHdr->iExportDirCount;
+    int32_t memsz = (nexp + 7) >> 3;
+    iExportBitMap = new uint8_t[memsz];
+    memset(iExportBitMap, 0xff, memsz);
+    uint32_t* exports = (uint32_t*)(iBufferedFile + iHdr->iExportDirOffset);
+    uint32_t hdrfmt = HdrFmtFromFlags(iHdr->iFlags);
 
-	uint32_t entryPoint = EntryPoint();
+    uint32_t entryPoint = EntryPoint();
 
-	iMissingExports = 0;
+    iMissingExports = 0;
 
-	for (int32_t i=0; i<nexp; i++)
-	{
-		if (exports[i] == entryPoint)
-		{
-			iExportBitMap[i>>3] &= ~(1u << (i & 7));
-			++iMissingExports;
-		}
-	}
+    for (int32_t i=0; i<nexp; i++)
+    {
+        if (exports[i] == entryPoint)
+        {
+            iExportBitMap[i>>3] &= ~(1u << (i & 7));
+            ++iMissingExports;
+        }
+    }
 
-	if (hdrfmt < KImageHdrFmt_V && iMissingExports)
-	    ReportError(BADEXPORTS);
+    if (hdrfmt < KImageHdrFmt_V && iMissingExports)
+        ReportError(BADEXPORTS);
 }
 
 //! Calculate entry point and value for all absent symbols st_value also.
@@ -308,7 +308,7 @@ uint32_t E32Parser::EntryPoint() const
 {
     uint32_t impfmt = ImpFmtFromFlags(iHdr->iFlags);
     uint32_t entryPointOffset = (impfmt == KImageImpFmt_ELF) ? iHdr->iCodeBase : 0;
-	return(iHdr->iEntryPoint + entryPointOffset);
+    return(iHdr->iEntryPoint + entryPointOffset);
 }
 
 

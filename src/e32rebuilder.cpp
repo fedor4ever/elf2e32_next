@@ -34,9 +34,9 @@ E32Rebuilder::E32Rebuilder(Args* param): iReBuildOptions(param)
 
 void E32Rebuilder::Run()
 {
-	iFile = ReadFile(iReBuildOptions->iE32input.c_str(), iFileSize);
-	//for decompression purpose we provide memory buffer large enough to hold uncompressed data
-	if( ((E32ImageHeader*)(iFile))->iCompressionType)
+    iFile = ReadFile(iReBuildOptions->iE32input.c_str(), iFileSize);
+    //for decompression purpose we provide memory buffer large enough to hold uncompressed data
+    if( ((E32ImageHeader*)(iFile))->iCompressionType)
     {
         uint32_t extracted = ((E32ImageHeader*)(iFile))->iCodeOffset;
         extracted += ((E32ImageHeaderJ*)(iFile + sizeof(E32ImageHeader) ))->iUncompressedSize;
@@ -48,14 +48,14 @@ void E32Rebuilder::Run()
         iFileSize = extracted;
     }
 
-	iParser = new E32Parser(iFile, iFileSize);
-	iHdr = iParser->GetFileLayout();
-	iFileSize = iParser->GetFileSize();
-	iFile = iParser->GetBufferedImage();
+    iParser = new E32Parser(iFile, iFileSize);
+    iHdr = iParser->GetFileLayout();
+    iFileSize = iParser->GetFileSize();
+    iFile = iParser->GetBufferedImage();
 
-	EditHeader();
-	ReCompress();
-	SetE32ImageCrc(iFile);
+    EditHeader();
+    ReCompress();
+    SetE32ImageCrc(iFile);
 // We create copy of file object because ValidateE32Image(iParser) break it's consistency.
     std::vector<char> file;
     file.assign(iFile, iFile + iFileSize);
@@ -65,50 +65,50 @@ void E32Rebuilder::Run()
     iParser->GetFileLayout();
 
     ValidateE32Image(iParser);
-	SaveFile(iReBuildOptions->iOutput.c_str(), file.data(), iFileSize);
+    SaveFile(iReBuildOptions->iOutput.c_str(), file.data(), iFileSize);
 }
 
 E32Rebuilder::~E32Rebuilder()
 {
-	delete iParser;
-	delete[] iFile;
+    delete iParser;
+    delete[] iFile;
 }
 
 void E32Rebuilder::EditHeader()
 {
-	if(iReBuildOptions->iUid1)
-		iHdr->iUid1 = iReBuildOptions->iUid1;
-	if(iReBuildOptions->iUid2)
-		iHdr->iUid2 = iReBuildOptions->iUid2;
-	if(iReBuildOptions->iUid3)
-		iHdr->iUid3 = iReBuildOptions->iUid3;
+    if(iReBuildOptions->iUid1)
+        iHdr->iUid1 = iReBuildOptions->iUid1;
+    if(iReBuildOptions->iUid2)
+        iHdr->iUid2 = iReBuildOptions->iUid2;
+    if(iReBuildOptions->iUid3)
+        iHdr->iUid3 = iReBuildOptions->iUid3;
 
-	if(iReBuildOptions->iVersion)
-		iHdr->iModuleVersion = iReBuildOptions->iVersion;
+    if(iReBuildOptions->iVersion)
+        iHdr->iModuleVersion = iReBuildOptions->iVersion;
 
-	ToolVersion tool;
-	iHdr->iVersion.iMajor = tool.iMajor;
-	iHdr->iVersion.iMinor = tool.iMinor;
-	iHdr->iVersion.iBuild = tool.iBuild;
+    ToolVersion tool;
+    iHdr->iVersion.iMajor = tool.iMajor;
+    iHdr->iVersion.iMinor = tool.iMinor;
+    iHdr->iVersion.iBuild = tool.iBuild;
 
-	SymbianTime t;
-	iHdr->iTimeLo = t.TimeLo();
-	iHdr->iTimeHi = t.TimeHi();
+    SymbianTime t;
+    iHdr->iTimeLo = t.TimeLo();
+    iHdr->iTimeHi = t.TimeHi();
 
-	if(iReBuildOptions->iHeapMin || iReBuildOptions->iHeapMax)
-	{
-		iHdr->iHeapSizeMin = iReBuildOptions->iHeapMin;
-		iHdr->iHeapSizeMax = iReBuildOptions->iHeapMax;
-	}
+    if(iReBuildOptions->iHeapMin || iReBuildOptions->iHeapMax)
+    {
+        iHdr->iHeapSizeMin = iReBuildOptions->iHeapMin;
+        iHdr->iHeapSizeMax = iReBuildOptions->iHeapMax;
+    }
 
-	if(iReBuildOptions->iPriority)
-		iHdr->iProcessPriority = iReBuildOptions->iPriority;
+    if(iReBuildOptions->iPriority)
+        iHdr->iProcessPriority = iReBuildOptions->iPriority;
 
-	E32ImageHeaderV* v = iParser->GetE32HdrV();
-	if(iReBuildOptions->iSid)
-		v->iS.iSecureId = iReBuildOptions->iSid;
-	if(iReBuildOptions->iVid)
-		v->iS.iVendorId = iReBuildOptions->iVid;
+    E32ImageHeaderV* v = iParser->GetE32HdrV();
+    if(iReBuildOptions->iSid)
+        v->iS.iSecureId = iReBuildOptions->iSid;
+    if(iReBuildOptions->iVid)
+        v->iS.iVendorId = iReBuildOptions->iVid;
     if(!iReBuildOptions->iCapability.empty())
         v->iS.iCaps = ProcessCapabilities(iReBuildOptions->iCapability);
 }
@@ -154,7 +154,7 @@ void E32Rebuilder::Compress()
 {
     iHdr = (E32ImageHeader*)iFile;
     ReCompress();
-	// We create copy of file object because ValidateE32Image(iParser) break it's consistency.
+    // We create copy of file object because ValidateE32Image(iParser) break it's consistency.
     std::vector<char> file;
     file.assign(iFile, iFile + iFileSize);
     iParser = new E32Parser(iFile, iFileSize);
@@ -162,5 +162,5 @@ void E32Rebuilder::Compress()
 
     if(iReBuildOptions->iForceE32Build == false) // can't build invalid E32Image while validate on
         ValidateE32Image(iParser);
-	SaveFile(iReBuildOptions->iOutput.c_str(), file.data(), iFileSize);
+    SaveFile(iReBuildOptions->iOutput.c_str(), file.data(), iFileSize);
 }

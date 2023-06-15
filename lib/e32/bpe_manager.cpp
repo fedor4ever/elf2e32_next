@@ -46,9 +46,9 @@
 #pragma pack(push, 1)
 struct IndexTableHeader
 {
-	int32_t	iSizeOfData;		// Includes the index and compressed pages
-	int32_t	iDecompressedSize;
-	uint16_t   iNumberOfPages;
+    int32_t	iSizeOfData;		// Includes the index and compressed pages
+    int32_t	iDecompressedSize;
+    uint16_t   iNumberOfPages;
 };
 #pragma pack(pop)
 
@@ -60,23 +60,23 @@ uint32_t DecompressBPE(const char* src, char* dst)
     if(src)
         BPEBlock = (uint8_t*)src;
 
-	const IndexTableHeader* h = (IndexTableHeader*)BPEBlock;
+    const IndexTableHeader* h = (IndexTableHeader*)BPEBlock;
 
-	uint32_t sz = 0;
-	uint8_t* p;
-	const uint16_t* pageIndexTable = (const uint16_t*)(BPEBlock + sizeof(IndexTableHeader));
-	uint8_t* pages = (uint8_t*)(pageIndexTable + h->iNumberOfPages);
+    uint32_t sz = 0;
+    uint8_t* p;
+    const uint16_t* pageIndexTable = (const uint16_t*)(BPEBlock + sizeof(IndexTableHeader));
+    uint8_t* pages = (uint8_t*)(pageIndexTable + h->iNumberOfPages);
 
 //	iterate over Page index table and pages.
 // Every element contain compressed page size
-	for(int i = 0; i < h->iNumberOfPages; i++)
-	{
-		sz += Unpak( ((uint8_t*)dst + i * PAGE_SIZE), pages, *pageIndexTable, p);
-		pages = pages + *pageIndexTable++;
-	}
+    for(int i = 0; i < h->iNumberOfPages; i++)
+    {
+        sz += Unpak( ((uint8_t*)dst + i * PAGE_SIZE), pages, *pageIndexTable, p);
+        pages = pages + *pageIndexTable++;
+    }
     BPEBlock = BPEBlock + h->iSizeOfData;
 
-	return sz;
+    return sz;
 }
 
 static uint8_t* inBlock = nullptr;

@@ -158,17 +158,6 @@ void MakeImportHeader(Symbols symbols, std::string dllName)
     fstr.close();
 }
 
-//Function symbol for any ECOM plugin load
-const char aniExportName[] = "_Z15CreateCAnimDllLv,1;";
-const char ecomExportName[] = "_Z24ImplementationGroupProxyRi,1;";
-const char fsyExportName[] = "CreateFileSystem,1;";
-const char lddExportName[] = "_Z19CreateLogicalDevicev,1;";
-const char pddExportName[] = "_Z20CreatePhysicalDevicev,1;";
-const char pdlExportName[] = "_Z17NewPrinterDeviceLv,1;";
-const char textNotifierExportName[] = "_Z13NotifierArrayv,1;";
-const char varExportName[] = "_Z17VariantInitialisev,1;";
-const char var2ExportName[] = "VariantInitialise,1;";
-
 bool IsRunnable(TargetType type)
 {
     if((type == TargetType::EExe) || (type == TargetType::EExexp)
@@ -177,26 +166,33 @@ bool IsRunnable(TargetType type)
     return false;
 }
 
+//* Return entrypoint symbol for various plugins
 std::string GetEcomExportName(TargetType type)
 {
-    if((type == TargetType::EPlugin) || (type == TargetType::EPlugin3))
-        return ecomExportName;
-    else if(type == TargetType::EAni)
-        return aniExportName;
-    else if(type == TargetType::EFsy)
-        return fsyExportName;    else if(type == TargetType::ELdd)
-        return lddExportName;
-    else if(type == TargetType::EPdd)
-        return pddExportName;
-    else if(type == TargetType::EPdl)
-        return pdlExportName;
-    else if(type == TargetType::ETextNotifier2)
-        return textNotifierExportName;
-    else if(type == TargetType::EVar)
-        return varExportName;
-    else if(type == TargetType::EVar2)
-        return var2ExportName;
-    ReportError(ErrorCodes::INVALIDARGUMENT, "--targettype", std::to_string(type));
+    switch(type)
+    {
+    case TargetType::EAni:
+        return "_Z15CreateCAnimDllLv,1;";
+    case TargetType::EFsy:
+        return "CreateFileSystem,1;";
+    case TargetType::ELdd:
+        return "_Z19CreateLogicalDevicev,1;";
+    case TargetType::EPdd:
+        return "_Z20CreatePhysicalDevicev,1;";
+    case TargetType::EPdl:
+        return "_Z17NewPrinterDeviceLv,1;";
+    case TargetType::EPlugin:
+    case TargetType::EPlugin3: //fallthru
+        return "_Z24ImplementationGroupProxyRi,1;";
+    case TargetType::ETextNotifier2:
+        return "_Z13NotifierArrayv,1;";
+    case TargetType::EVar:
+        return "_Z17VariantInitialisev,1;";
+    case TargetType::EVar2:
+        return "VariantInitialise,1;";
+    default:
+        ReportError(ErrorCodes::INVALIDARGUMENT, "--targettype", std::to_string(type));
+    }
 }
 
 void WarnForNonDllUID()

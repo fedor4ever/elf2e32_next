@@ -46,7 +46,6 @@ enum TargetType
 	//ecom plugins
 	/// TODO (Administrator#1#03/29/20): set right export at ord1
 	EAni = 0x10003b22, // animation plugin and uid2
-	EFep = 0x10005e32, // front-end processor plugin and uid1
 	EFsy = 0x100039df, // file system plugin and uid2
 	ELdd = 0x100000af, // logical device driver with uid2 and exports "_Z19CreateLogicalDevicev,1"
 	EPlugin = 0x10009D8D, // ECom plug-in and uid2
@@ -54,6 +53,26 @@ enum TargetType
 	EPdd = 0x100039d0, // physical device driver with uid2 and exports "_Z20CreatePhysicalDevicev,1"
 	EPdl = 0x10003b1c, // printer device plugin and uid2
 	ETextNotifier2 = 0x101fe38b, // notifier for text window server plugin and uid2
+
+/* eka 1 targets. T9 plugin on N-gage QD for example.
+Mentioned in SDK doc "Polymorphic DLL targettype summary".
+No use cases such target type with that UID2 in Symbian 3 sources.
+On Nokia 5800:
+ - aknfepuiinterface.dll - uid2 0x1000008d, dll
+ - aknfepuiavkonplugin.dll - EPlugin
+ - T9 langs - EPlugin
+ - T9Core.dll - EPlugin
+ - t9rel.dll - uid2 0x1000008d, dll
+ On N-gage QD:
+ - T9fep.fep - EPlugin
+
+ EFep target with UID2 0x10005e32 in SDK mmp.pm marked as deprecated
+ but mentioned only once in SDK as valid. SDK tool has precedency over docs.
+ So it deprecated too.
+*/
+	EFep = 0x10005e32, // front-end processor plugin and uid2
+	//end unused
+
 	EFalseTartget
 };
 

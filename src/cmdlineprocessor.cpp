@@ -60,7 +60,6 @@ TargetType GetTarget(const std::string& fromArgument)
     else if(data == "plugin")
         return TargetType::EPlugin;
     else if(data == "plugin3")
-        return TargetType::EPlugin3;    else if(data == "fep")
         return TargetType::EFep;    else if(data == "textnotifier2")
         return TargetType::ETextNotifier2;
     else if(data == "pdl")
@@ -97,7 +96,8 @@ TargetType GetTarget(const std::string& fromArgument)
     else if((data == "app") || (data == "ctl") ||
             (data == "ecomiic") || (data == "mda") ||
             (data == "mdl") || (data == "notifier") ||
-            (data == "rdl") || (data == "opx") )
+            (data == "rdl") || (data == "opx") ||
+            (data == "fep") )
         ReportError(ErrorCodes::DEPRECATEDTARGET, fromArgument);
 
     ReportError(ErrorCodes::ARGUMENTNAME, fromArgument);

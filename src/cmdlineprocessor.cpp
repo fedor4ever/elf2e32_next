@@ -92,7 +92,7 @@ TargetType GetTarget(const std::string& fromArgument)
         return TargetType::EVar;
     else if(data == "var2")
         return TargetType::EVar2;
-// deprecated tarfets
+// deprecated targets
     else if((data == "app") || (data == "ctl") ||
             (data == "ecomiic") || (data == "mda") ||
             (data == "mdl") || (data == "notifier") ||

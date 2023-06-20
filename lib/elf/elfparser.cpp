@@ -233,7 +233,7 @@ vector<RelocBlock> ElfParser::GetRelocs()
         r.push_back(iPltRel);
     if(iPltRela.rela)
         r.push_back(iPltRela);
-    assert(!r.empty());
+    ReportError(ErrorCodes::ZEROBUFFER, "ELF parser error! No relocations found!");
     return r;
 }
 

@@ -152,7 +152,7 @@ void RelocsProcessor::ProcessVeneers()
 {
     int length = strlen("$Ven$AT$L$$");
     Elf32_Sym* symTab = iElf->SymTab();
-    char* strTab = iElf->StrTab();
+    const char* strTab = iElf->StrTab();
     if (!(symTab && strTab))
         return;
     // Process the symbol table to find Long ARM to Thumb Veneers
@@ -160,7 +160,7 @@ void RelocsProcessor::ProcessVeneers()
     for(; symTab < iElf->Lim(); symTab++)
     {
         if (!symTab->st_name) continue;
-        char* aSymName = strTab + symTab->st_name;
+        const char* aSymName = strTab + symTab->st_name;
         Elf32_Sym* aSym;
 
         if (!strncmp(aSymName, "$Ven$AT$L$$", length))

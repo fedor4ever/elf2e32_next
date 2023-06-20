@@ -59,7 +59,7 @@ void RelocsProcessor::Process()
 {
     ProcessVerInfo();
     iVersionTbl = iElf->VersionTbl();
-    const std::vector<RelocBlock> r = iElf->GetRelocs();
+    std::vector<RelocBlock> r = iElf->GetRelocs();
     for(auto x: r)
     {
         if(x.rel)
@@ -234,6 +234,7 @@ E32Section CreateRelocations(std::vector<LocalReloc>& aRelocations, E32Section& 
     for (auto r: aRelocations)
     {
         int p = r.iRela.r_offset & 0xfffff000;
+        r.iIntermediates.iPage = p;
         if (page != p)
         {            if(pagesize%4 != 0)
             {
@@ -254,7 +255,9 @@ E32Section CreateRelocations(std::vector<LocalReloc>& aRelocations, E32Section& 
         *data++ = (uint16_t)((r.iRela.r_offset & 0xfff) | relocType);
         pagesize += sizeof(uint16_t);
 
-        rp->ValidateLocalReloc(r, relocType, aRelocs.info);
+        r.iIntermediates.iRelocType = relocType;
+        r.iIntermediates.iE32Reloc = (uint16_t)((r.iRela.r_offset & 0xfff) | relocType);
+        rp->ValidateLocalReloc(r, aRelocs.info);
     }
 
     if(aRelocs.info == "CODERELOCKS")
@@ -275,11 +278,22 @@ E32Section CreateRelocations(std::vector<LocalReloc>& aRelocations, E32Section& 
 }
 
 void RelocsProcessor::ValidateLocalReloc(const LocalReloc& r,
-                     uint16_t relocType, const string& name) const
+                    const string& name) const
 {
-    uint16_t t = (uint16_t)((r.iRela.r_offset & 0xfff) | relocType);
-    uint32_t entryType = t & 0xf000;
+    uint32_t entryType = r.iIntermediates.iE32Reloc & 0xf000;
+//    ReportLog("\nentry type: %d E32 reloc: %d E32 reloc type: %d\n", entryType,
+//              r.iIntermediates.iE32Reloc, r.iIntermediates.iRelocType);
+
+    if(!r.iSymbol)
+        ReportLog("Elf symbol not found!\n");
+//    else {
+//        ReportLog("Elf symbol ST_BIND: %d\n", ELF32_ST_BIND(r.iSymbol->st_info) );
+//        ReportLog("Elf symbol st_value: %d\n", r.iSymbol->st_value & ~1);
+//    }
+
     if(entryType!=KTextRelocType && entryType!=KDataRelocType && entryType!=KInferredRelocType) {
+//        ReportLog("bad entry type: %d E32 reloc: %d E32 reloc type: %d\n", entryType,
+//              r.iIntermediates.iE32Reloc, r.iIntermediates.iRelocType);
         if(name == "CODERELOCKS")
             iBadCodeReloc[iElf->GetSymbolNameFromStringTable(r.iSymNdx)].push_back(r);
         else if(name == "DATARELOCKS")
@@ -291,13 +305,14 @@ void RelocsProcessor::ValidateLocalReloc(const LocalReloc& r,
 
 void RelocsProcessor::PrintBadRelocs(const std::string& type, const BadRelocs& rel)
 {
-    if(rel.empty())
+//    if(rel.empty())
         return;
     ReportLog("\n*******************\n");
     for(auto x: rel) {
         ReportLog("Found invalid reloc type for symbol: ");
         ReportLog(x.first);
         ReportLog("\n");
+        ReportLog("r_off : E32Rel : RelType : iPage");
         for(auto r: x.second) {
             uint16_t relocType = Fixup(r.iSymbol);
             uint16_t t = (uint16_t)((r.iRela.r_offset & 0xfff) | relocType);

@@ -96,4 +96,6 @@ private:
 	uint32_t	    iSize = 0;
 };
 
+void SymbolInfo(const Symbol* const s);
+
 #endif // !defined(SYMBOL_H)

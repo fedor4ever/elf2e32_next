@@ -166,11 +166,40 @@ void Symbol::SetAliasName(const std::string& alias) {
 	iAliasName = alias;
 }
 
-
 uint32_t Symbol::SymbolSize() const {
 	return iSize;
 }
 
 void Symbol::SetSymbolSize(uint32_t s) {
 	iSize = s;
+}
+
+void ReportSymbolType(const Symbol* const s)
+{
+    ReportLog("with type: ");
+    SymbolType t = s->CodeDataType();
+    switch(t)
+    {
+        case SymbolType::SymbolTypeNotDefined:
+            ReportLog("SymbolTypeNotDefined");
+            break;
+        case SymbolType::SymbolTypeCode:
+            ReportLog("SymbolTypeCode");
+            break;
+        case SymbolType::SymbolTypeData:
+            ReportLog("SymbolTypeData");
+            break;
+        default:
+            ReportLog("Wrong SymbolType has value: %d", t);
+            break;
+    }
+}
+
+void SymbolInfo(const Symbol* const s)
+{
+    ReportLog("\n\nSymbol: ");
+    ReportLog(s->AliasName());
+    ReportLog(" has size: %d and st_value: %d ", s->SymbolSize(), s->Elf_st_value());
+    ReportSymbolType(s);
+    ReportLog("\n**********************\n");
 }

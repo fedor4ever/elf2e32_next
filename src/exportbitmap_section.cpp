@@ -40,7 +40,7 @@ E32Section ExportBitmapSection::CreateExportBitmap()
     exports++; // skip header
     uint32_t absentExportsCnt = 0;
 
-    for(int i = 0; i < iExportsCount; ++i)
+    for(uint32_t i = 0; i < iExportsCount; ++i)
     {
         if (exports[i] == iAbsentVal)
         {

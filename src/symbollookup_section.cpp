@@ -82,7 +82,7 @@ E32Section SymbolLookupSection::SymlookSection()
 
 void SymbolLookupSection::InitHeader(E32EpocExpSymInfoHdr& s)
 {
-    uint32_t offset = sizeof(E32EpocExpSymInfoHdr);
+    int32_t offset = sizeof(E32EpocExpSymInfoHdr);
 	assert(offset == s.iSymbolTblOffset);
 
 	s.iSymCount = (uint16_t)iSymAddrTab.size();

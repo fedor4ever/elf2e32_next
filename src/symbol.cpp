@@ -150,10 +150,9 @@ void Symbol::SetSymbolStatus(SymbolStatus status) {
 	iSymbolStatus = status;
 }
 
-// use this function
 std::string Symbol::AliasName() const {
     if(iAliasName.empty())
-        return iSymbolName;
+        return "None";
     return iAliasName;
 }
 

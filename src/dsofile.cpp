@@ -568,7 +568,7 @@ void InfoPrint(const char* hdr, uint32_t& pos, const uint32_t offset)
 string Linkas(Args* arg)
 {
     if(arg->iLinkas.empty())
-        return;
+        ReportError(ErrorCodes::ZEROBUFFER, "Internal error: --linkas still not set!");
 
     string tmp = arg->iLinkas;
 

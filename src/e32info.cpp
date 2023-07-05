@@ -19,6 +19,7 @@
 
 #include <cstdio>
 #include <cstring>
+#include <cinttypes>
 
 #include "symbol.h"
 #include "e32info.h"
@@ -215,7 +216,7 @@ void E32Info::HeaderInfo()
     if (hdrfmt >= KImageHdrFmt_V)
         printf("Header CRC:\t%08x\n", iHdr->iHeaderCrc);
 
-    printf("File Size:\t%08x\n", iE32->GetFileSize());
+    printf("File Size:\t%08" PRIxMAX "\n", iE32->GetFileSize());
     printf("Code Size:\t%08x\n", iHdr->iCodeSize);
     printf("Data Size:\t%08x\n", iHdr->iDataSize);
     printf("Compression:\t%08x\n", iHdr->iCompressionType);
@@ -321,7 +322,7 @@ void E32Info::SecurityInfo(bool aCapNames)
     uint64_t caps = v->iS.iCaps;
     printf("Secure ID: %08x\n", v->iS.iSecureId);
     printf("Vendor ID: %08x\n", v->iS.iVendorId);
-    printf("Capabilities: %08x %08x\n", caps<<32, caps>>32);
+    printf("Capabilities: %08" PRIu64 " %08" PRIu64 "\n", caps<<32, caps>>32);
 
     if(!aCapNames)
         return;
@@ -540,7 +541,7 @@ void PrintHexData(const void *pos, size_t length)
     size_t i = 0;
     for(; (i + LINE_MAX) < length; i += LINE_MAX)
     {
-        printf("%06x: ", i);
+        printf("%06" PRIxMAX ": ", i);
         memcpy(str, p + i, LINE_MAX);
         for(size_t j = 0; j < LINE_MAX; j++)
         {
@@ -562,7 +563,7 @@ void PrintHexData(const void *pos, size_t length)
     memset(str, ' ', LINE_MAX);
     memcpy(str, (p + i), diff);
 
-    printf("%06x: ", i);
+    printf("%06" PRIxMAX ": ", i);
     for(uint32_t j = 0; j < diff; j++)
     {
         printf("%02x", (unsigned char)str[j]);

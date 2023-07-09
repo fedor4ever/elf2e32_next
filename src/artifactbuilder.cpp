@@ -15,8 +15,13 @@
 //
 //
 
-#include <fstream>
 #include <vector>
+#include <cstdint>
+#include <fstream>
+#include <iomanip>
+#include <sstream>
+#include <iostream>
+#include <algorithm>
 
 #include "task.hpp"
 #include "symbol.h"
@@ -34,6 +39,7 @@ void FixHeaderName(Args* fix);
 void MakeImportHeader(Symbols symbols, std::string dllName);
 void ValidateOptions(Args* arg);
 void ValidateCaps(Args* arg);
+std::string ResolveLinkAsUID(const Args* arg);
 
 ArtifactBuilder::ArtifactBuilder(Args* param): iOpts(param)
 {
@@ -219,23 +225,86 @@ void DeduceLINKAS(Args* arg)
         {
             linkas = arg->iOutput;
             linkas.insert(linkas.find_last_of("."), "{000a0000}");
+            linkas.insert(linkas.find_last_of("."), arg->iLinkasUid);
         }
         else if(!arg->iDefoutput.empty())
         {
             linkas = arg->iDefoutput;
-            linkas.insert(linkas.find_last_of("."), "{000a0000}");
             linkas.erase(linkas.find_last_of("."));
+            linkas += "{000a0000}";
+            linkas += arg->iLinkasUid;
             linkas += ".dll";
         }
         else if(!arg->iDso.empty())
         {
             linkas = arg->iDso;
-            linkas.insert(linkas.find_last_of("."), "{000a0000}");
             linkas.erase(linkas.find_last_of("."));
+            linkas += "{000a0000}";
+            linkas += arg->iLinkasUid;
             linkas += ".dll";
         }
         arg->iLinkas = FileNameFromPath(linkas);
     }
+}
+
+const std::string linkAsError = "Failure while reconstructing linkas option from UID3";
+std::string ResolveLinkAsUID(Args* arg)
+{
+    if(arg->iLinkasUid.size() > 10) ReportError(ErrorCodes::ARGUMENTNAME, arg->iLinkasUid);
+    if(arg->iLinkasUid.size() == 9) ReportError(ErrorCodes::ARGUMENTNAME, arg->iLinkasUid);
+    if((arg->iLinkasUid.size() == 10) && (arg->iLinkasUid[0] != '0') &&
+        ((arg->iLinkasUid[1] != 'x') || (arg->iLinkasUid[1] != 'X'))) ReportError(ErrorCodes::ARGUMENTNAME, arg->iLinkasUid);
+    std::stringstream buf;
+
+//    strtoul() return zero for zero strings("0x00") and no valid conversion could be performed
+//    but zero UID3 is valid
+    if((arg->iLinkasUid[1] == 'x') || (arg->iLinkasUid[1] == 'x'))
+    {
+        buf << "[";
+        size_t count = std::count_if( arg->iLinkasUid.begin(), arg->iLinkasUid.end(), []( char c ){return c == '0';});
+        // first comes defaull zero hex UID
+        if((count + 1) == arg->iLinkasUid.size())
+        {
+            buf << "00000000" << "]";
+            if(buf.bad())
+                ReportError(ErrorCodes::ZEROBUFFER, linkAsError);
+            return buf.str();
+        }
+        // shertened zero hex UID
+        if(arg->iLinkasUid.size() < 10)
+        {
+            std::string tmp;
+            tmp.append(10 - arg->iLinkasUid.size(), '0');
+            tmp += arg->iLinkasUid.substr(2, arg->iLinkasUid.size());
+            buf << tmp << "]";
+            if(buf.bad())
+                ReportError(ErrorCodes::ZEROBUFFER, linkAsError);
+            return buf.str();
+        }
+        // fully qualified hex UID
+        if(arg->iLinkasUid.size() == 10)
+        {
+            buf << arg->iLinkasUid.substr(2, arg->iLinkasUid.size()) << "]";
+            if(buf.bad())
+                ReportError(ErrorCodes::ZEROBUFFER, linkAsError);
+            return buf.str();
+        }
+        ReportError(ErrorCodes::ARGUMENTNAME, arg->iLinkasUid);
+    }
+
+    uint32_t iUid3 = strtoul(arg->iLinkasUid.c_str(), nullptr, 0);
+//    no valid conversion could be performed, a zero value is returned
+    if(iUid3 == 0)
+        ReportError(ErrorCodes::ZEROBUFFER, "No valid conversion could be performed,"
+                    " a zero value is returned while convert UID3 to digit");
+    if((iUid3 == ULONG_MAX) && (errno == ERANGE))
+        ReportError(ErrorCodes::ZEROBUFFER, "Value read is out of the range while convert UID3 to digit");
+
+    buf << "[" << std::setw(8) << std::hex << std::setfill('0') << iUid3 << "]";
+
+    if(buf.bad())
+        ReportError(ErrorCodes::ZEROBUFFER, linkAsError);
+    return buf.str();
 }
 
 /** \brief Verifies and correct wrong input options
@@ -289,6 +358,7 @@ void ValidateOptions(Args* arg)
         targetType = arg->iTargettype;
     }
 
+    arg->iLinkasUid = ResolveLinkAsUID(arg);
     DeduceLINKAS(arg);
 
     if((targetType == TargetType::EPlugin) && arg->iSysdef.empty())

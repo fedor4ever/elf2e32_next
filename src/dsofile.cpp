@@ -34,7 +34,7 @@ void InfoPrint(const char* hdr, uint32_t& pos, const uint32_t offset);
 void SetElfSymbols(Symbol* symbol, Elf32_Sym* elfSymbol, uint32_t index);
 
 string DSOName(const string& linkAs);
-string Linkas(Args* arg);
+string Linkas(const Args* arg);
 
 //enum for section index
 enum SECTION_INDEX
@@ -202,7 +202,7 @@ void DSOFile::InitVersionTable(const Args* opts)
     iDSOSymNameStrTbl += tmp;
     iDSOSymNameStrTbl.push_back(0);
 
-    tmp = Linkas(opts);
+    tmp = opts->iLinkas;
     iVersionDef[1].vd_ndx = DEFAULT_VERSION;
     iVersionDef[1].vd_cnt = 1;
     iVersionDef[1].vd_flags = 0;
@@ -565,31 +565,10 @@ void InfoPrint(const char* hdr, uint32_t& pos, const uint32_t offset)
 #endif // EXPLORE_DSO_BUILD
 }
 
-string Linkas(Args* arg)
-{
-    if(arg->iLinkas.empty())
-        ReportError(ErrorCodes::ZEROBUFFER, "Internal error: --linkas still not set!");
-
-    string tmp = arg->iLinkas;
-
-    string DSOName(tmp);
-    std::size_t found = DSOName.find_last_of(".");
-    DSOName.erase(found + 1);
-    DSOName += "dso";
-
-    arg->iLinkasUid.insert(arg->iLinkasUid.begin(), '[');
-    arg->iLinkasUid += ']';
-    found = tmp.find_last_of(".");
-    tmp.insert(found, arg->iLinkasUid);
-
-    return tmp;
-}
-
 string DSOName(const string& linkAs)
 {
     string tmp = linkAs;
-    std::size_t found = tmp.find_last_of(".");
-    tmp.erase(found + 1);
-    tmp += "dso";
+    tmp.erase(tmp.find_first_of("["));
+    tmp += ".dso";
     return tmp;
 }

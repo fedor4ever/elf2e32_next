@@ -200,6 +200,7 @@ std::string GetEcomExportName(TargetType type)
     default:
         ReportError(ErrorCodes::INVALIDARGUMENT, "--targettype", std::to_string(type));
     }
+    ReportError(ErrorCodes::INVALIDARGUMENT, "--targettype", std::to_string(type));
 }
 
 void WarnForNonDllUID()

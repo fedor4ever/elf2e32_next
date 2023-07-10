@@ -6,16 +6,31 @@
 
 using namespace std;
 string LinkAsUID(std::string UID);
+string DeduceDLLName(const std::string name, const std::string UID3, const std::string version);
 string DSOName(const string& linkAs);
 
-const string dllName = "basicdll{000a0000}[e84e1a0e].dll";
+const string dllName = "basicdll.dll";
+const string version = "10.1";
+const string version0 = "10.0";
+
+uint32_t SetToolVersion(const char* str);
+string NormalizeToolVersion(const char* str);
 
 int main()
 {
     cout << "Hello world!" << endl;
     cout << LinkAsUID("2000") << " ... " << LinkAsUID("0xe84e1a0e") << " ... " << LinkAsUID("0x0") << endl;
     cout << LinkAsUID("0x01") << endl;
-    cout << "Linkas: " << dllName << "; DSO name: " << DSOName(dllName) << endl;
+
+    string tmp = DeduceDLLName(dllName, "2000", version);
+    cout << "Linkas: " << tmp << "; DSO name: " << DSOName(tmp) << endl;
+    cout << version <<": " <<  NormalizeToolVersion(version.c_str()) << "; " << version0 <<
+             ": " << NormalizeToolVersion(version0.c_str()) << endl;
+
+    tmp = DeduceDLLName(dllName, "2000", version);
+    cout << "Playing with DLLs\n";
+    cout << "Input: " << dllName << " " << "2000" << " " << version << " tansformed to: " << DeduceDLLName(dllName, "2000", version) << endl;
+
     return 0;
 }
 
@@ -74,4 +89,28 @@ string DSOName(const string& linkAs)
     tmp.erase(tmp.find_first_of("["));
     tmp += ".dso";
     return tmp;
+}
+
+uint32_t SetToolVersion(const char* str)
+{
+	uint32_t hi, lo;
+	hi = std::stoi(str);
+    string t(str);
+    lo = std::stoi(t.substr( t.find_first_of(".,;") + 1 ));
+    return ((hi & 0xFFFF) << 16) | (lo & 0xFFFF);
+}
+
+string NormalizeToolVersion(const char* str)
+{
+    stringstream buf;
+    buf << "{" << setw(8) << hex << std::setfill('0') << SetToolVersion(str) << "}";
+    return buf.str();
+}
+
+string DeduceDLLName(const std::string name, const std::string UID3, const std::string version)
+{
+    string tmp = name;
+    tmp.insert(tmp.find_last_of("."), NormalizeToolVersion(version.c_str()));
+    tmp.insert(tmp.find_last_of("."), LinkAsUID(UID3));
+    return tmp ;
 }

@@ -36,6 +36,7 @@ uint32_t GetFpuType(const std::string& fromArgument)
     else if(data == "vfpv3D16")
         return TFloatingPointType::EFpTypeVFPv3D16;
     ReportError(ErrorCodes::ARGUMENTNAME, fromArgument);
+    return 0;
 }
 
 Paging GetPaging(const std::string& fromArgument)
@@ -48,6 +49,7 @@ Paging GetPaging(const std::string& fromArgument)
     else if(data == "default")
         return Paging::DEFAULT;
     ReportError(ErrorCodes::ARGUMENTNAME, fromArgument);
+    return 0;
 }
 
 TargetType GetTarget(const std::string& fromArgument)
@@ -101,6 +103,7 @@ TargetType GetTarget(const std::string& fromArgument)
         ReportError(ErrorCodes::DEPRECATEDTARGET, fromArgument);
 
     ReportError(ErrorCodes::ARGUMENTNAME, fromArgument);
+    return 0;
 }
 
 void VarningForDeprecatedUID(uint32_t UID2)
@@ -138,6 +141,7 @@ uint16_t ProcessPriority(const std::string& fromArgument)
 	if(str == "supervisor")
 		return (uint16_t)TProcessPriority::EPrioritySupervisor;
 	ReportError(ErrorCodes::ARGUMENTNAME, fromArgument);
+    return 0;
 }
 
 // parse negative capabilities "ALL-TCB-TrustedUI" but "ALL+TCB-TrustedUI" not allowed

@@ -40,6 +40,7 @@ void MakeImportHeader(Symbols symbols, std::string dllName);
 void ValidateOptions(Args* arg);
 void ValidateCaps(Args* arg);
 std::string ResolveLinkAsUID(const Args* arg);
+std::string VersionAsStr(uint32_t version);
 
 ArtifactBuilder::ArtifactBuilder(Args* param): iOpts(param)
 {
@@ -216,22 +217,32 @@ void WarnForNonExeUID()
     ReportLog("Set uid1 to KExecutableImageUidValue\n");    ReportLog("********************\n");
 }
 
+std::string VersionAsStr(uint32_t version)
+{
+    if((version == 0x000a0000u) || (version == 0))
+        return "{000a0000}";
+    std::stringstream buf;
+    buf << "{" << std::setw(8) << std::hex << std::setfill('0') << version << "}";
+    return buf.str();
+}
+
 void DeduceLINKAS(Args* arg)
 {
     if(arg->iLinkas.empty() && (arg->iTargettype != TargetType::EInvalidTargetType))
     {
-        std::string linkas;
+        std::string linkas, version;
+        version = VersionAsStr(arg->iVersion);
         if(!arg->iOutput.empty())
         {
             linkas = arg->iOutput;
-            linkas.insert(linkas.find_last_of("."), "{000a0000}");
+            linkas.insert(linkas.find_last_of("."), version);
             linkas.insert(linkas.find_last_of("."), arg->iLinkasUid);
         }
         else if(!arg->iDefoutput.empty())
         {
             linkas = arg->iDefoutput;
             linkas.erase(linkas.find_last_of("."));
-            linkas += "{000a0000}";
+            linkas += version;
             linkas += arg->iLinkasUid;
             linkas += ".dll";
         }
@@ -239,7 +250,7 @@ void DeduceLINKAS(Args* arg)
         {
             linkas = arg->iDso;
             linkas.erase(linkas.find_last_of("."));
-            linkas += "{000a0000}";
+            linkas += version;
             linkas += arg->iLinkasUid;
             linkas += ".dll";
         }

@@ -214,7 +214,11 @@ uint32_t SetToolVersion(const char* str)
 {
 	uint32_t hi, lo;
 	hi = std::stoi(str);
+	if(hi > USHRT_MAX)
+        ReportError(ErrorCodes::VALUEOVERFLOW, "--VERSION [major]");
     string t(str);
     lo = std::stoi(t.substr( t.find_first_of(".,;") + 1 ));
+	if(lo > USHRT_MAX)
+        ReportError(ErrorCodes::VALUEOVERFLOW, "--VERSION [minor]");
     return ((hi & 0xFFFF) << 16) | (lo & 0xFFFF);
 }

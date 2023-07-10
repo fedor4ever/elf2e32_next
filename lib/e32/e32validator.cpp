@@ -314,6 +314,8 @@ void E32Validator::ValidateHeader()
             "exception descriptor. Must be not less than E32ImageHeader::iCodeSize");
 }
 
+//< That check comes from f32image.h
+//< see TInt E32ImageHeaderV::ValidateExportDescription() const
 void E32Validator::ValidateExportDescription() const
 {
     // check export description...
@@ -512,7 +514,7 @@ void E32Validator::ValidateImports() const
         ThrowIfTrue(name[-1], "import dll name(s) doesn't overflows import section");
 
 		// process import count...
-		ThrowIfTrue(block->iNumberOfImports >= 0x80000000u/sizeof(uint32_t),
+		ThrowIfTrue(block->iNumberOfImports >= (int32_t)(0x80000000u/sizeof(uint32_t)),
             "number of imports fit into a signed integer");
 
 		// process import data...

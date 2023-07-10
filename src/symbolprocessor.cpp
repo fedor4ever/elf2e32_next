@@ -194,15 +194,11 @@ void SymbolProcessor::ProcessElfSymbols()
 
     iSymbols.sort(SortSymbolsByName);
 
-    auto itDef1 = std::set_difference(iSymbols.begin(), iSymbols.end(),
-                        elfSym.begin(), elfSym.end(),
-                        std::inserter(absentSymbols, absentSymbols.begin()),
-                        SortSymbolsByName);
+    std::set_difference(iSymbols.begin(), iSymbols.end(), elfSym.begin(), elfSym.end(),
+            std::inserter(absentSymbols, absentSymbols.begin()), SortSymbolsByName);
 
-    auto itDef2 = std::set_difference(elfSym.begin(), elfSym.end(),
-                        iSymbols.begin(), iSymbols.end(),
-                        std::inserter(newsymbols, newsymbols.begin()),
-                        SortSymbolsByName);
+    std::set_difference(elfSym.begin(), elfSym.end(), iSymbols.begin(), iSymbols.end(),
+            std::inserter(newsymbols, newsymbols.begin()), SortSymbolsByName);
 
     // dealing with new symbols
     std::list<string> ls;

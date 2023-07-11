@@ -168,7 +168,7 @@ void RelocsProcessor::ProcessVeneers()
             aSym = symTab;
             Elf32_Addr r_offset = aSym->st_value;
             const Elf32_Addr aOffset = r_offset + 4;
-            Elf32_Word	aInstruction = iElf->GetRelocationPlace(r_offset);
+            Elf32_Word	aInstruction = iElf->GetRelocationValue(r_offset);
             bool aRelocEntryFound = false;
 
             for(auto x: iCodeRelocations)
@@ -180,7 +180,7 @@ void RelocsProcessor::ProcessVeneers()
                     break;
                 }
             }
-            Elf32_Word aPointer = iElf->GetRelocationPlace(aOffset);
+            Elf32_Word aPointer = iElf->GetRelocationValue(aOffset);
 
             /* If the symbol addresses a Thumb instruction, its value is the
              * address of the instruction with bit zero set (in a

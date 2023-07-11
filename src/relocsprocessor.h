@@ -55,6 +55,13 @@ struct ElfImportRelocation
 typedef std::vector<ElfImportRelocation> Relocations;
 typedef std::map<std::string, Relocations> ImportLibs;
 
+struct RelocLocalValues
+{
+    uint16_t iE32Reloc;  // = (uint16_t)((r.iRela.r_offset & 0xfff) | relocType);
+    uint16_t iRelocType; // = rp->Fixup(r.iSymbol);
+    int      iPage;      // = r.iRela.r_offset & 0xfffff000;
+};
+
 struct LocalReloc
 {
     uint32_t	iSymNdx;
@@ -68,6 +75,7 @@ struct LocalReloc
     /// TODO (Administrator#1#06/26/20): Use relocation types directly:
     //      KReservedRelocType, KTextRelocType, KDataRelocType, KInferredRelocType
     ESegmentType iSegmentType = ESegmentUndefined;
+    RelocLocalValues iIntermediates;
 };
 
 typedef std::map<std::string, std::vector<LocalReloc> > BadRelocs;
@@ -90,7 +98,7 @@ class RelocsProcessor
         uint16_t Fixup(const Elf32_Sym* s);
         size_t ExportTableAddress() const;
         void ValidateLocalReloc(const LocalReloc& r,
-                    uint16_t relocType, const std::string& name) const;
+                    const std::string& name) const;
 
     private:
         void RelocsFromSymbols();

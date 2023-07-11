@@ -49,7 +49,7 @@ Paging GetPaging(const std::string& fromArgument)
     else if(data == "default")
         return Paging::DEFAULT;
     ReportError(ErrorCodes::ARGUMENTNAME, fromArgument);
-    return 0;
+    return Paging::DEFAULT; //unreachable anyway
 }
 
 TargetType GetTarget(const std::string& fromArgument)
@@ -103,7 +103,7 @@ TargetType GetTarget(const std::string& fromArgument)
         ReportError(ErrorCodes::DEPRECATEDTARGET, fromArgument);
 
     ReportError(ErrorCodes::ARGUMENTNAME, fromArgument);
-    return 0;
+    return TargetType::EInvalidTargetType;
 }
 
 void VarningForDeprecatedUID(uint32_t UID2)

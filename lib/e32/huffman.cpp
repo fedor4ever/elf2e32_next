@@ -195,7 +195,7 @@ void TFileOutput::FlushL()
 TBufferedOutput::TBufferedOutput(const char* dst, uint32_t dstSize):
     iOutStream(dst)
 {
-    Set(dst, dstSize);
+    Set((uint8_t *)dst, dstSize);
 }
 
 ptrdiff_t TBufferedOutput::GetCompressedSize() const

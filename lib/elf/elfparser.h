@@ -49,6 +49,7 @@ class ElfParser
         const char* DataSegment() const;
 
         Elf32_Word GetRelocationOffset(Elf32_Addr r_offset) const;
+        Elf32_Word GetRelocationValue(Elf32_Addr r_offset) const;
         Elf32_Word* GetRelocationPlace(Elf32_Addr r_offset) const;
     public:
         uint32_t ImportsCount() const;

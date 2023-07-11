@@ -574,6 +574,12 @@ Elf32_Word* ElfParser::GetRelocationPlace(Elf32_Addr r_offset) const
 	return place;
 }
 
+Elf32_Word ElfParser::GetRelocationValue(Elf32_Addr offset) const
+{
+    Elf32_Word* aLocVal = GetRelocationPlace(offset);
+    return *aLocVal;
+}
+
 uint16_t ElfParser::Segment(const Elf32_Sym* s) const
 {
     if(!s)

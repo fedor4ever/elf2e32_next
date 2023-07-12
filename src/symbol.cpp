@@ -151,8 +151,6 @@ void Symbol::SetSymbolStatus(SymbolStatus status) {
 }
 
 std::string Symbol::AliasName() const {
-    if(iAliasName.empty())
-        return "None";
     return iAliasName;
 }
 

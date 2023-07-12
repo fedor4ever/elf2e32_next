@@ -87,7 +87,7 @@ private:
 
 	SymbolStatus    iSymbolStatus = SymbolStatus::Missing;
 	std::string		iSymbolName;
-	std::string		iAliasName;
+	std::string		iAliasName = "None";
 	SymbolType	    iSymbolType = SymbolTypeNotDefined;
 	uint32_t	    iOrdinal  = -1;
 	std::string		iComment;

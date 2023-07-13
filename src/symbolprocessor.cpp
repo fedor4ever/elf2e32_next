@@ -245,7 +245,7 @@ void SymbolProcessor::ProcessElfSymbols()
         }
     }
 
-    SetElf_st_value(elfSym);
+    MapAbsentWithElfSymbols(elfSym);
     CheckForErrors(iArgs->iUnfrozen, ls, iArgs->iElfinput);
     ls.clear();
     iSymbols.merge(filtered);
@@ -269,7 +269,10 @@ void SymbolProcessor::CheckForErrors(bool unfrozen, list<string> missedSymbols, 
     }
 }
 
-void SymbolProcessor::SetElf_st_value(const Symbols& fromElf)
+/** Symbols marked as absent in the def file but present in the
+ elf file are mapped to the symbols present in the elf file and reset the absent flag.
+ Also warn for that symbol(s) */
+void SymbolProcessor::MapAbsentWithElfSymbols(const Symbols& fromElf)
 {
     auto it1 = iSymbols.begin();
     auto it2 = fromElf.begin();

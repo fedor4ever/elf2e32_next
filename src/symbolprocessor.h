@@ -59,7 +59,7 @@ class SymbolProcessor
         Symbols GetDSOSymbols();
         Symbols GetElfExports();
         Symbols FromSysdef();
-        void SetElf_st_value(const Symbols& fromElf);
+        void MapAbsentWithElfSymbols(const Symbols& fromElf);
         void CheckForErrors(bool unfrozen, std::list<std::string> missedSymbols, const std::string& src);
     private:
         const Args* iArgs = nullptr;

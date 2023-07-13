@@ -276,6 +276,10 @@ void SymbolProcessor::MapAbsentWithElfSymbols(const Symbols& fromElf)
 {
     auto it1 = iSymbols.begin();
     auto it2 = fromElf.begin();
+
+    if(it2 == fromElf.end())
+        ReportError(ErrorCodes::ZEROBUFFER, "DLL Elf file has no exports! Check symbol(s) visibility!");
+
     while((it1 != iSymbols.end()) || (it2 != fromElf.end()))
     {
         if((*it1)->AliasName() > (*it2)->AliasName())

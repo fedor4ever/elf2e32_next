@@ -17,6 +17,7 @@
 
 
 #include <string.h>
+#include <sstream>
 
 #include "symbol.h"
 #include "e32file.h"
@@ -88,10 +89,11 @@ void E32File::WriteE32File()
 {
     /**< SDK versions ignore exported symbols for EXE */
     if(!iSymbols.empty() && IsSimpleEXE(iE32Opts->iTargettype)) {
-        const char t[] = "exported symbol(s)\n";
-        ReportWarning(ErrorCodes::BADFILE, iE32Opts->iOutput.c_str(), t);
         if(iE32Opts->iVerbose)
         {
+            std::stringstream buf;
+            buf << iSymbols.size() << " exported symbol(s)\n";
+            ReportWarning(ErrorCodes::BADFILE, iE32Opts->iOutput.c_str(), buf.str());
             ReportLog("*********************\n");
             for(auto x: iSymbols)
                 ReportLog(x->AliasName() + "\n");

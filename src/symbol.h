@@ -12,9 +12,10 @@
 // This class holds advanced symbol info
 //
 //
-// This class provides 2 functions to obtain symbol name:
+// This class provides 3 functions to obtain symbol name:
 //   Name() - return it raw name
 //   AliasName() - symbol name used in exports symbol table
+//   RawAliasName() - alias for symbol name used in .def file
 // Therefore use AliasName() where possible.
 //
 // This class provides 2 functions to set symbol name:
@@ -62,6 +63,7 @@ public:
 	void SetName(const std::string& symbolName);
 
 	std::string AliasName() const;
+	std::string RawAliasName() const;
 	void SetAliasName(const std::string& symbolName);
 
 	int GetSymbolStatus() const;
@@ -87,7 +89,7 @@ private:
 
 	SymbolStatus    iSymbolStatus = SymbolStatus::Missing;
 	std::string		iSymbolName;
-	std::string		iAliasName = "None";
+	std::string		iAliasName;
 	SymbolType	    iSymbolType = SymbolTypeNotDefined;
 	uint32_t	    iOrdinal  = -1;
 	std::string		iComment;

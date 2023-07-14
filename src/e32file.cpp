@@ -187,7 +187,7 @@ void E32File::WriteE32File()
 
     SetE32ImageCrc(iHeader.data());
 
-// Compression doesn't work so we use E32Rebuilder to compress.
+// Compression doesn't work so we use E32Rebuilder to compress and save to file.
 //    E32SectionUnit s(iHeader);
 //    E32Parser* p = new E32Parser(s.data(), s.size());
 //    p->GetFileLayout();

@@ -24,6 +24,7 @@
 
 class Args;
 class Symbol;
+class E32Parser;
 class ElfParser;
 
 typedef std::list <Symbol*>	Symbols;
@@ -124,5 +125,7 @@ void BuildE32Image(const Args* args, const ElfParser* elfParser, const Symbols& 
 bool VerboseOut();
 
 std::string ToLower(const std::string& s);
+
+void CheckE32CRC(const E32Parser* parser);
 
 #endif // COMMON_HPP_INCLUDED

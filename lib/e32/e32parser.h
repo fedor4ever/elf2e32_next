@@ -31,6 +31,7 @@
 #ifndef E32PARSER_H
 #define E32PARSER_H
 
+#include <ios>
 #include <cstdint>
 
 struct E32ImageHeader;

@@ -11,7 +11,7 @@
 				<Option object_output="obj/Debug/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
-				<Option parameters='--sid=0xe8181dba --version=10.0 --uid1=0x1000007a --uid2=0x00000000 --uid3=0xe8181dba --capability=none --fpu=softvfp --targettype=EXE --output=cmd_teste32.exe --elfinput=&quot;tests\Neverhoode.exe.elf&quot; --linkas=cmd_test{000a0000}[e8181dba].exe --libpath=\Symbian\S60_5th_Edition_SDK_v1.0\epoc32\release\armv5\LIB --force' />
+				<Option parameters='--capability=ReadUserData --definput=&quot;tests\basicdll.def&quot; --defoutput=&quot;..\tests\tmp\basicdll.def&quot; --elfinput=&quot;tests\basicdll.elf&quot; --output=&quot;tests\tmp\basicdll.dll&quot; --libpath=&quot;tests\SDK_libs&quot; --linkas=basicdll{000a0001}[e84e1a0e].dll --dso=&quot;tests\tmp\basicdll.dso&quot; --fpu=softvfp --uid2=0x1000008d --uid3=0xe84e1a0e --targettype=DLL --debuggable --version=10.1' />
 				<Compiler>
 					<Add option="-O3" />
 					<Add option="-Winit-self" />
@@ -44,19 +44,26 @@
 		</Build>
 		<Compiler>
 			<Add option="-Wall" />
-			<Add option="-fexceptions -fpermissive" />
+			<Add option="-fexceptions -fpermissive -static-libgcc -static-libstdc++" />
 			<Add option="-D_DEBUG" />
 			<Add directory="include" />
 			<Add directory="src" />
 			<Add directory="lib/elf" />
 			<Add directory="lib/e32" />
 		</Compiler>
+		<Linker>
+			<Add option="-static-libstdc++" />
+			<Add option="-static-libgcc" />
+			<Add option="-static" />
+			<Add option="--trace" />
+		</Linker>
 		<Unit filename="include/elf2e32_opt.hpp" />
 		<Unit filename="include/elf2e32_version.hpp" />
 		<Unit filename="include/task.hpp" />
 		<Unit filename="lib/e32/bpe_manager.cpp" />
 		<Unit filename="lib/e32/byte_pair.cpp" />
 		<Unit filename="lib/e32/byte_pair.h" />
+		<Unit filename="lib/e32/checke32crc.cpp" />
 		<Unit filename="lib/e32/checksum.cpp" />
 		<Unit filename="lib/e32/deflate_manger.cpp" />
 		<Unit filename="lib/e32/deflatecompress.cpp" />
@@ -127,9 +134,6 @@
 		<Unit filename="src/symbolprocessor.cpp" />
 		<Unit filename="src/symbolprocessor.h" />
 		<Extensions>
-			<code_completion />
-			<envvars />
-			<debugger />
 			<lib_finder disable_auto="1" />
 		</Extensions>
 	</Project>

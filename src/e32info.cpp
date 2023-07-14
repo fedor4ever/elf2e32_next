@@ -606,7 +606,10 @@ void E32Info::Run()
 
     // We ignore validate E32 Image when E32Info used for logging on freshly created E32 Image
     if((iParam->iForceE32Build == false) && iParam->iE32input.empty() )
+    {
         ValidateE32Image(iE32);
+        CheckE32CRC(iE32);
+    }
 
     for(auto x: iParam->iDump)
     {

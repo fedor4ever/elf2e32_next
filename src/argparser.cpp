@@ -88,6 +88,7 @@ static struct option long_opts[] =
     {"man-build-artifacts",   no_argument, nullptr, OptionsType::EMANARTIFACTS},
     {"help",                  no_argument, nullptr, OptionsType::EHELP},
     // dev options
+    {"filecrc",         optional_argument, nullptr, OptionsType::FILECRC},
     {"time",            required_argument, nullptr, OptionsType::TIME},
     {"verbose",               no_argument, nullptr, OptionsType::VERBOSE},
     {"force",                 no_argument, nullptr, OptionsType::FORCEE32BUILD},
@@ -389,6 +390,13 @@ bool ArgParser::Parse(Args* arg) const
                 string t(optarg);
                 arg->iTime[1] = strtoul(t.substr( t.find_first_of(",") + 1 ).c_str(), nullptr, 16);
             }
+                ArgInfo(optname ,optarg);
+                break;
+            case OptionsType::FILECRC:
+                if(optarg)
+                    arg->iFileCrc = optarg;
+                else
+                    arg->iFileCrc = "0";
                 ArgInfo(optname ,optarg);
                 break;
             case OptionsType::VERBOSE:

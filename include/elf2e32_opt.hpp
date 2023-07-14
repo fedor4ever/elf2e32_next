@@ -80,6 +80,7 @@ struct OptionsType
         EMANARTIFACTS,
         EHELP,
         // dev options
+        FILECRC,
         TIME,
         VERBOSE,
         FORCEE32BUILD
@@ -129,6 +130,7 @@ struct Args
     uint32_t iVersion = 0x000a0000u; // ex: elf2e32.exe --version
     std::string iHeader;
     uint32_t iTime[2] = {0};
+    std::string iFileCrc;
     bool iVerbose = false;
     bool iForceE32Build = false;
 };

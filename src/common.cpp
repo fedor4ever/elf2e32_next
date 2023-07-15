@@ -126,6 +126,11 @@ const char* ReadFile(const char* filename, std::streamsize& fsize)
     return bufferedFile;
 }
 
+void SaveFile(const string& filename, const string& filebuf)
+{
+    SaveFile(filename.c_str(), filebuf.c_str(), filebuf.size());
+}
+
 void SaveFile(const char* filename, const char* filebuf, int fsize)
 {
     std::fstream fs(filename, std::fstream::binary | std::fstream::out | std::fstream::trunc);

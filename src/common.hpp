@@ -116,6 +116,7 @@ void ReportLog(const std::string& str, int x = -1, int y = -1, int z = -1);
 
 const char* ReadFile(const char* filename, std::streamsize& fsize);
 void SaveFile(const char* filename, const char* filebuf, int fsize);
+void SaveFile(const string& filename, const string& filebuf);
 uint16_t ProcessPriority(const std::string& str);
 
 Symbols SymbolsFromDef(const char *defFile);

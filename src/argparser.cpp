@@ -396,7 +396,7 @@ bool ArgParser::Parse(Args* arg) const
                 if(optarg)
                     arg->iFileCrc = optarg;
                 else
-                    arg->iFileCrc = "0";
+                    arg->iFileCrc = string();
                 ArgInfo(optname ,optarg);
                 break;
             case OptionsType::VERBOSE:

@@ -106,6 +106,8 @@
 		<Unit filename="src/deffile.h" />
 		<Unit filename="src/dsofile.cpp" />
 		<Unit filename="src/dsofile.h" />
+		<Unit filename="src/e32editor.cpp" />
+		<Unit filename="src/e32editor.h" />
 		<Unit filename="src/e32file.cpp" />
 		<Unit filename="src/e32file.h" />
 		<Unit filename="src/e32flags.cpp" />

@@ -198,18 +198,18 @@ void CRCFile(string& s)
   */
 void E32CRC::CRCsOnE32()
 {
-    iCRCIn.iTimeLo = iCrc->TimeLo();
-    iCRCIn.iTimeHi = iCrc->TimeHi();
-    iCRCIn.iFullImage = iCrc->FullImage();
-    iCRCIn.iHeader = iCrc->Header();
-    iCRCIn.iExportBitMap = iCrc->ExportBitMap();
-    iCRCIn.iCode = iCrc->Code();
-    iCRCIn.iData = iCrc->Data();
-    iCRCIn.iExports = iCrc->Exports();
-    iCRCIn.iSymlook = iCrc->Symlook();
-    iCRCIn.iImports = iCrc->Imports();
-    iCRCIn.iCodeRelocs = iCrc->CodeRelocs();
-    iCRCIn.iDataRelocs = iCrc->DataRelocs();
+    iCRCOut.iTimeLo = iCrc->TimeLo();
+    iCRCOut.iTimeHi = iCrc->TimeHi();
+    iCRCOut.iFullImage = iCrc->FullImage();
+    iCRCOut.iHeader = iCrc->Header();
+    iCRCOut.iExportBitMap = iCrc->ExportBitMap();
+    iCRCOut.iCode = iCrc->Code();
+    iCRCOut.iData = iCrc->Data();
+    iCRCOut.iExports = iCrc->Exports();
+    iCRCOut.iSymlook = iCrc->Symlook();
+    iCRCOut.iImports = iCrc->Imports();
+    iCRCOut.iCodeRelocs = iCrc->CodeRelocs();
+    iCRCOut.iDataRelocs = iCrc->DataRelocs();
 }
 
 void PrintIfNEQ(uint32_t in, uint32_t out, const string& msg)

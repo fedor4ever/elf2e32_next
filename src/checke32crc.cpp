@@ -183,6 +183,8 @@ void E32CRC::DeduceCRCFiles()
         iFileIn = iArgs->iElfinput;
     if(iFileIn.empty())
         iFileIn = iArgs->iE32input;
+    if(iFileIn.empty())
+        ReportError(ErrorCodes::ZEROBUFFER, "Internal error in DeduceCRCFiles(). Got uninitialized FileIn object!");
     CRCFile(iFileIn);
 }
 

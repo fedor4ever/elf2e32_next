@@ -21,6 +21,7 @@
 #include "e32common.h"
 #include "cmdlineprocessor.h"
 
+const std::string DefaultOptionalArg = "none";
 struct OptionsType
 {
     enum

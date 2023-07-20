@@ -608,7 +608,7 @@ void E32Info::Run()
     if((iParam->iForceE32Build == false) && iParam->iE32input.empty() )
     {
         ValidateE32Image(iE32);
-        CheckE32CRC(iE32);
+        CheckE32CRC(iE32, iParam);
     }
 
     for(auto x: iParam->iDump)

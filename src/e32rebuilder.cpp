@@ -65,7 +65,7 @@ void E32Rebuilder::Run()
     iParser->GetFileLayout();
 
     ValidateE32Image(iParser);
-    CheckE32CRC(iParser);
+    CheckE32CRC(iParser, iReBuildOptions);
     SaveFile(iReBuildOptions->iOutput.c_str(), file.data(), iFileSize);
 }
 
@@ -163,6 +163,6 @@ void E32Rebuilder::Compress()
 
     if(iReBuildOptions->iForceE32Build == false) // can't build invalid E32Image while validate on
         ValidateE32Image(iParser);
-    CheckE32CRC(iParser);
+    CheckE32CRC(iParser, iReBuildOptions);
     SaveFile(iReBuildOptions->iOutput.c_str(), file.data(), iFileSize);
 }

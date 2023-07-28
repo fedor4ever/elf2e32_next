@@ -148,7 +148,7 @@ struct E32ImageHeaderV
     uint32_t iSpare2 = 0;
     uint16_t iExportDescSize = 0;  // size of bitmap section
     uint8_t  iExportDescType = KImageHdr_ExpD_NoHoles;  // type of description of holes in export table
-    uint8_t  iExportDesc[1];       // description of holes in export table - extend
+    uint8_t  iExportDesc[1]; // description of holes in export table or struct padding by 4 bytes if not created
 };
 #pragma pack(pop)
 

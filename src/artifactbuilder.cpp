@@ -228,6 +228,32 @@ std::string VersionAsStr(uint32_t version)
     return buf.str();
 }
 
+/** \brief Reset invalid option --linkas
+ *
+ * Valid option looks like: --linkas=foo{000a0000}[10011237].dll
+ * It contain 4 parts:
+ * 1) target name: "foo"
+ * 2) target version(hex form): "{000a0000}"
+ * 3) target UID3(hex form): "[10011237]"
+ * 4) file extension
+ *
+ */
+void ResetInvalidLINKAS(Args* arg)
+{
+    size_t first = arg->iLinkas.find_first_of("[");
+    size_t last = arg->iLinkas.find_first_of("]");
+    size_t fst = arg->iLinkas.find_first_of("{");
+    size_t lst = arg->iLinkas.find_first_of("}");
+    if((first == std::string::npos) || (last == std::string::npos) || (last > first) ||
+       (fst == std::string::npos) || (lst == std::string::npos) || (lst > fst) )
+    {
+        ReportWarning(ErrorCodes::ZEROBUFFER, "Illformed option: " + arg->iLinkas + "\n");
+        ReportWarning(ErrorCodes::ZEROBUFFER, "Example: --linkas=foo{000a0000}[10011237].dll\n");
+        ReportWarning(ErrorCodes::ZEROBUFFER, "Ignoring --linkas option\n\n");
+        arg->iLinkas.clear();
+    }
+}
+
 void DeduceLINKAS(Args* arg)
 {
     if(arg->iLinkas.empty() && (arg->iTargettype != TargetType::EInvalidTargetType))
@@ -372,6 +398,7 @@ void ValidateOptions(Args* arg)
     }
 
     arg->iLinkasUid = ResolveLinkAsUID(arg);
+    ResetInvalidLINKAS(arg);
     DeduceLINKAS(arg);
 
     if((targetType == TargetType::EPlugin) && arg->iSysdef.empty())

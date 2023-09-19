@@ -89,7 +89,7 @@ void E32File::WriteE32File()
 {
     /**< SDK versions ignore exported symbols for EXE */
     if(!iSymbols.empty() && IsSimpleEXE(iE32Opts->iTargettype)) {
-        if(iE32Opts->iVerbose)
+        if(VerboseOut())
         {
             std::stringstream buf;
             buf << iSymbols.size() << " exported symbol(s)\n";
@@ -167,7 +167,7 @@ void E32File::WriteE32File()
             break;
         }
 
-        if(iE32Opts->iVerbose) {
+        if(VerboseOut()) {
             printf("Added Chunks has size: %06zx for section:"
                " %s at address: %08zx\n",
                x.section.size(), x.info.c_str(), iHeader.size());
@@ -202,7 +202,7 @@ void E32File::WriteE32File()
     memcpy(t, &iHeader[0], iHeader.size());
 
     //call E32Info::HeaderInfo() for verbose output
-    if(iE32Opts->iVerbose)
+    if(VerboseOut())
     {
         hdr = (E32ImageHeader*)&t[0];
         hdr->iCompressionType = KFormatNotCompressed;
@@ -299,7 +299,7 @@ void E32File::PrepareData()
 
     if(tmp.type > E32Sections::EMPTY_SECTION)
     {
-        if(iE32Opts->iVerbose || IsSimpleEXE(iE32Opts->iTargettype)) {
+        if(VerboseOut() || IsSimpleEXE(iE32Opts->iTargettype)) {
             ReportLog("***************\n");
             ReportLog("Exported symbols:\n");
             for(auto x: iSymbols) {

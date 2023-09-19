@@ -132,7 +132,6 @@ struct Args
     std::string iHeader;
     uint32_t iTime[2] = {0};
     std::string iFileCrc;
-    bool iVerbose = false;
     bool iForceE32Build = false;
 };
 

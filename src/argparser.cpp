@@ -401,7 +401,6 @@ bool ArgParser::Parse(Args* arg) const
                 break;
             case OptionsType::VERBOSE:
                 VerboseOutput = true;
-                arg->iVerbose = true;
                 ArgInfo(optname);
                 break;
             case OptionsType::FORCEE32BUILD:

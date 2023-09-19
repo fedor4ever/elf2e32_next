@@ -15,6 +15,8 @@
 //
 //
 
+#include <string.h>
+
 #include "e32common.h"
 #include "e32editor.h"
 #include "e32parser.h"

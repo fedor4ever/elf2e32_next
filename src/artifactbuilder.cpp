@@ -216,7 +216,8 @@ void WarnForNonExeUID()
 {
     ReportLog("********************\n");
     ReportLog("Wrong UID1\n");
-    ReportLog("Set uid1 to KExecutableImageUidValue\n");    ReportLog("********************\n");
+    ReportLog("Set uid1 to KExecutableImageUidValue\n");
+    ReportLog("********************\n");
 }
 
 std::string VersionAsStr(uint32_t version)
@@ -245,7 +246,8 @@ void ResetInvalidLINKAS(Args* arg)
     size_t fst = arg->iLinkas.find_first_of("{");
     size_t lst = arg->iLinkas.find_first_of("}");
     if((first == std::string::npos) || (last == std::string::npos) || (last > first) ||
-       (fst == std::string::npos) || (lst == std::string::npos) || (lst > fst) )
+       (fst == std::string::npos) || (lst == std::string::npos) || (lst > fst) ||
+       ((last - first) != 8) || ((lst - fst) != 8))
     {
         ReportWarning(ErrorCodes::ZEROBUFFER, "Illformed option: " + arg->iLinkas + "\n");
         ReportWarning(ErrorCodes::ZEROBUFFER, "Example: --linkas=foo{000a0000}[10011237].dll\n");
@@ -284,66 +286,35 @@ void DeduceLINKAS(Args* arg)
         }
         arg->iLinkas = FileNameFromPath(linkas);
     }
+
+    if(VerboseOut())
+        ReportLog("Linkas option: " + arg->iLinkas + "\n");
 }
 
 const std::string linkAsError = "Failure while reconstructing linkas option from UID3";
-std::string ResolveLinkAsUID(Args* arg)
+void ResolveLinkAsUID(Args* arg)
 {
-    if(arg->iLinkasUid.size() > 10) ReportError(ErrorCodes::ARGUMENTNAME, arg->iLinkasUid);
-    if(arg->iLinkasUid.size() == 9) ReportError(ErrorCodes::ARGUMENTNAME, arg->iLinkasUid);
-    if((arg->iLinkasUid.size() == 10) && (arg->iLinkasUid[0] != '0') &&
-        ((arg->iLinkasUid[1] != 'x') || (arg->iLinkasUid[1] != 'X'))) ReportError(ErrorCodes::ARGUMENTNAME, arg->iLinkasUid);
-    std::stringstream buf;
-
-//    strtoul() return zero for zero strings("0x00") and no valid conversion could be performed
-//    but zero UID3 is valid
-    if((arg->iLinkasUid[1] == 'x') || (arg->iLinkasUid[1] == 'x'))
+    if( !arg->iLinkasUid.empty() && (arg->iLinkasUid[0] == '0') &&
+       ((arg->iLinkasUid[1] == 'x') || (arg->iLinkasUid[1] == 'X')) )
     {
-        buf << "[";
-        size_t count = std::count_if( arg->iLinkasUid.begin(), arg->iLinkasUid.end(), []( char c ){return c == '0';});
-        // first comes defaull zero hex UID
-        if((count + 1) == arg->iLinkasUid.size())
-        {
-            buf << "00000000" << "]";
-            if(buf.bad())
-                ReportError(ErrorCodes::ZEROBUFFER, linkAsError);
-            return buf.str();
-        }
-        // shertened zero hex UID
-        if(arg->iLinkasUid.size() < 10)
-        {
-            std::string tmp;
-            tmp.append(10 - arg->iLinkasUid.size(), '0');
-            tmp += arg->iLinkasUid.substr(2, arg->iLinkasUid.size());
-            buf << tmp << "]";
-            if(buf.bad())
-                ReportError(ErrorCodes::ZEROBUFFER, linkAsError);
-            return buf.str();
-        }
-        // fully qualified hex UID
-        if(arg->iLinkasUid.size() == 10)
-        {
-            buf << arg->iLinkasUid.substr(2, arg->iLinkasUid.size()) << "]";
-            if(buf.bad())
-                ReportError(ErrorCodes::ZEROBUFFER, linkAsError);
-            return buf.str();
-        }
-        ReportError(ErrorCodes::ARGUMENTNAME, arg->iLinkasUid);
+        ReportLog("LinkasUid: " + arg->iLinkasUid + '\n');
+        arg->iLinkasUid.erase(0, 2);
+        ReportLog("LinkasUid: " + arg->iLinkasUid + '\n');
+            ReportLog("arg->iLinkasUid.size(): %d\n", arg->iLinkasUid.size());
+        arg->iLinkasUid.insert(0, 8 - arg->iLinkasUid.size(), '0');
+        ReportLog("LinkasUid: " + arg->iLinkasUid + '\n');
+        arg->iLinkasUid = '[' + arg->iLinkasUid + ']';
+        ReportLog("LinkasUid: " + arg->iLinkasUid + '\n');
+        ReportLog("\n");
+        return;
     }
 
-    uint32_t iUid3 = strtoul(arg->iLinkasUid.c_str(), nullptr, 0);
-//    no valid conversion could be performed, a zero value is returned
-    if(iUid3 == 0)
-        ReportError(ErrorCodes::ZEROBUFFER, "No valid conversion could be performed,"
-                    " a zero value is returned while convert UID3 to digit");
-    if((iUid3 == ULONG_MAX) && (errno == ERANGE))
-        ReportError(ErrorCodes::ZEROBUFFER, "Value read is out of the range while convert UID3 to digit");
-
-    buf << "[" << std::setw(8) << std::hex << std::setfill('0') << iUid3 << "]";
-
+    std::stringstream buf;
+    buf << "[" << std::setw(8) << std::hex << std::setfill('0') << arg->iUid3 << "]";
     if(buf.bad())
         ReportError(ErrorCodes::ZEROBUFFER, linkAsError);
-    return buf.str();
+
+    arg->iLinkasUid = buf.str();
 }
 
 /** \brief Verifies and correct wrong input options
@@ -397,7 +368,7 @@ void ValidateOptions(Args* arg)
         targetType = arg->iTargettype;
     }
 
-    arg->iLinkasUid = ResolveLinkAsUID(arg);
+    ResolveLinkAsUID(arg);
     ResetInvalidLINKAS(arg);
     DeduceLINKAS(arg);
 
@@ -448,7 +419,8 @@ void ValidateOptions(Args* arg)
         if(!UID2)
         {
             ReportLog("********************\n");
-            ReportLog("missed value for UID2\n");            ReportLog("********************\n");
+            ReportLog("missed value for UID2\n");
+            ReportLog("********************\n");
         }
         if(arg->iTargettype == TargetType::EStdDll) arg->iUid2 = KSTDTargetUid2Value; // only that uid2 accepted for STDDLL & STDEXE
         if(!UID3) ReportLog("Missed --uid3 option!\n");

@@ -16,6 +16,7 @@
 //
 
 #include <cstring>
+#include <sstream>
 
 #include "common.hpp"
 #include "e32common.h"
@@ -23,6 +24,7 @@
 #include "cmdlineprocessor.h"
 
 using std::string;
+using std::stringstream;
 
 uint32_t GetFpuType(const std::string& fromArgument)
 {
@@ -62,12 +64,14 @@ TargetType GetTarget(const std::string& fromArgument)
     else if(data == "plugin")
         return TargetType::EPlugin;
     else if(data == "plugin3")
-        return TargetType::EFep;    else if(data == "textnotifier2")
+        return TargetType::EFep;
+    else if(data == "textnotifier2")
         return TargetType::ETextNotifier2;
     else if(data == "pdl")
         return TargetType::EPdl;
     else if(data == "dll")
-        return TargetType::EDll;    else if(data == "kdll")
+        return TargetType::EDll;
+    else if(data == "kdll")
         return TargetType::EDll; //revisit
     else if(data == "kext")
         return TargetType::EDll; //revisit
@@ -78,13 +82,16 @@ TargetType GetTarget(const std::string& fromArgument)
     else if(data == "exedll")
         return TargetType::EExe;
     else if(data == "exexp")
-        return TargetType::EExexp;    else if(data == "implib")
+        return TargetType::EExexp;
+    else if(data == "implib")
         return TargetType::EImportLib;
     else if((data == "klib") || (data == "lib"))
         return TargetType::EFalseTartget;
     else if(data == "none")
-        return TargetType::EFalseTartget;    else if(data == "ldd")
-        return TargetType::ELdd;    else if(data == "pdd")
+        return TargetType::EFalseTartget;
+    else if(data == "ldd")
+        return TargetType::ELdd;
+    else if(data == "pdd")
         return TargetType::EPdd;
     else if(data == "stdexe")
         return TargetType::EStdExe;
@@ -116,7 +123,8 @@ void VarningForDeprecatedUID(uint32_t UID2)
         ReportLog("Unmigrated Conarc plugin detected from use of UID 0x10003a30\n");
     if(UID2 == 0x10003a19)
         ReportLog("Unmigrated Recogniser detected from use of UID 0x10003a19\n");
-    if(UID2 == 0x10003a37)        ReportLog("Unmigrated Recogniser detected from use of UID 0x10003a37\n");
+    if(UID2 == 0x10003a37)
+        ReportLog("Unmigrated Recogniser detected from use of UID 0x10003a37\n");
     if(UID2 == 0x10003a34)
         ReportLog("Unmigrated CTL detected from use of UID 0x10003a34\n");
 }
@@ -155,26 +163,23 @@ uint64_t ProcessALLCapabilities(const std::string& fromArgument)
         p++;
     }
 
-    string tmp;
-    char* token = strtok(fromArgument.c_str(), "-");
-    token = strtok(nullptr, "-"); // skip "All" capability
-    while(token)
+    stringstream caps(str);
+    string token;
+    while(getline(caps, token, '+'))
     {
         const Property* p = capabilities;
         while(p->name != nullptr)
         {
-            tmp = ToLower(p->name);
-            if(tmp == token)
+            if(token == ToLower(p->name))
             {
                 flag &= ~p->flag;
-                token = nullptr;
+                token.clear();
                 break;
             }
             p++;
         }
-        if(token)
+        if(!token.empty())
             ReportError(ErrorCodes::INVALIDARGUMENT, "capability", token);
-        token = strtok(nullptr, "-");
     }
     return flag;
 }
@@ -183,33 +188,29 @@ uint64_t ProcessALLCapabilities(const std::string& fromArgument)
 uint64_t ProcessCapabilities(const std::string& fromArgument)
 {
     string str = ToLower(fromArgument);
-
     if(str.substr(0, 4) == "none")
         return 0;
     if(str.substr(0, 3) == "all")
         return ProcessALLCapabilities(str);
 
+    stringstream caps(str);
+    string token;
     uint64_t flag = 0;
-    string tmp;
-    char* token = strtok(str.c_str(), "+");
-
-    while(token)
+    while(getline(caps, token, '+'))
     {
         const Property* p = capabilities;
         while(p->name != nullptr)
         {
-            tmp = ToLower(p->name);
-            if(tmp == token)
+            if(token == ToLower(p->name))
             {
                 flag |= p->flag;
-                token = nullptr;
+                token.clear();
                 break;
             }
             p++;
         }
-        if(token)
+        if(!token.empty())
             ReportError(ErrorCodes::INVALIDARGUMENT, "capability", token);
-        token = strtok(nullptr, "+");
     }
     return flag;
 }

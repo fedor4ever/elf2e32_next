@@ -224,19 +224,27 @@ void E32CRC::Tokenize(const string& line)
 void E32CRC::DeduceCRCFiles()
 {
     iFileIn = iArgs->iFileCrc;
-    if(iFileIn.empty()) // option --filecrc not used
+    if(iFileIn != DefaultOptionalArg)
         return;
 
     iFileOut = iArgs->iOutput;
-    CRCFile(iFileOut);
+    if(!iFileOut.empty())
+        CRCFile(iFileOut);
 
-    if(iFileIn == DefaultOptionalArg)
-        iFileIn = iArgs->iElfinput;
+    iFileIn = iArgs->iElfinput;
     if(iFileIn.empty())
         iFileIn = iArgs->iE32input;
     if(iFileIn.empty())
         ReportError(ErrorCodes::ZEROBUFFER, "Internal error in DeduceCRCFiles() while deduce input CRC file name.");
     CRCFile(iFileIn);
+
+    fstream file(iFileIn, fstream::in);
+    if(!file)
+    {
+        file.close();
+        iFileOut = iFileIn;
+        iFileIn.clear();
+    }
 }
 
 void CRCFile(string& s)

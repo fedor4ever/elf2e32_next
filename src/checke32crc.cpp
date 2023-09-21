@@ -307,6 +307,12 @@ void E32CRC::PrintInvalidCRCs()
     ReportLog("\n");
 }
 
+ E32CRC::E32CRC(const E32Parser* parser, const Args* args):
+     iParser(parser), iArgs(args)
+{
+    iCrc = E32Editor::NewL(parser);
+}
+
 void E32CRC::Run()
 {
     DeduceCRCFiles();
@@ -314,12 +320,6 @@ void E32CRC::Run()
     CRCsOnE32();
     CRCToFile();
     PrintInvalidCRCs();
-}
-
- E32CRC::E32CRC(const E32Parser* parser, const Args* args):
-     iParser(parser), iArgs(args)
-{
-    iCrc = new E32Editor(parser);
 }
 
 

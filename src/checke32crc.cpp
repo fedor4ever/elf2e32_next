@@ -97,7 +97,7 @@ struct CRCData
     uint32_t iDataRelocs = -1;
 };
 
-// members ordered by place in E32Image
+// Members ordered by place in E32Image
 class E32CRC
 {
     public:
@@ -130,10 +130,6 @@ void CheckE32CRC(const E32Parser* parser, const Args* args)
     crc.Run();
 }
 
-/** @brief (one liner)
-  *
-  * (documentation goes here)
-  */
 void E32CRC::CRCToFile()
 {
     if(iFileOut.empty())
@@ -157,15 +153,13 @@ void E32CRC::CRCToFile()
     SaveFile(iFileOut, buf.str());
 }
 
-/** @brief (one liner)
-  *
-  * (documentation goes here)
-  */
 void E32CRC::ParseFile()
 {
     fstream file(iFileIn, fstream::in);
     if(!file)
         return;
+
+    ReportLog("Reading checksums from file: " + iFileIn + "\n\n");
 
     string s;
     while(file.good())
@@ -179,11 +173,6 @@ void E32CRC::ParseFile()
     file.close();
 }
 
-
-/** @brief (one liner)
-  *
-  * (documentation goes here)
-  */
 void E32CRC::Tokenize(const string& line)
 {
     stringstream stream(line);
@@ -237,7 +226,7 @@ void E32CRC::DeduceCRCFiles()
     if(iFileIn.empty())
         iFileIn = iArgs->iE32input;
     if(iFileIn.empty())
-        ReportError(ErrorCodes::ZEROBUFFER, "Internal error in DeduceCRCFiles(). Got uninitialized FileIn object!");
+        ReportError(ErrorCodes::ZEROBUFFER, "Internal error in DeduceCRCFiles() while deduce input CRC file name.");
     CRCFile(iFileIn);
 }
 
@@ -247,10 +236,7 @@ void CRCFile(string& s)
     s += ".crc";
 }
 
-/** @brief (one liner)
-  *
-  * Found CRC on E32Image
-  */
+/// Generate CRC on E32Image
 void E32CRC::CRCsOnE32()
 {
     iCRCOut.iTimeLo = iCrc->TimeLo();
@@ -276,9 +262,9 @@ void PrintIfNEQ(uint32_t in, uint32_t out, const string& msg)
     ReportLog(s.str());
 }
 
-/** @brief Compare predefined CRCs from .crc file and generated on E32Image
+/** @brief Print difference for CRCs if any.
   *
-  * Compare predefined CRCs from .crc file and generated on E32Image and print difference
+  * Print difference between predefined CRCs from .crc file and generated from E32Image if any.
   */
 void E32CRC::PrintInvalidCRCs()
 {
@@ -287,20 +273,21 @@ void E32CRC::PrintInvalidCRCs()
     if(iCRCIn == iCRCOut)
     {
         if(iArgs->iVerbose)
-            ReportLog("All CRC match!\n");
+            ReportLog("All CRC matches!\n");
         return;
     }
-    ReportWarning(ErrorCodes::ZEROBUFFER, "Found CRC32 mismatch(es) between in - out:");
-    PrintIfNEQ(iCRCIn.iFullImage, iCRCOut.iFullImage, "FullImage");
-    PrintIfNEQ(iCRCIn.iHeader, iCRCOut.iHeader, "Header");
+    ReportWarning(ErrorCodes::ZEROBUFFER, "Found CRC32 mismatch(es) between in - out:\n");
+    PrintIfNEQ(iCRCIn.iFullImage,    iCRCOut.iFullImage, "FullImage");
+    PrintIfNEQ(iCRCIn.iHeader,       iCRCOut.iHeader, "Header");
     PrintIfNEQ(iCRCIn.iExportBitMap, iCRCOut.iExportBitMap, "ExportBitMap");
-    PrintIfNEQ(iCRCIn.iCode, iCRCOut.iCode, "Code");
-    PrintIfNEQ(iCRCIn.iData, iCRCOut.iData, "Data");
+    PrintIfNEQ(iCRCIn.iCode,    iCRCOut.iCode, "Code");
+    PrintIfNEQ(iCRCIn.iData,    iCRCOut.iData, "Data");
     PrintIfNEQ(iCRCIn.iExports, iCRCOut.iExports, "Exports");
     PrintIfNEQ(iCRCIn.iSymlook, iCRCOut.iSymlook, "Symlook");
     PrintIfNEQ(iCRCIn.iImports, iCRCOut.iImports, "Imports");
     PrintIfNEQ(iCRCIn.iCodeRelocs, iCRCOut.iCodeRelocs, "CodeRelocs");
     PrintIfNEQ(iCRCIn.iDataRelocs, iCRCOut.iDataRelocs, "DataRelocs");
+    ReportLog("\n");
 }
 
 void E32CRC::Run()

@@ -52,6 +52,7 @@
 
 #include <fstream>
 #include <sstream>
+
 #include "common.hpp"
 #include "e32editor.h"
 #include "e32parser.h"
@@ -69,9 +70,6 @@ namespace E32Crcs
     static constexpr char HEADER[] = "header";
     static constexpr char TIMELO[] = "timelo";
     static constexpr char TIMEHI[] = "timehi";
-    static constexpr char HDR[] = "hdr";
-    static constexpr char HDRJ[] = "hdrj";
-    static constexpr char HDRV[] = "hdrv";
     static constexpr char EXPORTBITMAP[] = "exportbitmap";
     static constexpr char CODE[] = "code";
     static constexpr char DATA[] = "data";
@@ -80,7 +78,6 @@ namespace E32Crcs
     static constexpr char IMPORTS[] = "imports";
     static constexpr char CODERELOCS[] = "coderelocs";
     static constexpr char DATARELOCS[] = "datarelocs";
-//    static constexpr char [] = "";
 };
 
 struct CRCData
@@ -300,7 +297,6 @@ void E32CRC::PrintInvalidCRCs()
     PrintIfNEQ(iCRCIn.iImports, iCRCOut.iImports, "Imports");
     PrintIfNEQ(iCRCIn.iCodeRelocs, iCRCOut.iCodeRelocs, "CodeRelocs");
     PrintIfNEQ(iCRCIn.iDataRelocs, iCRCOut.iDataRelocs, "DataRelocs");
-//    PrintIfNEQ(iCRCIn., iCRCOut., "");
 }
 
 void E32CRC::Run()
@@ -348,8 +344,6 @@ bool CRCData::operator ==(const CRCData& right) const
         return false;
     if(this->iDataRelocs != right.iDataRelocs)
         return false;
-//    if(this-> != right.)
-//        return false;
     return true;
 }
 

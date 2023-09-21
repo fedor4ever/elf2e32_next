@@ -271,7 +271,7 @@ void PrintIfNEQ(uint32_t in, uint32_t out, const string& msg)
     if(in == out)
         return;
     std::stringstream s;
-    s << msg + ": " << out << " - " << out << "\n";
+    s << std::hex << msg + ": 0x" << in << " - 0x" << out << "\n";
     ReportLog(s.str());
 }
 

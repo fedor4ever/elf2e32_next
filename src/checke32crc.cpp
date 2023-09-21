@@ -289,7 +289,7 @@ void E32CRC::PrintInvalidCRCs()
         return;
     if(iCRCIn == iCRCOut)
     {
-        if(iArgs->iVerbose)
+        if(VerboseOut())
             ReportLog("All CRC matches!\n");
         return;
     }

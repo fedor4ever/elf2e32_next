@@ -163,7 +163,7 @@ uint64_t ProcessALLCapabilities(const std::string& fromArgument)
         p++;
     }
 
-    stringstream caps(str);
+    stringstream caps(fromArgument);
     string token;
     while(getline(caps, token, '+'))
     {

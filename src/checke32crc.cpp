@@ -186,7 +186,7 @@ void E32CRC::Tokenize(const string& line)
     string type;
     char delim;
     uint32_t crc;
-    stream >> type >> delim >> crc;
+    stream >> std::hex >> type >> delim >> crc;
 
     if(delim != '=')
         ReportError(ErrorCodes::ZEROBUFFER, "Error while parsing .crc file. Delimeter '=' not found!");

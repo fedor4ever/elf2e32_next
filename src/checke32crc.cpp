@@ -102,6 +102,7 @@ class E32CRC
 {
     public:
         E32CRC(const E32Parser* parser, const Args* args);
+        ~E32CRCProcessor();
         void Run();
     private:
         void DeduceCRCFiles();
@@ -311,6 +312,11 @@ void E32CRC::PrintInvalidCRCs()
      iParser(parser), iArgs(args)
 {
     iCrc = E32Editor::NewL(parser);
+}
+
+E32CRCProcessor::~E32CRCProcessor()
+{
+    delete iCrc;
 }
 
 void E32CRC::Run()

@@ -175,6 +175,8 @@ void E32CRC::ParseFile()
     if(!file)
         ReportError(FILEREADERROR, iFileIn);
     file.close();
+
+    iCrc->SetE32Time(iCRCIn.iTimeLo, iCRCIn.iTimeHi);
 }
 
 void E32CRC::Tokenize(const string& line)

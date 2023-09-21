@@ -98,7 +98,6 @@
 		<Unit filename="src/argparser.h" />
 		<Unit filename="src/artifactbuilder.cpp" />
 		<Unit filename="src/artifactbuilder.h" />
-		<Unit filename="src/checke32crc.cpp" />
 		<Unit filename="src/cmdlineprocessor.cpp" />
 		<Unit filename="src/cmdlineprocessor.h" />
 		<Unit filename="src/common.cpp" />
@@ -107,6 +106,7 @@
 		<Unit filename="src/deffile.h" />
 		<Unit filename="src/dsofile.cpp" />
 		<Unit filename="src/dsofile.h" />
+		<Unit filename="src/e32crcprocessor.cpp" />
 		<Unit filename="src/e32editor.cpp" />
 		<Unit filename="src/e32editor.h" />
 		<Unit filename="src/e32file.cpp" />

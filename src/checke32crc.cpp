@@ -1,3 +1,55 @@
+ /*
+ Copyright (c) 2023 Strizhniou Fiodar
+ All rights reserved.
+ This component and the accompanying materials are made available
+ under the terms of "Eclipse Public License v1.0"
+ which accompanies this distribution, and is available
+ at the URL "http://www.eclipse.org/legal/epl-v10.html".
+
+ Initial Contributors:
+ Strizhniou Fiodar - initial contribution.
+
+ Contributors:
+
+ Description:
+ It's very important to check stability E32Image generation by elf2e32 while it's code base evolving.
+
+ It creates CRC32 checksums for uncompressed E32Image and store them in file with ".crc" extension.
+ Also verify generated E32Image between different versions if precalculated file used.
+
+ That file stores precalculated CRC32 for different sections such as:
+    - header
+    - exportbitmap
+    - CODE
+    - DATA
+    - EXPORTS
+    - SYMLOOK
+    - IMPORTS
+    - CODERELOCS
+    - DATARELOCS
+    - image itself.
+	- time of file creation
+
+ We store time of file creation because output E32Image should be identical. Else elf2e32 set actual time of file creation.
+
+ If some section missed in .crc file their checksums has value 0xffffffff.
+
+ There 2 way to load .crc files: explicit and implicit.
+
+ Option "--filecrc=<filename>.crc" explicitly say what file to load.
+    No output .crc file stored.
+
+ Implicit use:
+    1. E32Image used as input.
+    Load .crc file near E32Image.
+    Store .crc file near output E32Image if "--output" used.
+
+    2. Elf file used as input when E32Image building.
+    Loads .crc near elf file.
+    Store .crc file near output E32Image.
+ */
+
+
 #include <fstream>
 #include <sstream>
 #include "common.hpp"

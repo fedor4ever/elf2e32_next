@@ -63,7 +63,7 @@ using std::stringstream;
 
 void CRCFile(string& s);
 
-struct E32Crcs
+namespace E32Crcs
 {
     static constexpr char FULLIMAGE[] = "fullimage";
     static constexpr char HEADER[] = "header";

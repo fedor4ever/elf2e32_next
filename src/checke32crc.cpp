@@ -31,7 +31,6 @@
 	- time of file creation
 
  We store time of file creation because output E32Image should be identical. Else elf2e32 set actual time of file creation.
-
  If some section missed in .crc file their checksums has value 0xffffffff.
 
  There 2 way to load .crc files: explicit and implicit.
@@ -137,19 +136,24 @@ void CheckE32CRC(const E32Parser* parser, const Args* args)
   */
 void E32CRC::CRCToFile()
 {
+    if(iFileOut.empty())
+        return;
+
+    ReportLog("Saving checksums to file: " + iFileOut + "\n\n");
     stringstream buf;
-    buf << E32Crcs::FULLIMAGE << " = " << iCRCOut.iFullImage << "\n";
-    buf << E32Crcs::HEADER << " = " << iCRCOut.iHeader << "\n";
-    buf << E32Crcs::TIMELO << " = " << iCRCOut.iTimeLo << "\n";
-    buf << E32Crcs::TIMEHI << " = " << iCRCOut.iTimeHi << "\n";
-    buf << E32Crcs::EXPORTBITMAP << " = " << iCRCOut.iExportBitMap << "\n";
-    buf << E32Crcs::CODE << " = " << iCRCOut.iCode << "\n";
-    buf << E32Crcs::DATA << " = " << iCRCOut.iData << "\n";
-    buf << E32Crcs::EXPORTS << " = " << iCRCOut.iExports << "\n";
-    buf << E32Crcs::SYMLOOK << " = " << iCRCOut.iSymlook << "\n";
-    buf << E32Crcs::IMPORTS << " = " << iCRCOut.iImports << "\n";
-    buf << E32Crcs::CODERELOCS << " = " << iCRCOut.iCodeRelocs << "\n";
-    buf << E32Crcs::DATARELOCS << " = " << iCRCOut.iDataRelocs << "\n";
+    buf << std::hex;
+    buf << E32Crcs::FULLIMAGE << " = 0x" << iCRCOut.iFullImage << "\n";
+    buf << E32Crcs::HEADER << " = 0x" << iCRCOut.iHeader << "\n";
+    buf << E32Crcs::TIMELO << " = 0x" << iCRCOut.iTimeLo << "\n";
+    buf << E32Crcs::TIMEHI << " = 0x" << iCRCOut.iTimeHi << "\n";
+    buf << E32Crcs::EXPORTBITMAP << " = 0x" << iCRCOut.iExportBitMap << "\n";
+    buf << E32Crcs::CODE << " = 0x" << iCRCOut.iCode << "\n";
+    buf << E32Crcs::DATA << " = 0x" << iCRCOut.iData << "\n";
+    buf << E32Crcs::EXPORTS << " = 0x" << iCRCOut.iExports << "\n";
+    buf << E32Crcs::SYMLOOK << " = 0x" << iCRCOut.iSymlook << "\n";
+    buf << E32Crcs::IMPORTS << " = 0x" << iCRCOut.iImports << "\n";
+    buf << E32Crcs::CODERELOCS << " = 0x" << iCRCOut.iCodeRelocs << "\n";
+    buf << E32Crcs::DATARELOCS << " = 0x" << iCRCOut.iDataRelocs;
     SaveFile(iFileOut, buf.str());
 }
 

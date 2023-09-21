@@ -98,10 +98,10 @@ struct CRCData
 };
 
 // Members ordered by place in E32Image
-class E32CRC
+class E32CRCProcessor
 {
     public:
-        E32CRC(const E32Parser* parser, const Args* args);
+        E32CRCProcessor(const E32Parser* parser, const Args* args);
         ~E32CRCProcessor();
         void Run();
     private:
@@ -131,11 +131,11 @@ void CheckE32CRC(const E32Parser* parser, const Args* args)
     if(args->iFileCrc.empty()) // option --filecrc not used
         return;
 
-    E32CRC crc(parser, args);
+    E32CRCProcessor crc(parser, args);
     crc.Run();
 }
 
-void E32CRC::CRCToFile()
+void E32CRCProcessor::CRCToFile()
 {
     if(iFileOut.empty())
         return;
@@ -158,7 +158,7 @@ void E32CRC::CRCToFile()
     SaveFile(iFileOut, buf.str());
 }
 
-void E32CRC::ParseFile()
+void E32CRCProcessor::ParseFile()
 {
     fstream file(iFileIn, fstream::in);
     if(!file)
@@ -180,7 +180,7 @@ void E32CRC::ParseFile()
     iCrc->SetE32Time(iCRCIn.iTimeLo, iCRCIn.iTimeHi);
 }
 
-void E32CRC::Tokenize(const string& line)
+void E32CRCProcessor::Tokenize(const string& line)
 {
     if(line.empty())
         return;
@@ -222,7 +222,7 @@ void E32CRC::Tokenize(const string& line)
         ReportError(ErrorCodes::ZEROBUFFER, "Error while parsing .crc file. Invalid data: " + line);
 }
 
-void E32CRC::DeduceCRCFiles()
+void E32CRCProcessor::DeduceCRCFiles()
 {
     iFileIn = iArgs->iFileCrc;
     if(iFileIn != DefaultOptionalArg)
@@ -255,7 +255,7 @@ void CRCFile(string& s)
 }
 
 /// Generate CRC on E32Image
-void E32CRC::CRCsOnE32()
+void E32CRCProcessor::CRCsOnE32()
 {
     iCRCOut.iTimeLo = iCrc->TimeLo();
     iCRCOut.iTimeHi = iCrc->TimeHi();
@@ -284,7 +284,7 @@ void PrintIfNEQ(uint32_t in, uint32_t out, const string& msg)
   *
   * Print difference between predefined CRCs from .crc file and generated from E32Image if any.
   */
-void E32CRC::PrintInvalidCRCs()
+void E32CRCProcessor::PrintInvalidCRCs()
 {
     if(iFileIn.empty())
         return;
@@ -308,7 +308,7 @@ void E32CRC::PrintInvalidCRCs()
     ReportLog("\n");
 }
 
- E32CRC::E32CRC(const E32Parser* parser, const Args* args):
+E32CRCProcessor::E32CRCProcessor(const E32Parser* parser, const Args* args):
      iParser(parser), iArgs(args)
 {
     iCrc = E32Editor::NewL(parser);
@@ -319,7 +319,7 @@ E32CRCProcessor::~E32CRCProcessor()
     delete iCrc;
 }
 
-void E32CRC::Run()
+void E32CRCProcessor::Run()
 {
     DeduceCRCFiles();
     ParseFile();

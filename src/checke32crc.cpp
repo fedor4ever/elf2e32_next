@@ -126,6 +126,10 @@ void CheckE32CRC(const E32Parser* parser, const Args* args)
         ReportError(ErrorCodes::ZEROBUFFER, "Internal error in CheckE32CRC(). Got uninitialized E32Parser object!");
     if(args == nullptr)
         ReportError(ErrorCodes::ZEROBUFFER, "Internal error in CheckE32CRC(). Got uninitialized Args object!");
+
+    if(args->iFileCrc.empty()) // option --filecrc not used
+        return;
+
     E32CRC crc(parser, args);
     crc.Run();
 }
@@ -175,6 +179,9 @@ void E32CRC::ParseFile()
 
 void E32CRC::Tokenize(const string& line)
 {
+    if(line.empty())
+        return;
+
     stringstream stream(line);
     string type;
     char delim;

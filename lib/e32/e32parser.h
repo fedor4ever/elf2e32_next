@@ -39,17 +39,19 @@ struct E32ImageHeaderJ;
 struct E32ImageHeaderV;
 struct E32RelocSection;
 struct E32ImportSection;
-struct TExceptionDescriptor;
 struct E32EpocExpSymInfoHdr;
+struct TExceptionDescriptor;
 
 class E32Parser
 {
-    public:
         E32Parser(const char* fileBuf,
-                  const std::streamoff& bufsize);
-        ~E32Parser() {}
+            const std::streamoff& bufsize);
+        void ConstructL();
 
-        const E32ImageHeader* GetFileLayout();
+    public:
+        static E32Parser* NewL(const char* fileBuf,
+            const std::streamoff& bufsize);
+        ~E32Parser() {}
 
         const E32ImageHeader* GetE32Hdr() const;
         const E32ImageHeaderJ* GetE32HdrJ() const;

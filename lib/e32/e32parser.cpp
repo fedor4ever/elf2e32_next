@@ -25,19 +25,18 @@
 
 int32_t Adjust(int32_t size);
 
+E32Parser* E32Parser::NewL(const char* fileBuf, const std::streamoff& bufsize)
+{
+    E32Parser* self = new E32Parser(fileBuf, bufsize);
+    self->ConstructL();
+    return self;
+}
+
 E32Parser::E32Parser(const char* buf, const std::streamoff& bufsize):
     iBufferedFile(buf), iE32Size(bufsize)
 {}
 
-
-/** \brief Init function for class
- *
- * Should be called after ctor and before other functions for analyze E32 image.
- *
- * \return E32ImageHeader* - pointer to first field in parsed file
- *
- */
-const E32ImageHeader* E32Parser::GetFileLayout()
+void E32Parser::ConstructL()
 {
     if(!iBufferedFile)
         ReportError(ZEROBUFFER, "Buffered E32Image not set at all.");

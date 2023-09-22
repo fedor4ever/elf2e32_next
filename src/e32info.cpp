@@ -39,8 +39,8 @@ E32Info::E32Info(Args* param): iParam(param),
 
 E32Info::E32Info(const char* buf, std::streamsize filesize) :iE32File(buf)
 {
-    iE32 = new E32Parser(iE32File, filesize);
-    iHdr = iE32->GetFileLayout();
+    iE32 = E32Parser::NewL(iE32File, filesize);
+    iHdr = iE32->GetE32Hdr();
 }
 
 E32Info::~E32Info()
@@ -601,8 +601,8 @@ void E32Info::Run()
     }
     printf("E32ImageFile \'%s\'\n", iParam->iE32input.c_str());
 
-    iE32 = new E32Parser(iE32File, s);
-    iHdr = iE32->GetFileLayout();
+    iE32 = E32Parser::NewL(iE32File, s);
+    iHdr = iE32->GetE32Hdr();
 
     // We ignore validate E32 Image when E32Info used for logging on freshly created E32 Image
     if(iParam->iForceE32Build == false)

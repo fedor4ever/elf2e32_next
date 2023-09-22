@@ -32,8 +32,8 @@ void E32Editor::ConstructL()
     std::streamoff tmp = iFile->GetFileSize();
     char* buf = new char[tmp]();
     memcpy(buf, iFile->GetBufferedImage(), tmp);
-    iFile = new E32Parser(buf, tmp);
-    iHeader = iFile->GetFileLayout();
+    iFile = E32Parser::NewL(buf, tmp);
+    iHeader = iFile->GetE32Hdr();
     iE32File = iFile->GetBufferedImage();
 }
 

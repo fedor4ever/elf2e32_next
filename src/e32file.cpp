@@ -16,8 +16,9 @@
 //
 
 
-#include <string.h>
 #include <sstream>
+#include <string.h>
+#include <cinttypes>
 
 #include "symbol.h"
 #include "e32file.h"
@@ -168,9 +169,9 @@ void E32File::WriteE32File()
         }
 
         if(VerboseOut()) {
-            printf("Added Chunks has size: %06zx for section:"
-               " %s at address: %08zx\n",
-               x.section.size(), x.info.c_str(), iHeader.size());
+            printf("Added Chunks has size: %06" PRIxMAX " for section:"
+               " %s at address: %08" PRIxMAX "\n",
+               (uintmax_t)x.section.size(), x.info.c_str(), (uintmax_t)iHeader.size());
         }
 
         iHeader.insert(iHeader.end(), x.section.begin(), x.section.end());

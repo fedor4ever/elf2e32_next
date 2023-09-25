@@ -16,7 +16,6 @@
 //
 
 
-#include <sstream>
 #include <string.h>
 #include <cinttypes>
 
@@ -39,7 +38,6 @@
 
 E32Section CodeSection(const ElfParser* parser);
 E32Section DataSection(const ElfParser* parser);
-bool IsSimpleEXE(TargetType type);
 
 bool CmpSections(E32Section first, E32Section second)
 {
@@ -58,7 +56,7 @@ void UpdateImportTable(const char* s, size_t bufsz, const std::vector<int32_t>& 
 {
     E32Parser* p = E32Parser::NewL(s, bufsz);
     const E32ImageHeader* h = p->GetE32Hdr();
-    const E32EpocExpSymInfoHdr* symInf = p->GetEpocExpSymInfoHdr();
+//    const E32EpocExpSymInfoHdr* symInf = p->GetEpocExpSymInfoHdr();
     size_t offSet = p->ExpSymInfoTableOffset();
     E32EpocExpSymInfoHdr* sInf = (E32EpocExpSymInfoHdr*)(p->GetBufferedImage() + offSet);
     offSet += sInf->iDepDllZeroOrdTableOffset; // This points to the ordinal zero offset table now
@@ -88,22 +86,6 @@ void E32File::SetFixedAddress(E32ImageHeader* hdr)
 
 void E32File::WriteE32File()
 {
-    /**< SDK versions ignore exported symbols for EXE */
-    if(!iSymbols.empty() && IsSimpleEXE(iE32Opts->iTargettype)) {
-        if(VerboseOut())
-        {
-            std::stringstream buf;
-            buf << iSymbols.size() << " exported symbol(s)\n";
-            ReportWarning(ErrorCodes::BADFILE, iE32Opts->iOutput.c_str(), buf.str());
-            ReportLog("*********************\n");
-            for(auto x: iSymbols)
-                ReportLog(x->AliasName() + "\n");
-            ReportLog("*********************\n");
-        }
-        Symbols s;
-        iSymbols = s;
-    }
-
     iRelocs = new RelocsProcessor(iElfSrc, iSymbols, iE32Opts->iNamedlookup);
     iRelocs->Process();
 
@@ -282,13 +264,6 @@ bool IsEXE(TargetType type)
     return false;
 }
 
-bool IsSimpleEXE(TargetType type)
-{
-    if( (type == TargetType::EExe) || (type == TargetType::EStdExe) )
-        return true;
-    return false;
-}
-
 void E32File::PrepareData()
 {
     E32Section tmp;
@@ -300,16 +275,6 @@ void E32File::PrepareData()
 
     if(tmp.type > E32Sections::EMPTY_SECTION)
     {
-        if(VerboseOut() || IsSimpleEXE(iE32Opts->iTargettype)) {
-            ReportLog("***************\n");
-            ReportLog("Exported symbols:\n");
-            for(auto x: iSymbols) {
-                ReportLog(x->Name());
-                ReportLog("\n");
-            }
-            ReportLog("***************\n");
-        }
-
         iE32image.push_back(tmp);
 
         ExportBitmapSection* proc =

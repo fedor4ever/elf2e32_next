@@ -251,8 +251,29 @@ void SymbolProcessor::ProcessElfSymbols()
     iSymbols.merge(filtered);
 }
 
+bool IsNoExportEXE(TargetType type)
+{
+    if( (type == TargetType::EExe) || (type == TargetType::EStdExe) )
+        return true;
+    return false;
+}
+
 void SymbolProcessor::CheckForErrors(bool unfrozen, list<string> missedSymbols, const string& src)
 {
+    if(!iSymbols.empty() && VerboseOut())
+    {
+        ReportLog("*********************\n");
+        ReportLog("Exported symbols:\n");
+        for(auto x: iSymbols)
+            ReportLog(x->AliasName() + "\n");
+        ReportLog("*********************\n");
+
+    }
+
+    /**< SDK versions ignore exported symbols for EXE */
+    if(IsNoExportEXE(iArgs->iTargettype))
+        iSymbols.clear();
+
     if(!missedSymbols.empty())
     {
         if(unfrozen)

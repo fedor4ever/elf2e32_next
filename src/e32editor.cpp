@@ -33,7 +33,7 @@ void E32Editor::ConstructL()
     char* buf = new char[tmp]();
     memcpy(buf, iFile->GetBufferedImage(), tmp);
     iFile = E32Parser::NewL(buf, tmp);
-    iHeader = iFile->GetE32Hdr();
+    iHeader = (E32ImageHeader*)iFile->GetE32Hdr(); //FIXME: Add explicit write access
     iE32File = iFile->GetBufferedImage();
 }
 

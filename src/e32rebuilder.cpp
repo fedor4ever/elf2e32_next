@@ -40,7 +40,7 @@ void E32Rebuilder::Run()
     {
         uint32_t extracted = ((E32ImageHeader*)(iFile))->iCodeOffset;
         extracted += ((E32ImageHeaderJ*)(iFile + sizeof(E32ImageHeader) ))->iUncompressedSize;
-        const char* newfile = new char[extracted]();
+        char* newfile = new char[extracted]();
         memcpy(newfile, iFile, iFileSize);
         delete[] iFile;
         iFile = nullptr;
@@ -122,7 +122,7 @@ void E32Rebuilder::ReCompress()
         return;
     iHdr->iCompressionType = iReBuildOptions->iCompressionMethod;
 
-    const char* compressed = new char[iFileSize * 2]();
+    char* compressed = new char[iFileSize * 2]();
     uint32_t compressedSize = 0;
 
     uint32_t offset = iHdr->iCodeOffset;

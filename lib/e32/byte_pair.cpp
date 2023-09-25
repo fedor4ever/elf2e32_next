@@ -314,6 +314,10 @@ int32_t Pak(uint8_t* dst, uint8_t* src, int32_t size)
 }
 
 
+// TODO: Unpak() has many warnings for shadowing variables. ...
+//This code stable and works for years. Look close after self-testing start working properly.
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wshadow"
 int32_t Unpak(uint8_t* dst, uint8_t* src, int32_t srcSize, uint8_t*& srcNext)
 {
 	uint8_t* dstStart = dst;
@@ -462,6 +466,7 @@ done_d:
 	srcNext = src;
 	return dst-dstStart;
 }
+#pragma GCC diagnostic pop
 
 
 uint8_t PakBuffer[MaxBlockSize*4];

@@ -167,7 +167,7 @@ uint64_t ProcessALLCapabilities(const std::string& fromArgument)
     string token;
     while(getline(caps, token, '+'))
     {
-        const Property* p = capabilities;
+        p = capabilities;
         while(p->name != nullptr)
         {
             if(token == ToLower(p->name))

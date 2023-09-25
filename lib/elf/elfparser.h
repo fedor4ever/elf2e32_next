@@ -60,11 +60,11 @@ class ElfParser
         const char* GetSymbolNameFromStringTable(uint32_t index) const;
         const char* GetNameFromStringTable(uint32_t offset) const;
         uint32_t GetSymbolOrdinal(char* aSymName) const;
-        Elf32_Sym* FindSymbol(char* aName);
+        Elf32_Sym* FindSymbol(char* aName) const;
         uint32_t GetSymbolOrdinal(Elf32_Sym* aSym) const;
     public:
         Elf32_Sym* GetSymbolTableEntity(uint32_t index) const;
-        Elf32_Sym* LookupStaticSymbol(const char* aName);
+        Elf32_Sym* LookupStaticSymbol(const char* aName) const;
         Elf32_Phdr* GetSegmentAtAddr(Elf32_Addr addr) const;
         Elf32_Phdr* Segment(uint16_t aType);
         ESegmentType SegmentType(Elf32_Addr addr) const;

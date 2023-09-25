@@ -493,7 +493,7 @@ const char* ElfParser::StrTab() const
     return iStrTab;
 }
 
-Elf32_Sym* ElfParser::LookupStaticSymbol(const char* aName)
+Elf32_Sym* ElfParser::LookupStaticSymbol(const char* aName) const
 {
 	if (!iElfHeader->e_shnum)
         ReportError(ErrorCodes::NOSTATICSYMBOLS);
@@ -517,7 +517,7 @@ Elf32_Verneed* ElfParser::GetElf32_Verneed() const
     return iVersionNeed;
 }
 
-Elf32_Sym* ElfParser::FindSymbol(char* aName)
+Elf32_Sym* ElfParser::FindSymbol(char* aName) const
 {
 	if(!aName )
 		return nullptr;

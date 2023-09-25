@@ -96,7 +96,7 @@ void E32Parser::DecompressImage()
         ReportError(ErrorCodes::UNKNOWNCOMPRESSION);
 
 // pointer to iBufferedFile not changed
-    memcpy(iBufferedFile + offset, uncompressed + offset, expectedSize);
+    memcpy((char*)iBufferedFile + offset, uncompressed + offset, expectedSize);
     iE32Size = e32Size;
     delete[] uncompressed;
 }

@@ -387,13 +387,13 @@ void E32Validator::ValidateExportDescription() const
     }
 }
 
-void E32Validator::ValidateRelocations(uint32_t offset, uint32_t sectionSize)
+void E32Validator::ValidateRelocations(uint32_t off, uint32_t sectionSize)
 {
-    if(!offset)
+    if(!off)
 		return; // no relocations
 
     // read section header (ValidateHeader has alread checked this is OK)...
-	const E32RelocSection* sectionHeader = iParser->GetRelocSection(offset);
+	const E32RelocSection* sectionHeader = iParser->GetRelocSection(off);
 	int32_t size = sectionHeader->iSize;
 	int32_t relocsRemaining = sectionHeader->iNumberOfRelocs;
 	ThrowIfTrue(size & 3, "reloc section. It has not multiple of word size");

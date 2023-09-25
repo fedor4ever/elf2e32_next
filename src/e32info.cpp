@@ -592,7 +592,7 @@ void E32Info::Run()
     {
         uint32_t extracted = ((E32ImageHeader*)(iE32File))->iCodeOffset;
         extracted += ((E32ImageHeaderJ*)(iE32File + sizeof(E32ImageHeader) ))->iUncompressedSize;
-        const char* newfile = new char[extracted]();
+        char* newfile = new char[extracted]();
         memcpy(newfile, iE32File, s);
         delete[] iE32File;
         iE32File = nullptr;

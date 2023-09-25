@@ -1,4 +1,4 @@
-// Copyright (c) 2018-2020 Strizhniou Fiodar
+// Copyright (c) 2018-2023 Strizhniou Fiodar
 // All rights reserved.
 // This component and the accompanying materials are made available
 // under the terms of "Eclipse Public License v1.0"
@@ -216,7 +216,7 @@ void E32Info::HeaderInfo()
     if (hdrfmt >= KImageHdrFmt_V)
         printf("Header CRC:\t%08x\n", iHdr->iHeaderCrc);
 
-    printf("File Size:\t%08" PRIxMAX "\n", iE32->GetFileSize());
+    printf("File Size:\t%08" PRIxMAX "\n", (uintmax_t)iE32->GetFileSize());
     printf("Code Size:\t%08x\n", iHdr->iCodeSize);
     printf("Data Size:\t%08x\n", iHdr->iDataSize);
     printf("Compression:\t%08x\n", iHdr->iCompressionType);
@@ -541,7 +541,7 @@ void PrintHexData(const void *pos, size_t length)
     size_t i = 0;
     for(; (i + LINE_MAX) < length; i += LINE_MAX)
     {
-        printf("%06" PRIxMAX ": ", i);
+        printf("%06" PRIxMAX ": ", (uintmax_t)i);
         memcpy(str, p + i, LINE_MAX);
         for(size_t j = 0; j < LINE_MAX; j++)
         {
@@ -563,7 +563,7 @@ void PrintHexData(const void *pos, size_t length)
     memset(str, ' ', LINE_MAX);
     memcpy(str, (p + i), diff);
 
-    printf("%06" PRIxMAX ": ", i);
+    printf("%06" PRIxMAX ": ", (uintmax_t)i);
     for(uint32_t j = 0; j < diff; j++)
     {
         printf("%02x", (unsigned char)str[j]);

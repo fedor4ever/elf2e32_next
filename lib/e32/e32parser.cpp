@@ -60,7 +60,6 @@ void E32Parser::ConstructL()
     iHdrV = (E32ImageHeaderV*)(iBufferedFile + pos);
 
     ParseExportBitMap();
-    return iHdr;
 }
 
 void E32Parser::DecompressImage()

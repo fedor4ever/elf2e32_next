@@ -47,7 +47,7 @@ void ReportError(const ErrorCodes err, const int x, const int y)
 }
 
 void ReportError(const ErrorCodes err, std::list<string> ls,
-                const std::string& str, const int x)
+                const std::string& str, const int i)
 {
     std::string missedSymbols;
     for(auto x: ls)
@@ -58,7 +58,7 @@ void ReportError(const ErrorCodes err, std::list<string> ls,
     }
     ReportLog(e32Error);
     if(!str.empty())
-        Logger::Instance()->Log(err, str, x, missedSymbols);
+        Logger::Instance()->Log(err, str, i, missedSymbols);
     else
         Logger::Instance()->Log(err, missedSymbols);
     throw err;

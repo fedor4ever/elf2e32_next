@@ -403,7 +403,7 @@ void E32Info::ImportTableInfo()
             {
                 uint32_t impd = *(uint32_t*)(impTable + parser->GetImportOffset(i));
                 uint32_t ordinal = impd & 0xffff;
-                uint32_t offset = impd >> 16;
+                offset = impd >> 16;
 
                 if (offset)
                     printf("%10u offset by %u\n", ordinal, offset);

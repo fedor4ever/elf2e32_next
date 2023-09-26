@@ -236,7 +236,8 @@ E32Section CreateRelocations(std::vector<LocalReloc>& aRelocations, E32Section& 
         int p = r.iRela.r_offset & 0xfffff000;
         r.iIntermediates.iPage = p;
         if (page != p)
-        {            if(pagesize%4 != 0)
+        {
+            if(pagesize%4 != 0)
             {
                 // at first run does nothing
                 *data++ = 0;

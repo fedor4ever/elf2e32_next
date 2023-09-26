@@ -89,7 +89,7 @@ class RelocsProcessor
 
         E32Section CodeRelocsSection();
         E32Section DataRelocsSection();
-        ImportLibs GetImports();
+        ImportLibs GetImports() const;
 
         uint32_t ImportsCount() const;
         uint32_t DllCount() const;
@@ -98,7 +98,7 @@ class RelocsProcessor
         uint16_t Fixup(const Elf32_Sym* s);
         size_t ExportTableAddress() const;
         void ValidateLocalReloc(const LocalReloc& r,
-                    const std::string& name) const;
+                    const std::string& name);
 
     private:
         void RelocsFromSymbols();

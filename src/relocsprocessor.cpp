@@ -279,7 +279,7 @@ E32Section CreateRelocations(std::vector<LocalReloc>& aRelocations, E32Section& 
 }
 
 void RelocsProcessor::ValidateLocalReloc(const LocalReloc& r,
-                    const string& name) const
+                    const string& name)
 {
     uint32_t entryType = r.iIntermediates.iE32Reloc & 0xf000;
 //    ReportLog("\nentry type: %d E32 reloc: %d E32 reloc type: %d\n", entryType,
@@ -317,7 +317,7 @@ void RelocsProcessor::PrintBadRelocs(const std::string& type, const BadRelocs& r
         for(auto r: x.second) {
             uint16_t relocType = Fixup(r.iSymbol);
             uint16_t t = (uint16_t)((r.iRela.r_offset & 0xfff) | relocType);
-            uint32_t entryType = t & 0xf000;
+//            uint32_t entryType = t & 0xf000;
             ReportLog(" %d\t", t);
         }
     }
@@ -480,7 +480,7 @@ void RelocsProcessor::ProcessVerInfo()
 	std::sort(iLinkAsNames.begin(), iLinkAsNames.end());
 }
 
-ImportLibs RelocsProcessor::GetImports()
+ImportLibs RelocsProcessor::GetImports() const
 {
     return iImports;
 }

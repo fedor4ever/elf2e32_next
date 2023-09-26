@@ -305,12 +305,12 @@ void E32File::PrepareData()
     if(iE32Opts->iNamedlookup)
     {
         uint32_t r = iRelocs->DllCount();
-        SymbolLookupSection* proc = new SymbolLookupSection(iSymbols, r);
-        tmp = proc->SymlookSection();
+        SymbolLookupSection* look = new SymbolLookupSection(iSymbols, r);
+        tmp = look->SymlookSection();
         if(tmp.type == E32Sections::EMPTY_SECTION)
             ReportError(ErrorCodes::BADEXPORTS);
         iE32image.push_back(tmp);
-        delete proc;
+        delete look;
     }
 
     tmp = DataSection(iElfSrc);

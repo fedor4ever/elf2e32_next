@@ -222,7 +222,7 @@ uint32_t ElfParser::Addend(const Elf32_Rela* r) const
 }
 
 
-vector<RelocBlock> ElfParser::GetRelocs()
+vector<RelocBlock> ElfParser::GetRelocs() const
 {
     vector<RelocBlock> r;
     if(iRel.rel)
@@ -590,7 +590,7 @@ uint16_t ElfParser::Segment(const Elf32_Sym* s) const
     return KReservedRelocType;
 }
 
-Elf32_Addr* ElfParser::ExportTable()
+Elf32_Addr* ElfParser::ExportTable() const
 {
     Elf32_Phdr* ROHdr = iCodeSegmentHdr;
     // The export table starts after the header. NB this is a virtual address in the RO
@@ -598,7 +598,7 @@ Elf32_Addr* ElfParser::ExportTable()
     return ELF_ENTRY_PTR(Elf32_Addr, (intptr_t)ROHdr->p_vaddr, ROHdr->p_filesz) + 1;
 }
 
-Elf32_Phdr* ElfParser::Segment(uint16_t aType)
+Elf32_Phdr* ElfParser::Segment(uint16_t aType) const
 {
     switch(aType)
     {

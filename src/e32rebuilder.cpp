@@ -49,7 +49,7 @@ void E32Rebuilder::Run()
     }
 
     iParser = E32Parser::NewL(iFile, iFileSize);
-    iHdr = iParser->GetE32Hdr();
+    iHdr = (E32ImageHeader*)iParser->GetE32Hdr();
     iFileSize = iParser->GetFileSize();
     iFile = iParser->GetBufferedImage();
 
@@ -62,7 +62,6 @@ void E32Rebuilder::Run()
 // We reinit E32Parser object because it's consistency broken.
     delete iParser;
     iParser = E32Parser::NewL(iFile, iFileSize);
-    iParser->GetE32Hdr();
 
     ValidateE32Image(iParser);
     CheckE32CRC(iParser, iReBuildOptions);
@@ -105,7 +104,7 @@ void E32Rebuilder::EditHeader()
     if(iReBuildOptions->iPriority)
         iHdr->iProcessPriority = iReBuildOptions->iPriority;
 
-    E32ImageHeaderV* v = iParser->GetE32HdrV();
+    E32ImageHeaderV* v = (E32ImageHeaderV*)iParser->GetE32HdrV();
     if(iReBuildOptions->iSid)
         v->iS.iSecureId = iReBuildOptions->iSid;
     if(iReBuildOptions->iVid)
@@ -159,7 +158,6 @@ void E32Rebuilder::Compress()
     std::vector<char> file;
     file.assign(iFile, iFile + iFileSize);
     iParser = E32Parser::NewL(iFile, iFileSize);
-    iParser->GetE32Hdr();
 
     if(iReBuildOptions->iForceE32Build == false) // can't build invalid E32Image while validate on
         ValidateE32Image(iParser);

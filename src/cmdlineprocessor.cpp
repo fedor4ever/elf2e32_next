@@ -165,8 +165,10 @@ uint64_t ProcessALLCapabilities(const std::string& fromArgument)
 
     stringstream caps(fromArgument);
     string token;
-    while(getline(caps, token, '+'))
+    while(getline(caps, token, '-'))
     {
+        if(token == "all")
+            continue;
         p = capabilities;
         while(p->name != nullptr)
         {

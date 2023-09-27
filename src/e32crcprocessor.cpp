@@ -77,7 +77,7 @@ namespace E32Crcs
     static constexpr char IMPORTS[] = "imports";
     static constexpr char CODERELOCS[] = "coderelocs";
     static constexpr char DATARELOCS[] = "datarelocs";
-};
+}
 
 struct CRCData
 {

@@ -11,14 +11,16 @@
 				<Option object_output="obj/Debug/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
-				<Option parameters='--capability=ReadUserData --definput=&quot;tests\basicdll.def&quot; --defoutput=&quot;..\tests\tmp\basicdll.def&quot; --elfinput=&quot;tests\basicdll.elf&quot; --output=&quot;tests\tmp\basicdll.dll&quot; --libpath=&quot;tests\SDK_libs&quot; --linkas=basicdll{000a0001}[e84e1a0e].dll --dso=&quot;tests\tmp\basicdll.dso&quot; --fpu=softvfp --uid2=0x1000008d --uid3=0xe84e1a0e --targettype=DLL --debuggable --version=10.1' />
+				<Option parameters='--capability=CommDD+PowerMgmt+MultimediaDD+ReadDeviceData --definput=&quot;tests\libcryptou.def&quot; --defoutput=&quot;tests\out.def&quot; --elfinput=&quot;tests\libcrypto.dll&quot; --output=&quot;tests\libcrypto-2.4.5.tst.dll&quot; --libpath=&quot;D:\Symbian\S60_5th_Edition_SDK_v1.0\epoc32\release\armv5\lib&quot; --linkas=&quot;tests\libcrypto{000a0000}.dll&quot; --dso=&quot;tests\libcrypto{000a0000}.dso&quot; --fpu=softvfp --uid1=0x10000079 --uid2=0x20004c45 --uid3=0x00000000 --targettype=STDDLL --dlldata --ignorenoncallable --debuggable --smpsafe --uncompressed' />
 				<Compiler>
-					<Add option="-O3" />
+					<Add option="-Wshadow" />
 					<Add option="-Winit-self" />
-					<Add option="-Wzero-as-null-pointer-constant" />
+					<Add option="-Wfloat-equal" />
+					<Add option="-Wall" />
 					<Add option="-std=c++14" />
-					<Add option="-g -O0" />
-					<Add option="-g -fno-omit-frame-pointer -ggdb -femit-class-debug-always -D_FORTIFY_SOURCE=2" />
+					<Add option="-Og" />
+					<Add option="-g" />
+					<Add option="-fno-omit-frame-pointer -ggdb -femit-class-debug-always -D_FORTIFY_SOURCE=2" />
 					<Add option="-D_DEBUG" />
 					<Add directory="lib/e32" />
 					<Add directory="src" />
@@ -63,7 +65,6 @@
 		<Unit filename="lib/e32/bpe_manager.cpp" />
 		<Unit filename="lib/e32/byte_pair.cpp" />
 		<Unit filename="lib/e32/byte_pair.h" />
-		<Unit filename="lib/e32/checke32crc.cpp" />
 		<Unit filename="lib/e32/checksum.cpp" />
 		<Unit filename="lib/e32/deflate_manger.cpp" />
 		<Unit filename="lib/e32/deflatecompress.cpp" />

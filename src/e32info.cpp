@@ -322,7 +322,7 @@ void E32Info::SecurityInfo(bool aCapNames)
     uint64_t caps = v->iS.iCaps;
     printf("Secure ID: %08x\n", v->iS.iSecureId);
     printf("Vendor ID: %08x\n", v->iS.iVendorId);
-    printf("Capabilities: %08" PRIu64 " %08" PRIu64 "\n", caps<<32, caps>>32);
+    printf("Capabilities: %08x %08x\n", (uint32_t)(caps>>32), (uint32_t)caps);
 
     if(!aCapNames)
         return;

@@ -411,7 +411,7 @@ void RelocsProcessor::AddToLocalRelocations(uint32_t aAddr, uint32_t index,
 {
     LocalReloc loc;
     uint16_t type = Fixup(aSym);
-    loc.iSegment = iElf->Segment(&type);
+    loc.iSegment = iElf->Segment(type);
     loc.iSymNdx = index;
     loc.iRela.r_offset = aAddr;
     loc.iHasRela = false;

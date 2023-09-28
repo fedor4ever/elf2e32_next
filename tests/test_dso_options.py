@@ -6,7 +6,7 @@ tstdir=r"D:\codeblock\elf2e32_next\tests"
 
 defin=r""" --definput="libcryptou.def" """
 dsoout=r""" --dso="tmp\libcrypto{000a0000}.def2dso.dso" """
-linkas=r""" --linkas="libcrypto{000a0000}.dll" """
+linkas=r""" --linkas="libcrypto{000a0000}[00000000].dll" """
 tgttype=r" --targettype=implib"
 
 

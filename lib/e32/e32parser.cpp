@@ -67,20 +67,20 @@ void E32Parser::DecompressImage()
     if(!iHdr->iCompressionType)
         return;
 
-    const uint32_t expectedSize = iHdrJ->iUncompressedSize;
-    std::streamoff e32Size = Adjust(expectedSize + iHdr->iCodeOffset);
+    const size_t offset = iHdr->iCodeOffset;
+    const uint32_t extracted = iHdrJ->iUncompressedSize;
+    std::streamoff e32Size = Adjust(extracted + offset);
 
-    if(e32Size != (expectedSize + iHdr->iCodeOffset))
+    if(e32Size != (extracted + offset))
         ReportError(ErrorCodes::WRONGFILESIZEFORDECOMPRESSION,
-            expectedSize + iHdr->iCodeOffset, e32Size);
+            extracted + offset, e32Size);
 
     const uint32_t compr = iHdr->iCompressionType;
     if((compr != KUidCompressionDeflate) && (compr != KUidCompressionBytePair))
         ReportError(ErrorCodes::UNKNOWNCOMPRESSION);
 
 // allocate slightly more memory to minimize memory overrun
-    const size_t offset = iHdr->iCodeOffset;
-    char* uncompressed = new char[expectedSize + offset]();
+    char* uncompressed = new char[extracted + offset]();
     memcpy(uncompressed, iBufferedFile + offset, offset);
 
     if(compr == KUidCompressionBytePair)
@@ -91,12 +91,12 @@ void E32Parser::DecompressImage()
             ReportWarning(ErrorCodes::BYTEPAIRINCONSISTENTSIZE);
     }else if(compr == KUidCompressionDeflate)
     {
-        DeCompressInflate((unsigned char*)iBufferedFile + offset, iE32Size - offset, (unsigned char*)uncompressed + offset, expectedSize);
+        DeCompressInflate((unsigned char*)iBufferedFile + offset, iE32Size - offset, (unsigned char*)uncompressed + offset, extracted);
     }else
         ReportError(ErrorCodes::UNKNOWNCOMPRESSION);
 
 // pointer to iBufferedFile not changed
-    memcpy((char*)iBufferedFile + offset, uncompressed + offset, expectedSize);
+    memcpy((char*)iBufferedFile + offset, uncompressed + offset, extracted);
     iE32Size = e32Size;
     delete[] uncompressed;
 }

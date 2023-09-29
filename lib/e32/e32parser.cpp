@@ -22,22 +22,30 @@
 #include "e32common.h"
 #include "e32parser.h"
 #include "e32compressor.h"
+#include "elf2e32_opt.hpp"
 
 int32_t Adjust(int32_t size);
 
-E32Parser* E32Parser::NewL(const char* fileBuf, const std::streamoff& bufsize)
+E32Parser* E32Parser::NewL(const Args* arg)
 {
-    E32Parser* self = new E32Parser(fileBuf, bufsize);
+    E32Parser* self = new E32Parser(arg);
     self->ConstructL();
     return self;
 }
 
-E32Parser::E32Parser(const char* buf, const std::streamoff& bufsize):
-    iBufferedFile(buf), iE32Size(bufsize)
+E32Parser::~E32Parser()
+{
+    delete iBufferedFile;
+}
+
+E32Parser::E32Parser(const Args* arg):
+    iOpts(arg)
 {}
 
 void E32Parser::ConstructL()
 {
+    iBufferedFile = ReadFile(iOpts->iE32input.c_str(), iE32Size);
+
     if(!iBufferedFile)
         ReportError(ZEROBUFFER, "Buffered E32Image not set at all.");
 
@@ -48,7 +56,11 @@ void E32Parser::ConstructL()
         ReportError(ELFFILEEXPECTEDE32);
 
     iHdr = (E32ImageHeader*)iBufferedFile;
+    isCompessed = iHdr->iCompressionType;
     size_t pos = sizeof(E32ImageHeader);
+
+    if( *(uint32_t*)(iHdr->iSignature) != 0x434f5045) // 'EPOC'
+        ReportError(ErrorCodes::ZEROBUFFER, "Signature for E32 image not found!\n");
 
 /// TODO (Administrator#1#09/09/18): Stop here detection for pre-8 binaries
     iHdrJ = (E32ImageHeaderJ*)(iBufferedFile + pos);
@@ -64,7 +76,7 @@ void E32Parser::ConstructL()
 
 void E32Parser::DecompressImage()
 {
-    if(!iHdr->iCompressionType)
+    if(!IsCompressed())
         return;
 
     const size_t offset = iHdr->iCodeOffset;
@@ -95,10 +107,10 @@ void E32Parser::DecompressImage()
     }else
         ReportError(ErrorCodes::UNKNOWNCOMPRESSION);
 
-// pointer to iBufferedFile not changed
-    memcpy((char*)iBufferedFile + offset, uncompressed + offset, extracted);
     iE32Size = e32Size;
-    delete[] uncompressed;
+    delete[] iBufferedFile;
+    iBufferedFile = nullptr;
+    iBufferedFile = uncompressed;
 }
 
 const TExceptionDescriptor* E32Parser::GetExceptionDescriptor() const
@@ -309,6 +321,10 @@ uint32_t E32Parser::EntryPoint() const
     return(iHdr->iEntryPoint + entryPointOffset);
 }
 
+bool E32Parser::IsCompressed() const
+{
+    return isCompessed == KFormatNotCompressed;
+}
 
 int32_t Adjust(int32_t size)
 {

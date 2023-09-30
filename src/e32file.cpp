@@ -52,9 +52,9 @@ E32File::~E32File()
     delete iRelocs;
 }
 
-void UpdateImportTable(const char* s, size_t bufsz, const std::vector<int32_t>& iImportTabLocations)
+void UpdateImportTable(const E32SectionUnit& s, const std::vector<int32_t>& iImportTabLocations)
 {
-    E32Parser* p = E32Parser::NewL(s, bufsz);
+    E32Parser* p = E32Parser::NewL(s);
     const E32ImageHeader* h = p->GetE32Hdr();
 //    const E32EpocExpSymInfoHdr* symInf = p->GetEpocExpSymInfoHdr();
     size_t offSet = p->ExpSymInfoTableOffset();
@@ -160,7 +160,7 @@ void E32File::WriteE32File()
         hdr = (E32ImageHeader*)&iHeader[0];
         hdrv = (E32ImageHeaderV*)&iHeader[offset];
     }
-    UpdateImportTable(iHeader.data(), iHeader.size(), iImportTabLocations);
+    UpdateImportTable(iHeader, iImportTabLocations);
     E32ImageHeaderJ* j = (E32ImageHeaderJ*)&iHeader[sizeof(E32ImageHeader)];
     j->iUncompressedSize = iHeader.size() - hdr->iCodeOffset;
 
@@ -180,18 +180,13 @@ void E32File::WriteE32File()
     arg.iCompressionMethod = iE32Opts->iCompressionMethod;
     arg.iOutput = iE32Opts->iOutput;
     arg.iForceE32Build = iE32Opts->iForceE32Build;
-    //does that crap because E32Rebuilder free filebuf itself
-    char* t = new char[iHeader.size()]();
-    memcpy(t, &iHeader[0], iHeader.size());
 
     //call E32Info::HeaderInfo() for verbose output
     if(VerboseOut())
     {
-        hdr = (E32ImageHeader*)&t[0];
         hdr->iCompressionType = KFormatNotCompressed;
 
-        auto sz = iHeader.size();
-        E32Info* info = new E32Info(t, sz);
+        E32Info* info = new E32Info(iE32Opts, iHeader);
         info->HeaderInfo();
         delete info;
 

@@ -408,7 +408,8 @@ bool ArgParser::Parse(Args* arg) const
                 ArgInfo(optname);
                 break;
             case ':':
-                //optind always point to next argv instead current                ReportError(MISSEDARGUMENT, iArgv[optind-1], Help);
+                //optind always point to next argv instead current
+                ReportError(MISSEDARGUMENT, iArgv[optind-1], Help);
                 return false;
             case '?':
                 //optind always point to next argv instead current

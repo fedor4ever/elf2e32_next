@@ -28,30 +28,14 @@
 #include "elf2e32_opt.hpp"
 #include "elf2e32_version.hpp"
 
-E32Rebuilder::E32Rebuilder(Args* param): iReBuildOptions(param)
-{
-}
+E32Rebuilder::E32Rebuilder(Args* param): iReBuildOptions(param) {}
 
 void E32Rebuilder::Run()
 {
-    iFile = ReadFile(iReBuildOptions->iE32input.c_str(), iFileSize);
-    //for decompression purpose we provide memory buffer large enough to hold uncompressed data
-    if( ((E32ImageHeader*)(iFile))->iCompressionType)
-    {
-        uint32_t extracted = ((E32ImageHeader*)(iFile))->iCodeOffset;
-        extracted += ((E32ImageHeaderJ*)(iFile + sizeof(E32ImageHeader) ))->iUncompressedSize;
-        char* newfile = new char[extracted]();
-        memcpy(newfile, iFile, iFileSize);
-        delete[] iFile;
-        iFile = nullptr;
-        iFile = newfile;
-        iFileSize = extracted;
-    }
-
-    iParser = E32Parser::NewL(iFile, iFileSize);
+    iParser = E32Parser::NewL(iReBuildOptions->iE32input);
     iHdr = (E32ImageHeader*)iParser->GetE32Hdr();
     iFileSize = iParser->GetFileSize();
-    iFile = iParser->GetBufferedImage();
+    iFile = (char*)iParser->GetBufferedImage();
 
     EditHeader();
     ReCompress();
@@ -61,7 +45,7 @@ void E32Rebuilder::Run()
     file.assign(iFile, iFile + iFileSize);
 // We reinit E32Parser object because it's consistency broken.
     delete iParser;
-    iParser = E32Parser::NewL(iFile, iFileSize);
+    iParser = E32Parser::NewL(file);
 
     ValidateE32Image(iParser);
     CheckE32CRC(iParser, iReBuildOptions);
@@ -147,17 +131,18 @@ void E32Rebuilder::ReCompress()
     iFileSize = offset + compressedSize;
 }
 
-E32Rebuilder::E32Rebuilder(Args* param, const char* file, std::streamsize filesize):
-    iReBuildOptions(param), iFile(file), iFileSize(filesize) {}
-
-void E32Rebuilder::Compress()
+void E32Rebuilder::Compress(const std::vector<char>& e32File)
 {
+    iFileSize = e32File.size();
+    iFile = new char[iFileSize]();
+    std::copy(e32File.begin(), e32File.end(), iFile);
     iHdr = (E32ImageHeader*)iFile;
     ReCompress();
+
     // We create copy of file object because ValidateE32Image(iParser) break it's consistency.
     std::vector<char> file;
     file.assign(iFile, iFile + iFileSize);
-    iParser = E32Parser::NewL(iFile, iFileSize);
+    iParser = E32Parser::NewL(file);
 
     if(iReBuildOptions->iForceE32Build == false) // can't build invalid E32Image while validate on
         ValidateE32Image(iParser);

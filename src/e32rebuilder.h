@@ -29,15 +29,14 @@ class E32Rebuilder: public Task
 		E32Rebuilder(Args* param);
 		virtual ~E32Rebuilder();
 		virtual void Run() final;
-		E32Rebuilder(Args* param, const char* file, std::streamsize filesize);
-		void Compress();
+		void Compress(const std::vector<char>& e32File);
 	private:
 		void EditHeader();
 		void ReCompress();
 	private:
 		E32Parser* iParser = nullptr;
 		Args* iReBuildOptions = nullptr;
-		const char* iFile = nullptr;
+		char* iFile = nullptr;
 		E32ImageHeader* iHdr = nullptr;
 		std::streamsize iFileSize = 0;
 };

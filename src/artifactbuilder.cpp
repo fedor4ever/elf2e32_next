@@ -250,7 +250,7 @@ void ResetInvalidLINKAS(Args* arg)
     size_t lst = arg->iLinkas.find_first_of("}");
     if((first == std::string::npos) || (last == std::string::npos) || (last < first) ||
        (fst == std::string::npos) || (lst == std::string::npos) || (lst < fst) ||
-       ((last - first) != 9) && ((lst - fst) != 9))
+       ( ((last - first) != 9) && ((lst - fst) != 9)) )
     {
         ReportWarning(ErrorCodes::ZEROBUFFER, "Illformed option: " + arg->iLinkas + "\n");
         ReportWarning(ErrorCodes::ZEROBUFFER, "Example: --linkas=foo{000a0000}[10011237].dll\n");

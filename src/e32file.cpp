@@ -198,8 +198,8 @@ void E32File::WriteE32File()
         hdr->iCompressionType = iE32Opts->iCompressionMethod;
     }
 
-    E32Rebuilder* rb = new E32Rebuilder(&arg, t, iHeader.size());
-    rb->Compress();
+    E32Rebuilder* rb = new E32Rebuilder(&arg);
+    rb->Compress(iHeader);
     delete rb;
     iHeader.clear();
 //    SaveFile(iE32Opts->iOutput.c_str(), iHeader.data(), iHeader.size());

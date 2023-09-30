@@ -29,10 +29,8 @@ E32Editor::E32Editor(const E32Parser* const file): iFile(file)
 
 void E32Editor::ConstructL()
 {
-    std::streamoff tmp = iFile->GetFileSize();
-    char* buf = new char[tmp]();
-    memcpy(buf, iFile->GetBufferedImage(), tmp);
-    iFile = E32Parser::NewL(buf, tmp);
+    std::vector<char> buf(iFile->GetBufferedImage(), iFile->GetBufferedImage() + iFile->GetFileSize());
+    iFile = E32Parser::NewL(buf);
     iHeader = (E32ImageHeader*)iFile->GetE32Hdr(); //FIXME: Add explicit write access
     iE32File = iFile->GetBufferedImage();
 }
@@ -47,7 +45,6 @@ E32Editor* E32Editor::NewL(const E32Parser* const file)
 E32Editor::~E32Editor()
 {
     delete iFile;
-    delete[] iE32File;
 }
 
 void E32Editor::SetE32Time(uint32_t timeLo, uint32_t timeHi)

@@ -18,9 +18,9 @@
 #define E32PARSER_H
 
 #include <ios>
+#include <vector>
 #include <cstdint>
 
-class Args;
 struct E32ImageHeader;
 struct E32ImageHeaderJ;
 struct E32ImageHeaderV;
@@ -31,11 +31,15 @@ struct TExceptionDescriptor;
 
 class E32Parser
 {
-        E32Parser(const Args* arg);
         void ConstructL();
+        E32Parser(const std::string& arg);
 
+        void ConstructL(const std::vector<char>& e32File);
+        E32Parser() = default;
+        void PostConstructL();
     public:
-        static E32Parser* NewL(const Args* arg);
+        static E32Parser* NewL(const std::string& arg);
+        static E32Parser* NewL(const std::vector<char>& e32File);
         ~E32Parser();
 
         const E32ImageHeader* GetE32Hdr() const;
@@ -47,7 +51,7 @@ class E32Parser
         const E32ImportSection* GetImportSection() const;
 
         uint32_t* GetExportTable() const;
-        int32_t GetExportDescription();
+        int32_t GetExportDescription() const;
 
         const uint32_t* GetImportAddressTable() const;
         uint32_t ExpSymInfoTableOffset() const;
@@ -70,10 +74,10 @@ class E32Parser
     private:
         std::streamsize iE32Size = 0;
         uint32_t isCompessed = 0;
-        const char* iBufferedFile = nullptr;
+        char* iBufferedFile = nullptr;
 
     private:
-        const Args* iOpts = nullptr;
+        const std::string iE32File;
         const E32ImageHeader* iHdr = nullptr;
         const E32ImageHeaderJ* iHdrJ = nullptr;
         const E32ImageHeaderV* iHdrV = nullptr;

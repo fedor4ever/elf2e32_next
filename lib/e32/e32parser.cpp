@@ -26,10 +26,19 @@
 
 int32_t Adjust(int32_t size);
 
-E32Parser* E32Parser::NewL(const Args* arg)
+E32Parser* E32Parser::NewL(const std::string& arg)
 {
     E32Parser* self = new E32Parser(arg);
     self->ConstructL();
+    self->PostConstructL();
+    return self;
+}
+
+E32Parser* E32Parser::NewL(const std::vector<char>& e32File)
+{
+    E32Parser* self = new E32Parser();
+    self->ConstructL(e32File);
+    self->PostConstructL();
     return self;
 }
 
@@ -38,13 +47,13 @@ E32Parser::~E32Parser()
     delete iBufferedFile;
 }
 
-E32Parser::E32Parser(const Args* arg):
-    iOpts(arg)
+E32Parser::E32Parser(const std::string& arg):
+    iE32File(arg)
 {}
 
 void E32Parser::ConstructL()
 {
-    iBufferedFile = ReadFile(iOpts->iE32input.c_str(), iE32Size);
+    iBufferedFile = (char*)ReadFile(iE32File.c_str(), iE32Size);
 
     if(!iBufferedFile)
         ReportError(ZEROBUFFER, "Buffered E32Image not set at all.");
@@ -54,7 +63,10 @@ void E32Parser::ConstructL()
 
     if((iBufferedFile[1] == 'E')&&(iBufferedFile[2] == 'L')&&(iBufferedFile[3] == 'F'))
         ReportError(ELFFILEEXPECTEDE32);
+}
 
+void E32Parser::PostConstructL()
+{
     iHdr = (E32ImageHeader*)iBufferedFile;
     isCompessed = iHdr->iCompressionType;
     size_t pos = sizeof(E32ImageHeader);
@@ -72,6 +84,13 @@ void E32Parser::ConstructL()
     iHdrV = (E32ImageHeaderV*)(iBufferedFile + pos);
 
     ParseExportBitMap();
+}
+
+void E32Parser::ConstructL(const std::vector<char>& e32File)
+{
+    iE32Size = e32File.size();
+    iBufferedFile = new char[iE32Size]();
+    std::copy(e32File.begin(), e32File.end(), iBufferedFile);
 }
 
 void E32Parser::DecompressImage()
@@ -231,14 +250,14 @@ uint32_t E32Parser::BSSOffset() const
 /**
 This function creates the export description after reading the E32 image file
 */
-int32_t E32Parser::GetExportDescription()
+int32_t E32Parser::GetExportDescription() const
 {
     uint32_t fm = HdrFmtFromFlags(iHdr->iFlags);
     if (fm < KImageHdrFmt_V && iMissingExports)
         return KErrCorrupt;
 
     if(!iHdrV)
-        iHdrV = GetE32HdrV();
+        ReportError(ErrorCodes::ZEROBUFFER, "E32ImageHeaderV* member not set!\n");
 
     if (iHdrV->iExportDescType == KImageHdr_ExpD_NoHoles)
         return iMissingExports ? KErrCorrupt : KErrNone;

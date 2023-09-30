@@ -31,23 +31,24 @@
 #include "e32importsprocessor.hpp"
 
 void DumpRelocs(const E32RelocSection* relocs);
-void GenerateAsmFile(Args* param);
+void GenerateAsmFile(const Args* param);
 void PrintHexData(const void* pos, size_t lenth);
 
-E32Info::E32Info(Args* param): iParam(param),
-    iFlags(param->iDump) {}
-
-E32Info::E32Info(const char* buf, std::streamsize filesize): iE32File(buf)
+E32Info::E32Info(const Args* param): iParam(param)
 {
-    iE32 = E32Parser::NewL(iE32File, filesize);
+    iE32 = E32Parser::NewL(param->iE32input);
+    iHdr = iE32->GetE32Hdr();
+}
+
+E32Info::E32Info(const Args* param, const std::vector<char>& e32File): iParam(param)
+{
+    iE32 = E32Parser::NewL(e32File);
     iHdr = iE32->GetE32Hdr();
 }
 
 E32Info::~E32Info()
 {
     delete iE32;
-    if(iParam) //E32Info(const char* buf) not own buf
-        delete[] iE32File;
 }
 
 void E32Info::HeaderInfo()
@@ -579,30 +580,11 @@ void PrintHexData(const void *pos, size_t length)
 
 void E32Info::Run()
 {
-    if(iParam->iE32input.empty())
-        ReportError(ErrorCodes::MISSEDARGUMENT, "--e32input");
+    auto flags = iParam->iDump;
+    if(flags.empty())
+        HeaderInfo();
 
-    std::streamsize s = 0;
-    iE32File = ReadFile(iParam->iE32input.c_str(), s);
-    if(!iE32File)
-        ReportError(ErrorCodes::FILEOPENERROR, iParam->iE32input);
-
-    //for decompression purpose we provide memory buffer large enough to hold uncompressed data
-	if( ((E32ImageHeader*)(iE32File))->iCompressionType)
-    {
-        uint32_t extracted = ((E32ImageHeader*)(iE32File))->iCodeOffset;
-        extracted += ((E32ImageHeaderJ*)(iE32File + sizeof(E32ImageHeader) ))->iUncompressedSize;
-        char* newfile = new char[extracted]();
-        memcpy(newfile, iE32File, s);
-        delete[] iE32File;
-        iE32File = nullptr;
-        iE32File = newfile;
-        s = extracted;
-    }
     printf("E32ImageFile \'%s\'\n", iParam->iE32input.c_str());
-
-    iE32 = E32Parser::NewL(iE32File, s);
-    iHdr = iE32->GetE32Hdr();
 
     // We ignore validate E32 Image when E32Info used for logging on freshly created E32 Image
     if(iParam->iForceE32Build == false)
@@ -611,7 +593,7 @@ void E32Info::Run()
         CheckE32CRC(iE32, iParam);
     }
 
-    for(auto x: iParam->iDump)
+    for(auto x: flags)
     {
         switch(x)
         {
@@ -640,7 +622,7 @@ void E32Info::Run()
                 SymbolInfo();
                 break;
             default:
-                ReportError(INVALIDARGUMENT, "--dump", iFlags);
+                ReportError(INVALIDARGUMENT, "--dump", flags);
         }
     }
 }
@@ -708,7 +690,7 @@ void DumpRelocs(const E32RelocSection *reloc)
     printf("\n");
 }
 
-void GenerateAsmFile(Args *param)
+void GenerateAsmFile(const Args *param)
 {
     const char *output = param->iOutput.c_str();
 

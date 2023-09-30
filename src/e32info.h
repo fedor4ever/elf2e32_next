@@ -20,9 +20,10 @@
 #ifndef E32INFO_H
 #define E32INFO_H
 
-#include <cstdint>
-#include <cstddef>
 #include <string>
+#include <vector>
+#include <cstddef>
+#include <cstdint>
 
 #include "task.hpp"
 #include "e32common.h"
@@ -34,8 +35,8 @@ struct E32ImageHeader;
 class E32Info: public Task
 {
     public:
-        E32Info(Args* param);
-        E32Info(const char* buf, std::streamsize filesize);
+        E32Info(const Args* param);
+        E32Info(const Args* param,const  std::vector<char>& E32File);
         virtual ~E32Info();
         virtual void Run() final;
     public:
@@ -51,10 +52,8 @@ class E32Info: public Task
         void CPUIdentifier(uint16_t CPUType, bool &isARM);
         void ImagePriority(TProcessPriority priority) const;
     private:
-        Args* iParam = nullptr;
-        std::string iFlags;
-        const char* iE32File = nullptr;
-        E32Parser* iE32 = nullptr;
+        const Args* iParam = nullptr;
+        const E32Parser* iE32 = nullptr;
         const E32ImageHeader* iHdr = nullptr;
 };
 

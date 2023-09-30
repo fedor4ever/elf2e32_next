@@ -342,7 +342,7 @@ uint32_t E32Parser::EntryPoint() const
 
 bool E32Parser::IsCompressed() const
 {
-    return isCompessed == KFormatNotCompressed;
+    return isCompessed != KFormatNotCompressed;
 }
 
 int32_t Adjust(int32_t size)

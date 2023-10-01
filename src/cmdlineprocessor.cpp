@@ -192,7 +192,8 @@ uint64_t ProcessCapabilities(const std::string& fromArgument)
     string str = ToLower(fromArgument);
     if(str.substr(0, 4) == "none")
         return 0;
-    if(str.substr(0, 3) == "all")
+    if( (str.find("all") != str.find("allfiles")) &&
+       (str.find("all") != std::string::npos) )
         return ProcessALLCapabilities(str);
 
     stringstream caps(str);

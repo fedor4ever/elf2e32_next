@@ -499,12 +499,14 @@ void ValidateOptions(Args* arg)
 
 void ValidateCaps(Args* arg)
 {
+    auto pos = std::string::npos;
     std::string caps = ToLower(arg->iCapability);
 
     if(caps.empty())
         ReportError(ErrorCodes::ZEROBUFFER, "Internal error! Default capabilities value lost!");
     if((caps[0] == '-') || (caps[0] == '+'))
         ReportError(ErrorCodes::INVALIDARGUMENT, "capability", caps);
-    if( (caps.substr(0, 3) == "all") && (caps.find('+') < std::string::npos) )
+//  If we have nonsence like All+AllFiles
+    if( (caps.find("all") != caps.find("allfiles")) && (caps.find('+') < pos) && (caps.find("allfiles") == pos) )
         ReportError(ErrorCodes::INVALIDARGUMENT, "capability", caps);
 }

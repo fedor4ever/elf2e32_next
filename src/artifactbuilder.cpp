@@ -238,19 +238,28 @@ std::string VersionAsStr(uint32_t version)
  * 3) target UID3(hex form): "[10011237]"
  * 4) file extension
  *
+ * If UID3 == 0 part 3 not present in builds in SDK
+ * S60_5th_Edition_SDK_v1.0 for exe and dll, stdexe and stddll
  */
 void ResetInvalidLINKAS(Args* arg)
 {
     if(arg->iLinkas.empty())
         return;
 
-    size_t first = arg->iLinkas.find_first_of("[");
-    size_t last = arg->iLinkas.find_first_of("]");
-    size_t fst = arg->iLinkas.find_first_of("{");
-    size_t lst = arg->iLinkas.find_first_of("}");
-    if((first == std::string::npos) || (last == std::string::npos) || (last < first) ||
-       (fst == std::string::npos) || (lst == std::string::npos) || (lst < fst) ||
-       ( ((last - first) != 9) && ((lst - fst) != 9)) )
+    size_t first = arg->iLinkas.find_first_of("{");
+    size_t last = arg->iLinkas.find_first_of("}");
+    size_t fst = arg->iLinkas.find_first_of("[");
+    size_t lst = arg->iLinkas.find_first_of("]");
+
+    auto pos = std::string::npos;
+
+    bool head = (first == pos) || (last == pos) || (last < first);
+    bool zeroUID3 = ((last - first) != 9);
+    bool nonzeroUID3 = ( ((last - first) != 9) && ((lst - fst) != 9)) ||
+                (fst == pos) || (lst == pos) || (lst < fst);
+    bool tail = (arg->iUid3 > 0) ? nonzeroUID3: zeroUID3;
+
+    if(head || tail)
     {
         ReportWarning(ErrorCodes::ZEROBUFFER, "Illformed option: " + arg->iLinkas + "\n");
         ReportWarning(ErrorCodes::ZEROBUFFER, "Example: --linkas=foo{000a0000}[10011237].dll\n");
@@ -297,6 +306,12 @@ void DeduceLINKAS(Args* arg)
 const std::string linkAsError = "Failure while reconstructing linkas option from UID3";
 void ResolveLinkAsUID(Args* arg)
 {
+    if(arg->iUid3 == 0)
+    {
+        arg->iLinkasUid.erase();
+        return;
+    }
+
     if( !arg->iLinkasUid.empty() && (arg->iLinkasUid[0] == '0') &&
        ((arg->iLinkasUid[1] == 'x') || (arg->iLinkasUid[1] == 'X')) )
     {

@@ -568,7 +568,10 @@ void InfoPrint(const char* hdr, uint32_t& pos, const uint32_t offset)
 string DSOName(const string& linkAs)
 {
     string tmp = linkAs;
-    tmp.erase(tmp.find_first_of("["));
+    auto t = tmp.find_first_of("[");
+    if(t == std::string::npos)
+        t = tmp.find_first_of(".");
+    tmp.erase(t);
     tmp += ".dso";
     return tmp;
 }

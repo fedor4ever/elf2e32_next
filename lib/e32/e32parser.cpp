@@ -112,7 +112,7 @@ void E32Parser::DecompressImage()
 
 // allocate slightly more memory to minimize memory overrun
     char* uncompressed = new char[extracted + offset]();
-    memcpy(uncompressed, iBufferedFile + offset, offset);
+    memcpy(uncompressed, iBufferedFile, offset);
 
     if(compr == KUidCompressionBytePair)
     {
@@ -130,6 +130,9 @@ void E32Parser::DecompressImage()
     delete[] iBufferedFile;
     iBufferedFile = nullptr;
     iBufferedFile = uncompressed;
+
+    iHdr = (E32ImageHeader*)iBufferedFile;
+    iHdrJ = (E32ImageHeaderJ*)(iBufferedFile + sizeof(E32ImageHeader));
 }
 
 const TExceptionDescriptor* E32Parser::GetExceptionDescriptor() const

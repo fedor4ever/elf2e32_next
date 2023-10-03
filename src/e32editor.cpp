@@ -30,6 +30,9 @@ E32Editor::E32Editor(const E32Parser* const file): iFile(file)
 void E32Editor::ConstructL()
 {
     std::vector<char> buf(iFile->GetBufferedImage(), iFile->GetBufferedImage() + iFile->GetFileSize());
+    E32ImageHeader* h = (E32ImageHeader*)&buf[0];
+    h->iCompressionType = KFormatNotCompressed; // E32Parser already decompress E32Image
+
     iFile = E32Parser::NewL(buf);
     iHeader = (E32ImageHeader*)iFile->GetE32Hdr(); //FIXME: Add explicit write access
     iE32File = iFile->GetBufferedImage();

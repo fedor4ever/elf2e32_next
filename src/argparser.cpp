@@ -436,7 +436,7 @@ bool ArgParser::Parse(Args* arg) const
         {
             printf("    %s\n", iArgv[i]);
         }
-        printf("******************");
+        printf("******************\n");
     }
     return true;
 }

@@ -180,6 +180,7 @@ void E32File::WriteE32File()
     arg.iCompressionMethod = iE32Opts->iCompressionMethod;
     arg.iOutput = iE32Opts->iOutput;
     arg.iForceE32Build = iE32Opts->iForceE32Build;
+    arg.iFileCrc = iE32Opts->iFileCrc;
 
     //call E32Info::HeaderInfo() for verbose output
     if(VerboseOut())

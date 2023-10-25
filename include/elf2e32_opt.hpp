@@ -22,6 +22,7 @@
 #include "cmdlineprocessor.h"
 
 const std::string DefaultOptionalArg = "none";
+
 struct OptionsType
 {
     enum
@@ -71,8 +72,6 @@ struct OptionsType
         EDUMP,
         // common options
         ELOG,
-        EMESSAGEFILE,
-        EDUMPMESSAGEFILE,
         EVERSION,
         EMAN,
         EMANEDIT,
@@ -84,7 +83,13 @@ struct OptionsType
         FILECRC,
         TIME,
         VERBOSE,
-        FORCEE32BUILD
+        FORCEE32BUILD,
+        // ignored
+        EMESSAGEFILE,
+        EDUMPMESSAGEFILE,
+        // error codes
+        EMISSEDARG,
+        ENOTRECOGNIZEDARG
     };
 };
 

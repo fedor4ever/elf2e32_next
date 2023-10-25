@@ -1,4 +1,4 @@
-// Copyright (c) 2019-2020 Strizhniou Fiodar
+// Copyright (c) 2019-2023 Strizhniou Fiodar
 // All rights reserved.
 // This component and the accompanying materials are made available
 // under the terms of "Eclipse Public License v1.0"
@@ -16,13 +16,15 @@
 //
 
 #include <string>
+#include <sstream>
 #include <string.h>
 #include <strings.h>
 
-#include "getopt.h"
 #include "common.hpp"
+#include "getopt.hpp"
 #include "argparser.h"
 #include "e32common.h"
+#include "getopt_opts.h"
 #include "elf2e32_opt.hpp"
 #include "cmdlineprocessor.h"
 #include "elf2e32_version.hpp"
@@ -33,74 +35,17 @@ static bool VerboseOutput = false;
 
 bool VerboseOut() {return VerboseOutput;}
 
-static struct option long_opts[] =
+ArgParser::ArgParser(int argc, char** argv)
 {
-    {"uid1",  required_argument, nullptr, OptionsType::EUID1},
-    {"uid2",  required_argument, nullptr, OptionsType::EUID2},
-    {"uid3",  required_argument, nullptr, OptionsType::EUID3},
-    {"sid",   required_argument, nullptr, OptionsType::ESID},
-    {"vid",   required_argument, nullptr, OptionsType::EVID},
-    {"heap",  required_argument, nullptr, OptionsType::EHEAP},
-    {"stack", required_argument, nullptr, OptionsType::ESTACK},
-    // for E32ImageHeader::iFlags
-    {"fixedaddress",     no_argument, nullptr, OptionsType::EFIXEDADDRESS},
-    {"callentry",        no_argument, nullptr, OptionsType::ECALLENTRY},
-    {"fpu",        required_argument, nullptr, OptionsType::EFPU},
-    {"codepaging", required_argument, nullptr, OptionsType::ECODEPAGING},
-    {"datapaging", required_argument, nullptr, OptionsType::EDATAPAGING},
-    {"paged",            no_argument, nullptr, OptionsType::EPAGED},
-    {"defaultpaged",     no_argument, nullptr, OptionsType::EDEFAULTPAGED},
-    {"unpaged",          no_argument, nullptr, OptionsType::EUNPAGED},
-    {"debuggable",       no_argument, nullptr, OptionsType::EDEBUGGABLE},
-    {"smpsafe",          no_argument, nullptr, OptionsType::ESMPSAFE},
-    // for image generation
-    {"targettype",   required_argument, nullptr, OptionsType::ETARGETTYPE},
-    {"linkas",       required_argument, nullptr, OptionsType::ELINKAS},
-    {"uncompressed",       no_argument, nullptr, OptionsType::EUNCOMPRESSED},
-    {"compressionmethod", required_argument, nullptr, OptionsType::ECOMPRESSIONMETHOD},
-    {"unfrozen",           no_argument, nullptr, OptionsType::EUNFROZEN},
-    {"ignorenoncallable",  no_argument, nullptr, OptionsType::EIGNORENONCALLABLE},
-    {"capability",   required_argument, nullptr, OptionsType::ECAPABILITY},
-    {"sysdef",       required_argument, nullptr, OptionsType::ESYSDEF},
-    {"dlldata",            no_argument, nullptr, OptionsType::EDLLDATA},
-    {"priority",     required_argument, nullptr, OptionsType::EPRIORITY},
-    {"excludeunwantedexports",   no_argument, nullptr, OptionsType::EEXCLUDEUNWANTEDEXPORTS},
-    {"customdlltarget",    no_argument, nullptr, OptionsType::ECUSTOMDLLTARGET},
-    {"namedlookup",        no_argument, nullptr, OptionsType::ENAMEDLOOKUP},
-    // input files
-    {"definput",  required_argument, nullptr, OptionsType::EDEFINPUT},
-    {"defoutput", required_argument, nullptr, OptionsType::EDEFOUTPUT},
-    {"elfinput",  required_argument, nullptr, OptionsType::EELFINPUT},
-    {"output",    required_argument, nullptr, OptionsType::EOUTPUT},
-    {"dso",       required_argument, nullptr, OptionsType::EDSO},
-    {"libpath",   required_argument, nullptr, OptionsType::ELIBPATH},
-    {"e32input",  required_argument, nullptr, OptionsType::EE32INPUT},
-    {"header",    optional_argument, nullptr, OptionsType::EHEADER},
-    // info for E32 image
-    {"dump",      required_argument, nullptr, OptionsType::EDUMP},
-    // common options
-    {"log",             required_argument, nullptr, OptionsType::ELOG},
-    {"version",         required_argument, nullptr, OptionsType::EVERSION},
-    {"man",                   no_argument, nullptr, OptionsType::EMAN},
-    {"man-edit",              no_argument, nullptr, OptionsType::EMANEDIT},
-    {"man-build",             no_argument, nullptr, OptionsType::EMANBUILD},
-    {"man-build-dsodump",     no_argument, nullptr, OptionsType::EMANDSODUMP},
-    {"man-build-artifacts",   no_argument, nullptr, OptionsType::EMANARTIFACTS},
-    {"help",                  no_argument, nullptr, OptionsType::EHELP},
-    // dev options
-    {"filecrc",         optional_argument, nullptr, OptionsType::FILECRC},
-    {"time",            required_argument, nullptr, OptionsType::TIME},
-    {"verbose",               no_argument, nullptr, OptionsType::VERBOSE},
-    {"force",                 no_argument, nullptr, OptionsType::FORCEE32BUILD},
-    // ignored options
-    {"messagefile",     required_argument, nullptr, OptionsType::EMESSAGEFILE},
-    {"dumpmessagefile", required_argument, nullptr, OptionsType::EDUMPMESSAGEFILE},
-    {nullptr,0,nullptr,0}
-};
+    iArgc = argc;
+    iArgv.insert(iArgv.begin(), argv, argv + argc);
+}
 
-ArgParser::ArgParser(int argc, char** argv): iArgc(argc), iArgv(argv)
+ArgParser::ArgParser(std::vector<std::string> argv, const struct Opts* opt)
 {
-    opterr = 0;
+    iArgc = argv.size();
+    iArgv = argv;
+    iTests = opt;
 }
 
 ArgParser::~ArgParser()
@@ -108,7 +53,6 @@ ArgParser::~ArgParser()
     //dtor
 }
 
-void ArgInfo(const char* name, const char* opt = nullptr); // long_opts[optIdx].name, optarg
 void Help();
 
 //const string man =
@@ -172,248 +116,230 @@ bool ArgParser::Parse(Args* arg) const
         return false;
     }
 
-    int rez, optIdx;
-    const char* optname = nullptr;
-    while( (rez = getopt_long(iArgc, iArgv, nullptr, long_opts, &optIdx)) != -1)
+    Opts op;
+    for(int i = 1; i < iArgc; i++) // skip iArgv[0]
     {
-        if((rez != ':') && (rez != '?'))
-            optname = long_opts[optIdx].name;
+        op = getopt(iArgv[i]);
 
-        switch(rez)
+        switch(op.val)
         {
             case OptionsType::EUID1:
-                arg->iUid1 = strtoul(optarg, nullptr, 16);
-                ArgInfo(optname, optarg);
+                arg->iUid1 = strtoul(op.arg.c_str(), nullptr, 16);
+                op.binary_arg1 = arg->iUid1;
                 break;
             case OptionsType::EUID2:
-                arg->iUid2 = strtoul(optarg, nullptr, 16);
+                arg->iUid2 = strtoul(op.arg.c_str(), nullptr, 16);
+                op.binary_arg1 = arg->iUid2;
                 VarningForDeprecatedUID(arg->iUid2);
-                ArgInfo(optname, optarg);
                 break;
             case OptionsType::EUID3:
-                arg->iUid3 = strtoul(optarg, nullptr, 16);
-                ArgInfo(optname, optarg);
-                arg->iLinkasUid = optarg;
+                arg->iUid3 = strtoul(op.arg.c_str(), nullptr, 16);
+                op.binary_arg1 = arg->iUid3;
+                arg->iLinkasUid = op.arg;
                 break;
             case OptionsType::ESID:
-                arg->iSid = strtoul(optarg, nullptr, 16);
-                ArgInfo(optname, optarg);
+                arg->iSid = strtoul(op.arg.c_str(), nullptr, 16);
+                op.binary_arg1 = arg->iSid;
                 break;
             case OptionsType::EVID:
-                arg->iVid = strtoul(optarg, nullptr, 16);
-                ArgInfo(optname, optarg);
+                arg->iVid = strtoul(op.arg.c_str(), nullptr, 16);
+                op.binary_arg1 = arg->iVid;
                 break;
-            case OptionsType::EHEAP:
-            {
-                arg->iHeapMin = strtoul(optarg, nullptr, 16);
-                string t(optarg);
+            case OptionsType::EHEAP:            {
+                arg->iHeapMin = strtoul(op.arg.c_str(), nullptr, 16);
+                string t(op.arg);
                 arg->iHeapMax = strtoul(t.substr( t.find_first_of(",.;") + 1 ).c_str(), nullptr, 16);
-                ArgInfo(optname, optarg);
+                op.binary_arg1 = arg->iHeapMin;
+                op.binary_arg2 = arg->iHeapMax;
                 break;
             }
             case OptionsType::ESTACK:
-                arg->iStack = strtoul(optarg, nullptr, 16);
-                ArgInfo(optname, optarg);
+                arg->iStack = strtoul(op.arg.c_str(), nullptr, 16);
+                op.binary_arg1 = arg->iStack;
                 break;
         // for E32ImageHeader::iFlags
             case OptionsType::EFIXEDADDRESS:
                 arg->iFixedaddress = true;
-                ArgInfo(optname);
+                op.binary_arg1 = true;
                 break;
             case OptionsType::EFPU:
-                arg->iFpu = GetFpuType(optarg);
-                ArgInfo(optname ,optarg);
+                arg->iFpu = GetFpuType(op.arg);
+                op.binary_arg1 = arg->iFpu;
                 break;
             case OptionsType::ECODEPAGING:
-                arg->iCodePaging = GetPaging(optarg);
-                ArgInfo(optname, optarg);
+                arg->iCodePaging = GetPaging(op.arg);
+                op.binary_arg1 = arg->iCodePaging;
                 break;
             case OptionsType::EDATAPAGING:
-                arg->iDataPaging = GetPaging(optarg);
-                ArgInfo(optname, optarg);
+                arg->iDataPaging = GetPaging(op.arg);
+                op.binary_arg1 = arg->iDataPaging;
                 break;
             case OptionsType::EPAGED:
                 arg->iCodePaging = Paging::PAGED;
-                ArgInfo(optname);
+                op.binary_arg1 = Paging::PAGED;
                 break;
             case OptionsType::EUNPAGED:
                 arg->iCodePaging = Paging::UNPAGED;
-                ArgInfo(optname);
+                op.binary_arg1 = Paging::UNPAGED;
                 break;
             case OptionsType::EDEFAULTPAGED:
                 arg->iCodePaging = Paging::DEFAULT;
-                ArgInfo(optname);
+                op.binary_arg1 = Paging::DEFAULT;
                 break;
             case OptionsType::EDEBUGGABLE:
                 arg->iDebuggable = true;
-                ArgInfo(optname);
+                op.binary_arg1 = true;
                 break;
             case OptionsType::ESMPSAFE:
                 arg->iSmpsafe = true;
-                ArgInfo(optname);
+                op.binary_arg1 = true;
                 break;
         // for image generation
             case OptionsType::ETARGETTYPE:
-                arg->iTargettype = GetTarget(optarg);
-                ArgInfo(optname, optarg);
+                arg->iTargettype = GetTarget(op.arg);
+                op.binary_arg1 = arg->iTargettype;
                 break;
             case OptionsType::ELINKAS:
-                arg->iLinkas = optarg;
-                ArgInfo(optname ,optarg);
+                arg->iLinkas = op.arg;
                 break;
             case OptionsType::EUNCOMPRESSED:
                 arg->iCompressionMethod = KFormatNotCompressed;
-                ArgInfo(optname);
+                op.binary_arg1 = KFormatNotCompressed;
                 break;
             case OptionsType::ECOMPRESSIONMETHOD:
             {
-                if(!strcasecmp(optarg, "none"))
+                if(!strcasecmp(op.arg.c_str(), "none"))
                     arg->iCompressionMethod = KFormatNotCompressed;
-                else if(!strcasecmp(optarg, "inflate"))
+                else if(!strcasecmp(op.arg.c_str(), "inflate"))
                     arg->iCompressionMethod = KUidCompressionDeflate;
-                else if(!strcasecmp(optarg, "bytepair"))
+                else if(!strcasecmp(op.arg.c_str(), "bytepair"))
                     arg->iCompressionMethod = KUidCompressionBytePair;
                 else
                     arg->iCompressionMethod = KUidCompressionDeflate;
-                ArgInfo(optname ,optarg);
+
+                op.binary_arg1 = arg->iCompressionMethod;
                 break;
             }
             case OptionsType::EUNFROZEN:
                 arg->iUnfrozen = true;
-                ArgInfo(optname);
+                op.binary_arg1 = true;
                 break;
             case OptionsType::EIGNORENONCALLABLE:
                 arg->iIgnorenoncallable = true;
-                ArgInfo(optname);
+                op.binary_arg1 = true;
                 break;
             case OptionsType::ECAPABILITY:
-                arg->iCapability = optarg;
-                ArgInfo(optname, optarg);
+                arg->iCapability = op.arg;
                 break;
             case OptionsType::ESYSDEF:
-                arg->iSysdef = optarg;
-                ArgInfo(optname, optarg);
+                arg->iSysdef = op.arg;
                 break;
             case OptionsType::EDLLDATA:
                 arg->iDlldata = true;
-                ArgInfo(optname);
+                op.binary_arg1 = true;
                 break;
             case OptionsType::EPRIORITY:
-                arg->iPriority = ProcessPriority(optarg);
-                ArgInfo(optname, optarg);
+                arg->iPriority = ProcessPriority(op.arg);
+                op.binary_arg1 = arg->iPriority;
                 break;
             case OptionsType::EEXCLUDEUNWANTEDEXPORTS:
                 arg->iExcludeunwantedexports = true;
-                ArgInfo(optname);
+                op.binary_arg1 = true;
                 break;
             case OptionsType::ECUSTOMDLLTARGET:
                 arg->iCustomdlltarget = true;
-                ArgInfo(optname);
+                op.binary_arg1 = true;
                 break;
             case OptionsType::ENAMEDLOOKUP:
                 arg->iNamedlookup = true;
-                ArgInfo(optname);
+                op.binary_arg1 = true;
                 break;
         // input files
             case OptionsType::EDEFINPUT:
-                arg->iDefinput = optarg;
-                ArgInfo(optname, optarg);
+                arg->iDefinput = op.arg;
                 break;
             case OptionsType::EDEFOUTPUT:
-                arg->iDefoutput = optarg;
-                ArgInfo(optname, optarg);
+                arg->iDefoutput = op.arg;
                 break;
             case OptionsType::EELFINPUT:
-                arg->iElfinput = optarg;
-                ArgInfo(optname, optarg);
+                arg->iElfinput = op.arg;
                 break;
             case OptionsType::EOUTPUT:
-                arg->iOutput = optarg;
-                ArgInfo(optname, optarg);
+                arg->iOutput = op.arg;
                 break;
             case OptionsType::EDSO:
-                arg->iDso = optarg;
-                ArgInfo(optname, optarg);
+                arg->iDso = op.arg;
                 break;
             case OptionsType::ELIBPATH:
-                arg->iLibpath = optarg;
-                ArgInfo(optname, optarg);
+                arg->iLibpath = op.arg;
                 break;
             case OptionsType::EE32INPUT:
-                arg->iE32input = optarg;
-                ArgInfo(optname, optarg);
+                arg->iE32input = op.arg;
                 break;
             case OptionsType::EHEADER:
-                if(optarg)
-                    arg->iHeader = optarg;
-                else arg->iHeader = "not_set";
-                ArgInfo(optname, optarg);
+                if(op.arg.empty())
+                    arg->iHeader = "not_set";
+                else arg->iHeader = op.arg;
                 break;
         // info for E32 image
             case OptionsType::EDUMP:
-                arg->iDump = optarg;
-                ArgInfo(optname ,optarg);
+                arg->iDump = op.arg;
                 break;
         // common options
             case OptionsType::ELOG:
-                arg->iLog = optarg;
-                ArgInfo(optname, optarg);
+                arg->iLog = op.arg;
                 break;
             case OptionsType::EVERSION:
-                arg->iVersion = SetToolVersion(optarg);
-                ArgInfo(optname ,optarg);
+                arg->iVersion = SetToolVersion(op.arg);
+                op.binary_arg1 = arg->iVersion;
                 break;
             case OptionsType::EMAN:
                 ReportLog(man);
-                ArgInfo(optname);
                 break;
             case OptionsType::EMANEDIT:
                 ReportLog(manEdit);
-                ArgInfo(optname);
                 break;
             case OptionsType::EMANBUILD:
                 ReportLog(manBuild);
-                ArgInfo(optname);
                 break;
             case OptionsType::EMANDSODUMP:
                 ReportLog(manDsoDump);
-                ArgInfo(optname);
                 break;
             case OptionsType::EMANARTIFACTS:
                 ReportLog(manArtifacts);
-                ArgInfo(optname);
                 break;
         // dev options
             case OptionsType::TIME: // --time=hi,low
             {
-                arg->iTime[0] = strtoul(optarg, nullptr, 16); // iTimeHi
-                string t(optarg);
+                arg->iTime[0] = strtoul(op.arg.c_str(), nullptr, 16); // iTimeHi
+                string t(op.arg);
                 arg->iTime[1] = strtoul(t.substr( t.find_first_of(",") + 1 ).c_str(), nullptr, 16);
-            }
-                ArgInfo(optname ,optarg);
+                op.binary_arg1 = arg->iTime[0];
+                op.binary_arg2 = arg->iTime[1];
                 break;
+            }
             case OptionsType::FILECRC:
-                if(optarg)
-                    arg->iFileCrc = optarg;
-                else
+                if(op.arg.empty())
+                {
                     arg->iFileCrc = DefaultOptionalArg;
-                ArgInfo(optname ,optarg);
+                    op.arg = arg->iFileCrc;
+                }
+                else
+                    arg->iFileCrc = op.arg;
                 break;
             case OptionsType::VERBOSE:
                 VerboseOutput = true;
-                ArgInfo(optname);
+                op.binary_arg1 = true;
                 break;
             case OptionsType::FORCEE32BUILD:
                 arg->iForceE32Build = true;
-                ArgInfo(optname);
+                op.binary_arg1 = true;
                 break;
-            case ':':
-                //optind always point to next argv instead current
-                ReportError(MISSEDARGUMENT, iArgv[optind-1], Help);
+            case OptionsType::EMISSEDARG:
+                ReportError(MISSEDARGUMENT, iArgv[i], Help);
                 return false;
-            case '?':
-                //optind always point to next argv instead current
-                ReportError(UNKNOWNOPTION, iArgv[optind-1], Help);
+            case OptionsType::ENOTRECOGNIZEDARG:
+                ReportError(UNKNOWNOPTION, iArgv[i], Help);
                 return false;
             case OptionsType::EHELP:
                 Help();
@@ -427,6 +353,7 @@ bool ArgParser::Parse(Args* arg) const
                 Help();
                 return false;
         }
+        ArgInfo(op);
     };
 
     if(VerboseOutput)
@@ -434,7 +361,7 @@ bool ArgParser::Parse(Args* arg) const
         printf("Args to parse: \n");
         for(int i = 0; i<iArgc; i++)
         {
-            printf("    %s\n", iArgv[i]);
+            printf("    %s\n", iArgv[i].c_str());
         }
         printf("******************\n");
     }
@@ -513,26 +440,50 @@ void Help()
     ReportLog(ScreenOptions);
 }
 
-void ArgName(const char *name) // long_opts[*optIdx].name
+bool operator==(const Opts* left, const Opts& right)
 {
-    if(!name)
-    {
-        ReportLog("Option not send!!!\n");
-        return;
-    }
-    ReportLog("Got option: --");
-    ReportLog(name);
+    if(left->name != right.name)
+        return false;
+    if(left->arg != right.arg)
+        return false;
+    if(left->val != right.val)
+        return false;
+    if(left->binary_arg1 != right.binary_arg1)
+        return false;
+    if(left->binary_arg2 != right.binary_arg2)
+        return false;
+    return true;
 }
 
-void ArgInfo(const char *name, const char* opt) // long_opts[*optIdx].name, optarg
+void ArgParser::ArgInfo(const Opts& opt) const
 {
-    if(!VerboseOutput)
-        return;
-    ArgName(name);
-    if(name && opt)
-    {
-        ReportLog("=");
-        ReportLog(opt);
-    }
+//    if(!VerboseOutput)
+//        return;
+
+    ReportLog("Got arg: --" + opt.name);
+    if(!opt.arg.empty())
+        ReportLog(" with opt: " + opt.arg);
     ReportLog("\n");
+
+    if(!iTests)
+        return;
+    const struct Opts *optptr = (struct Opts*)iTests;
+    while(!optptr->name.empty())
+    {
+        if(optptr == opt)
+            break;
+        optptr++;
+    }
+    if(optptr->name.empty())
+    {
+        std::stringstream tmp("Maches missed for option: --");
+        tmp << opt.name << std::hex;
+        if(!opt.arg.empty())
+            tmp << " with arg: " << opt.arg;
+        if(opt.binary_arg1 != (uint32_t)-1)
+            tmp << " with binary arg: " << opt.binary_arg1;
+        if(opt.binary_arg2 != (uint32_t)-1)
+            tmp << "; " << opt.binary_arg2 << ";   ";
+        ReportError(ErrorCodes::ZEROBUFFER, tmp.str());
+    }
 }

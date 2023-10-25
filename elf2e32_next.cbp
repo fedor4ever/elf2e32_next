@@ -11,7 +11,7 @@
 				<Option object_output="obj/Debug/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
-				<Option parameters='--capability=CommDD+PowerMgmt+MultimediaDD+ReadDeviceData --definput=&quot;tests\libcryptou.def&quot; --defoutput=&quot;tests\out.def&quot; --elfinput=&quot;tests\libcrypto.dll&quot; --output=&quot;tests\libcrypto-2.4.5.tst.dll&quot; --libpath=&quot;D:\Symbian\S60_5th_Edition_SDK_v1.0\epoc32\release\armv5\lib&quot; --linkas=&quot;tests\libcrypto{000a0000}.dll&quot; --dso=&quot;tests\libcrypto{000a0000}.dso&quot; --fpu=softvfp --uid1=0x10000079 --uid2=0x20004c45 --uid3=0x00000000 --targettype=STDDLL --dlldata --ignorenoncallable --debuggable --smpsafe --uncompressed' />
+				<Option parameters='--e32input=&quot;tests\tmp\libcrypto-2.4.5.tst.dll&quot; --filecrc=&quot;tests\libcrypto-2.4.5.SDK.crc&quot; --verbose' />
 				<Compiler>
 					<Add option="-Wshadow" />
 					<Add option="-Winit-self" />
@@ -22,10 +22,12 @@
 					<Add option="-g" />
 					<Add option="-fno-omit-frame-pointer -ggdb -femit-class-debug-always -D_FORTIFY_SOURCE=2" />
 					<Add option="-D_DEBUG" />
-					<Add directory="lib/e32" />
-					<Add directory="src" />
-					<Add directory="lib/elf" />
 				</Compiler>
+				<Linker>
+					<Add option="-static-libstdc++" />
+					<Add option="-static-libgcc" />
+					<Add option="-static" />
+				</Linker>
 			</Target>
 			<Target title="Release">
 				<Option output="bin/Release/elf2e32" prefix_auto="1" extension_auto="1" />
@@ -35,9 +37,6 @@
 				<Option parameters="--elfinput=Neverhoode.exe --output=Neverhood.exe" />
 				<Compiler>
 					<Add option="-O2" />
-					<Add directory="lib/e32" />
-					<Add directory="src" />
-					<Add directory="lib/elf" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -52,6 +51,7 @@
 			<Add directory="src" />
 			<Add directory="lib/elf" />
 			<Add directory="lib/e32" />
+			<Add directory="lib/getopt" />
 		</Compiler>
 		<Linker>
 			<Add option="-static-libstdc++" />
@@ -61,6 +61,7 @@
 		</Linker>
 		<Unit filename="include/elf2e32_opt.hpp" />
 		<Unit filename="include/elf2e32_version.hpp" />
+		<Unit filename="include/getopt_opts.h" />
 		<Unit filename="include/task.hpp" />
 		<Unit filename="lib/e32/bpe_manager.cpp" />
 		<Unit filename="lib/e32/byte_pair.cpp" />
@@ -91,10 +92,9 @@
 		<Unit filename="lib/elf/elfparser.cpp" />
 		<Unit filename="lib/elf/elfparser.h" />
 		<Unit filename="lib/elf/staticlibsymbols.h" />
-		<Unit filename="lib/getopt/getopt.c">
-			<Option compilerVar="CC" />
-		</Unit>
-		<Unit filename="lib/getopt/getopt.h" />
+		<Unit filename="lib/getopt/getopt.cpp" />
+		<Unit filename="lib/getopt/getopt.hpp" />
+		<Unit filename="lib/getopt/getopt_opts.h" />
 		<Unit filename="src/argparser.cpp" />
 		<Unit filename="src/argparser.h" />
 		<Unit filename="src/artifactbuilder.cpp" />

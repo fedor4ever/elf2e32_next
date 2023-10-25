@@ -1,4 +1,4 @@
-// Copyright (c) 2019 Strizhniou Fiodar
+// Copyright (c) 2019 - 2023 Strizhniou Fiodar
 // All rights reserved.
 // This component and the accompanying materials are made available
 // under the terms of "Eclipse Public License v1.0"
@@ -18,17 +18,25 @@
 #ifndef ARGPARSER_H
 #define ARGPARSER_H
 
+#include <vector>
+#include <string>
+
 struct Args;
+struct Opts;
 
 class ArgParser
 {
     public:
         ArgParser(int argc, char** argv);
+        ArgParser(std::vector<std::string> argv, const struct Opts* opt = nullptr);
         ~ArgParser();
         bool Parse(Args* args) const;
     private:
+        void ArgInfo(const Opts& opt) const;
+    private:
         int iArgc;
-        char** iArgv;
+        std::vector<std::string> iArgv;
+        const struct Opts* iTests = nullptr;
 };
 
 #endif // ARGPARSER_H

@@ -82,5 +82,6 @@ uint32_t GetFpuType(const std::string& fromArgument);
 uint32_t SetToolVersion(const std::string& str);
 TargetType GetTarget(const std::string& fromArgument);
 void VarningForDeprecatedUID(uint32_t UID2);
+uint16_t ProcessPriority(const std::string& str);
 
 #endif // CMDLINEPROCESSOR_H_INCLUDED

@@ -1,4 +1,4 @@
-// Copyright (c) 2019-2020 Strizhniou Fiodar
+// Copyright (c) 2019-2023 Strizhniou Fiodar
 // All rights reserved.
 // This component and the accompanying materials are made available
 // under the terms of "Eclipse Public License v1.0"
@@ -117,7 +117,6 @@ void ReportLog(const std::string& str, int x = -1, int y = -1, int z = -1);
 const char* ReadFile(const char* filename, std::streamsize& fsize);
 void SaveFile(const char* filename, const char* filebuf, int fsize);
 void SaveFile(const std::string& filename, const std::string& filebuf);
-uint16_t ProcessPriority(const std::string& str);
 
 Symbols SymbolsFromDef(const char *defFile);
 

@@ -79,7 +79,7 @@ On Nokia 5800:
 uint64_t ProcessCapabilities(const std::string& str);
 Paging GetPaging(const std::string& fromArgument);
 uint32_t GetFpuType(const std::string& fromArgument);
-uint32_t SetToolVersion(const char* str);
+uint32_t SetToolVersion(const std::string& str);
 TargetType GetTarget(const std::string& fromArgument);
 void VarningForDeprecatedUID(uint32_t UID2);
 

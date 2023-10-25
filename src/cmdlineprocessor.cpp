@@ -1,4 +1,4 @@
-// Copyright (c) 2020 Strizhniou Fiodar
+// Copyright (c) 2020 - 2023 Strizhniou Fiodar
 // All rights reserved.
 // This component and the accompanying materials are made available
 // under the terms of "Eclipse Public License v1.0"
@@ -218,7 +218,7 @@ uint64_t ProcessCapabilities(const std::string& fromArgument)
     return flag;
 }
 
-uint32_t SetToolVersion(const char* str)
+uint32_t SetToolVersion(const string& str)
 {
 	uint32_t hi, lo;
 	hi = std::stoi(str);

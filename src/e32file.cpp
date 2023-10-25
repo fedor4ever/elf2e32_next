@@ -181,6 +181,7 @@ void E32File::WriteE32File()
     arg.iOutput = iE32Opts->iOutput;
     arg.iForceE32Build = iE32Opts->iForceE32Build;
     arg.iFileCrc = iE32Opts->iFileCrc;
+    arg.iElfinput = iE32Opts->iElfinput;
 
     //call E32Info::HeaderInfo() for verbose output
     if(VerboseOut())

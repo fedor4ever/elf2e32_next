@@ -153,6 +153,7 @@ int main(int argc, char** argv)
 {
     cout << "Hello user!" << endl;
     string comparator, comparable;
+    bool iSDragNDrop = false;
     E32ImageHeader *e32comparator, *e32comparable;
     E32ImageHeaderJ *e32comparatorJ, *e32comparableJ;
     E32ImageHeaderV *e32comparatorV, *e32comparableV;
@@ -180,6 +181,7 @@ int main(int argc, char** argv)
 
     if(comparator.empty() && comparable.empty())
     {
+        iSDragNDrop = true;
         for(int i = 1; i < argc; i++) // skip filename
         {
             tmp = argv[i];
@@ -205,9 +207,9 @@ int main(int argc, char** argv)
 //    use compare operator to print difference
     e32comparator = (E32ImageHeader*)buf1;
     e32comparable = (E32ImageHeader*)buf2;
-    e32comparatorJ = (E32ImageHeaderJ*)(buf2 + sizeof(E32ImageHeader));
+    e32comparatorJ = (E32ImageHeaderJ*)(buf1 + sizeof(E32ImageHeader));
     e32comparableJ = (E32ImageHeaderJ*)(buf2 + sizeof(E32ImageHeader));
-    e32comparatorV = (E32ImageHeaderV*)(buf2 + sizeof(E32ImageHeader) + sizeof(E32ImageHeaderJ));
+    e32comparatorV = (E32ImageHeaderV*)(buf1 + sizeof(E32ImageHeader) + sizeof(E32ImageHeaderJ));
     e32comparableV = (E32ImageHeaderV*)(buf2 + sizeof(E32ImageHeader) + sizeof(E32ImageHeaderJ));
 
     if( (e32comparator == e32comparable) && (e32comparatorJ == e32comparableJ) && (e32comparatorV == e32comparableV) )
@@ -266,8 +268,11 @@ int main(int argc, char** argv)
     PrintIfNEQ(e32comparatorV->iExportDescType,    e32comparableV->iExportDescType, "E32ImageHeaderV::iExportDescType");
     PrintIfNEQ(e32comparatorV->iExportDesc[0],        e32comparableV->iExportDesc[0], "E32ImageHeaderV::iExportDesc");
 
-    std::cout << "Paused, press ENTER to continue." << std::endl;
-    cin.get();
+    if(iSDragNDrop)
+    {
+        std::cout << "Paused, press ENTER to continue." << std::endl;
+        cin.get();
+    }
 
     return 0;
 }

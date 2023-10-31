@@ -315,15 +315,9 @@ void ResolveLinkAsUID(Args* arg)
     if( !arg->iLinkasUid.empty() && (arg->iLinkasUid[0] == '0') &&
        ((arg->iLinkasUid[1] == 'x') || (arg->iLinkasUid[1] == 'X')) )
     {
-        ReportLog("LinkasUid: " + arg->iLinkasUid + '\n');
         arg->iLinkasUid.erase(0, 2);
-        ReportLog("LinkasUid: " + arg->iLinkasUid + '\n');
-            ReportLog("arg->iLinkasUid.size(): %d\n", arg->iLinkasUid.size());
         arg->iLinkasUid.insert(0, 8 - arg->iLinkasUid.size(), '0');
-        ReportLog("LinkasUid: " + arg->iLinkasUid + '\n');
         arg->iLinkasUid = '[' + arg->iLinkasUid + ']';
-        ReportLog("LinkasUid: " + arg->iLinkasUid + '\n');
-        ReportLog("\n");
         return;
     }
 

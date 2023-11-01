@@ -376,7 +376,7 @@ Symbols SymbolProcessor::GetDSOSymbols()
 Symbols SymbolProcessor::GetElfExports()
 {
     Symbols elf;
-    if(!iElfParser)
+    if(!iElfParser || IsNoExportEXE(iArgs->iTargettype))
         return elf;
 
     uint32_t numOfImports = iElfParser->ImportsCount();
@@ -397,6 +397,9 @@ Symbols SymbolProcessor::GetElfExports()
         elf.push_back(sym);
     }
     elf.sort(SortSymbolsByName);
+
+    if(elf.empty())
+        ReportError(ErrorCodes::ZEROBUFFER, "DLL Elf file has no exports! Check symbol(s) visibility!");
     return elf;
 }
 

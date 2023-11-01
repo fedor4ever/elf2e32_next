@@ -31,10 +31,16 @@ void E32Editor::ConstructL()
 {
     std::vector<char> buf(iFile->GetBufferedImage(), iFile->GetBufferedImage() + iFile->GetFileSize());
     E32ImageHeader* h = (E32ImageHeader*)&buf[0];
+
+    uint32_t compression = h->iCompressionType;
     h->iCompressionType = KFormatNotCompressed; // E32Parser already decompress E32Image
 
     iFile = E32Parser::NewL(buf);
     iHeader = (E32ImageHeader*)iFile->GetE32Hdr(); //FIXME: Add explicit write access
+    iHeaderV = (E32ImageHeaderV*)iFile->GetE32HdrV(); //FIXME: Add explicit write access
+
+    iHeader->iCompressionType = compression;
+
     iE32File = iFile->GetBufferedImage();
 }
 
@@ -50,10 +56,33 @@ E32Editor::~E32Editor()
     delete iFile;
 }
 
+void E32Editor::SetCaps(uint64_t caps)
+{
+    iHeaderV->iS.iCaps = caps;
+}
+
+void E32Editor::SetFlags(uint32_t flags)
+{
+    iHeader->iFlags = flags;
+}
+
+void E32Editor::SetHeaderCrc(uint32_t headercrc)
+{
+    iHeader->iHeaderCrc = headercrc;
+}
+
 void E32Editor::SetE32Time(uint32_t timeLo, uint32_t timeHi)
 {
     iHeader->iTimeLo = timeLo;
     iHeader->iTimeHi = timeHi;
+}
+#include "common.hpp"
+void E32Editor::SetVersion(uint8_t major, uint8_t minor, uint16_t build)
+{
+    iHeader->iVersion.iMajor = major;
+    iHeader->iVersion.iMinor = minor;
+    iHeader->iVersion.iBuild = build;
+    SaveFile("tests/tmp/dump.dll", iE32File, iFile->GetFileSize());
 }
 
 uint32_t E32Editor::FullImage() const
@@ -123,9 +152,14 @@ uint32_t E32Editor::DataRelocs() const
     return Crc32(iFile->GetRelocSection(iHeader->iDataRelocOffset), length);
 }
 
-uint32_t E32Editor::TimeHi() const
+uint64_t E32Editor::Caps() const
 {
-    return iHeader->iTimeHi;
+    return iHeaderV->iS.iCaps;
+}
+
+uint32_t E32Editor::Flags() const
+{
+    return iHeader->iFlags;
 }
 
 uint32_t E32Editor::TimeLo() const
@@ -133,3 +167,27 @@ uint32_t E32Editor::TimeLo() const
     return iHeader->iTimeLo;
 }
 
+uint32_t E32Editor::TimeHi() const
+{
+    return iHeader->iTimeHi;
+}
+
+uint32_t E32Editor::HeaderCrc() const
+{
+    return iHeader->iHeaderCrc;
+}
+
+uint8_t E32Editor::Version_Major() const
+{
+    return iHeader->iVersion.iMajor;
+}
+
+uint8_t E32Editor::Version_Minor() const
+{
+    return iHeader->iVersion.iMinor;
+}
+
+uint16_t E32Editor::Version_Build() const
+{
+    return iHeader->iVersion.iBuild;
+}

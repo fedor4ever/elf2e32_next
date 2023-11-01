@@ -30,7 +30,9 @@
     - image itself.
 	- time of file creation
 
- We store time of file creation because output E32Image should be identical. Else elf2e32 set actual time of file creation.
+ We store some data that changes between builds because output E32Image
+ should be identical. Else elf2e32 set actual time of file creation,
+ it's own version, etc.
  If some section missed in .crc file their checksums has value 0xffffffff.
 
  There 2 way to load .crc files: explicit and implicit.
@@ -41,9 +43,11 @@
  Implicit use:
     1. E32Image used as input.
     Load .crc file near E32Image.
-    Store .crc file near output E32Image if "--output" used.
 
-    2. Elf file used as input when E32Image building.
+    2. E32Image used as input.
+    Create .crc file near output E32Image if missed.
+
+    3. Elf file used as input when E32Image building.
     Loads .crc near elf file.
     Store .crc file near output E32Image.
  */
@@ -77,14 +81,30 @@ namespace E32Crcs
     static constexpr char IMPORTS[] = "imports";
     static constexpr char CODERELOCS[] = "coderelocs";
     static constexpr char DATARELOCS[] = "datarelocs";
+    static constexpr char FLAGS[] = "flags";
+    static constexpr char VERSION_MAJOR[] = "version_major";
+    static constexpr char VERSION_MINOR[] = "version_minor";
+    static constexpr char VERSION_BUILD[] = "version_build";
+    static constexpr char HEADERCRC[] = "headercrc";
+    static constexpr char CAPS[] = "caps";
 }
 
+// stringstream treat uint8_t as a character not a number
 struct CRCData
 {
     bool operator ==(const CRCData& right) const;
     bool operator !=(const CRCData& right) const;
+//    data that changes between builds
+//    ordered by place in E32Image
+    uint32_t iHeaderCrc = -1;
+    uint32_t iVersion_Major = -1;
+    uint32_t iVersion_Minor = -1;
+    uint32_t iVersion_Build = -1;
     uint32_t iTimeLo;
     uint32_t iTimeHi;
+    uint32_t iFlags = -1;
+    uint64_t iCaps = -1;
+//    checksums
     uint32_t iFullImage = -1;
     uint32_t iHeader = -1;
     uint32_t iExportBitMap = -1;
@@ -97,7 +117,6 @@ struct CRCData
     uint32_t iDataRelocs = -1;
 };
 
-// Members ordered by place in E32Image
 class E32CRCProcessor
 {
     public:
@@ -154,7 +173,14 @@ void E32CRCProcessor::CRCToFile()
     buf << E32Crcs::SYMLOOK << " = 0x" << iCRCOut.iSymlook << "\n";
     buf << E32Crcs::IMPORTS << " = 0x" << iCRCOut.iImports << "\n";
     buf << E32Crcs::CODERELOCS << " = 0x" << iCRCOut.iCodeRelocs << "\n";
-    buf << E32Crcs::DATARELOCS << " = 0x" << iCRCOut.iDataRelocs;
+    buf << E32Crcs::DATARELOCS << " = 0x" << iCRCOut.iDataRelocs << "\n";
+    buf << E32Crcs::FLAGS << " = 0x" << iCRCOut.iFlags << "\n";
+    buf << E32Crcs::VERSION_MAJOR << " = 0x" << iCRCOut.iVersion_Major << "\n";
+    buf << E32Crcs::VERSION_MINOR << " = 0x" << iCRCOut.iVersion_Minor << "\n";
+    buf << E32Crcs::VERSION_BUILD << " = 0x" << iCRCOut.iVersion_Build << "\n";
+    buf << E32Crcs::HEADERCRC << " = 0x" << iCRCOut.iHeaderCrc << "\n";
+    buf << E32Crcs::CAPS << " = 0x" << iCRCOut.iCaps;
+
     SaveFile(iFileOut, buf.str());
 }
 
@@ -177,7 +203,11 @@ void E32CRCProcessor::ParseFile()
         ReportError(FILEREADERROR, iFileIn);
     file.close();
 
+    iCrc->SetCaps(iCRCIn.iCaps);
+    iCrc->SetFlags(iCRCIn.iFlags);
+    iCrc->SetHeaderCrc(iCRCIn.iHeaderCrc);
     iCrc->SetE32Time(iCRCIn.iTimeLo, iCRCIn.iTimeHi);
+    iCrc->SetVersion(iCRCIn.iVersion_Major, iCRCIn.iVersion_Minor, iCRCIn.iVersion_Build);
 }
 
 void E32CRCProcessor::Tokenize(const string& line)
@@ -218,6 +248,18 @@ void E32CRCProcessor::Tokenize(const string& line)
         iCRCIn.iCodeRelocs = crc;
     else if(type == E32Crcs::DATARELOCS)
         iCRCIn.iDataRelocs = crc;
+    else if(type == E32Crcs::FLAGS)
+        iCRCIn.iFlags = crc;
+    else if(type == E32Crcs::VERSION_MAJOR)
+        iCRCIn.iVersion_Major = crc;
+    else if(type == E32Crcs::VERSION_MINOR)
+        iCRCIn.iVersion_Minor = crc;
+    else if(type == E32Crcs::VERSION_BUILD)
+        iCRCIn.iVersion_Build = crc;
+    else if(type == E32Crcs::HEADERCRC)
+        iCRCIn.iHeaderCrc = crc;
+    else if(type == E32Crcs::CAPS)
+        iCRCIn.iCaps = crc;
     else
         ReportError(ErrorCodes::ZEROBUFFER, "Error while parsing .crc file. Invalid data: " + line);
 }
@@ -269,6 +311,12 @@ void E32CRCProcessor::CRCsOnE32()
     iCRCOut.iImports = iCrc->Imports();
     iCRCOut.iCodeRelocs = iCrc->CodeRelocs();
     iCRCOut.iDataRelocs = iCrc->DataRelocs();
+    iCRCOut.iFlags = iCrc->Flags();
+    iCRCOut.iHeaderCrc = iCrc->HeaderCrc();
+    iCRCOut.iVersion_Major = iCrc->Version_Major();
+    iCRCOut.iVersion_Minor = iCrc->Version_Minor();
+    iCRCOut.iVersion_Build = iCrc->Version_Build();
+    iCRCOut.iCaps = iCrc->Caps();
 }
 
 void PrintIfNEQ(uint32_t in, uint32_t out, const string& msg)
@@ -288,10 +336,11 @@ void E32CRCProcessor::PrintInvalidCRCs()
 {
     if(iFileIn.empty())
         return;
+
+    ReportLog("E32CRCProcessor: ");
     if(iCRCIn == iCRCOut)
     {
-        if(VerboseOut())
-            ReportLog("All CRC matches!\n");
+        ReportLog("All CRC matches!\n");
         return;
     }
     ReportWarning(ErrorCodes::ZEROBUFFER, "Found CRC32 mismatch(es) between in - out:\n");
@@ -305,6 +354,12 @@ void E32CRCProcessor::PrintInvalidCRCs()
     PrintIfNEQ(iCRCIn.iImports, iCRCOut.iImports, "Imports");
     PrintIfNEQ(iCRCIn.iCodeRelocs, iCRCOut.iCodeRelocs, "CodeRelocs");
     PrintIfNEQ(iCRCIn.iDataRelocs, iCRCOut.iDataRelocs, "DataRelocs");
+    PrintIfNEQ(iCRCIn.iFlags, iCRCOut.iFlags, "Flags");
+    PrintIfNEQ(iCRCIn.iVersion_Major, (uint32_t)iCRCOut.iVersion_Major, "Version_iMajor");
+    PrintIfNEQ(iCRCIn.iVersion_Minor, iCRCOut.iVersion_Minor, "Version_iMinor");
+    PrintIfNEQ(iCRCIn.iVersion_Build, iCRCOut.iVersion_Build, "Version_iBuild");
+    PrintIfNEQ(iCRCIn.iHeaderCrc, iCRCOut.iHeaderCrc, "HeaderCrc");
+    PrintIfNEQ(iCRCIn.iVersion_Build, iCRCOut.iVersion_Build, "HeaderCrc");
     ReportLog("\n");
 }
 
@@ -357,6 +412,18 @@ bool CRCData::operator ==(const CRCData& right) const
     if(this->iCodeRelocs != right.iCodeRelocs)
         return false;
     if(this->iDataRelocs != right.iDataRelocs)
+        return false;
+    if(this->iFlags != right.iFlags)
+        return false;
+    if(this->iVersion_Major != right.iVersion_Major)
+        return false;
+    if(this->iVersion_Minor != right.iVersion_Minor)
+        return false;
+    if(this->iVersion_Build != right.iVersion_Build)
+        return false;
+    if(this->iHeaderCrc != right.iHeaderCrc)
+        return false;
+    if(this->iCaps != right.iCaps)
         return false;
     return true;
 }

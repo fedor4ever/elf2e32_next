@@ -344,8 +344,11 @@ bool ArgParser::Parse(Args* arg) const
             case OptionsType::EHELP:
                 Help();
                 return false;
-        //silently ignored options
             case OptionsType::ECALLENTRY:
+                arg->iCallentry = true;
+                op.binary_arg1 = true;
+                break;
+        //silently ignored options
             case OptionsType::EMESSAGEFILE: // fallthru
             case OptionsType::EDUMPMESSAGEFILE: // fallthru
                 break;

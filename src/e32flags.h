@@ -32,11 +32,12 @@ class E32Flags
         uint32_t Run();
 
     private:
-        void SetSymbolLookup();
         void SetFPU();
-        void SetDebuggable();
-        void SetSmpSafe();
         void SetPaged();
+        void SetSmpSafe();
+        void SetCallentry();
+        void SetDebuggable();
+        void SetSymbolLookup();
 
     private:
         const Args* iArgs = nullptr;

@@ -65,6 +65,15 @@ void E32Flags::SetSmpSafe()
 		iFlags &= ~KImageSMPSafe;
 }
 
+/**< This function sets the Callentry attribute in the E32 image. */
+void E32Flags::SetCallentry()
+{
+	if (iArgs->iCallentry)
+		iFlags |= KImageNoCallEntryPoint;
+	else
+		iFlags &= ~KImageNoCallEntryPoint;
+}
+
 /** \brief This function set most flags appropriate for E32ImageHeader::iFlags.
  *
  * \return value for E32ImageHeader::iFlags initialization.
@@ -100,11 +109,12 @@ uint32_t E32Flags::Run()
     iFlags |= KImageHdrFmt_V;
     iFlags |= KImageNoCallEntryPoint; // always set on
 
-    SetSymbolLookup();
     SetFPU();
-    SetDebuggable();
-    SetSmpSafe();
     SetPaged();
+    SetSmpSafe();
+    SetCallentry();
+    SetDebuggable();
+    SetSymbolLookup();
 
     return iFlags;
 }

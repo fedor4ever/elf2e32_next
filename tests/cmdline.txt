@@ -1,5 +1,5 @@
 #direct run in console from codeblock bin directiry
-elf2e32 --uid1=0x10000079 --libpath="..\tests\SDK_libs" --uid2=0x20004c45 --uid3=0x00000000 --capability=All-TCB --fpu=softvfp --targettype=STDDLL --definput="..\..\tests\libcrypto.def" --dso="..\..\tests\tmp\libcrypto{000a0000}.dso" --linkas="libcrypto{000a0000}.dll" --defoutput="..\..\tests\tmp\out.def" --elfinput="..\..\tests\libcrypto.dll" --output="..\..\tests\tmp\libcrypto-2.4.5.dll" --dlldata --namedlookup
+elf2e32 --uid1=0x10000079 --libpath="..\tests\SDK_libs" --uid2=0x20004c45 --uid3=0x00000000 --capability=All-TCB --fpu=softvfp --targettype=STDDLL --definput="..\..\tests\libcrypto.def" --dso="..\..\tests\tmp\libcrypto{000a0000}.dso" --linkas="libcrypto{000a0000}.dll" --defoutput="..\..\tests\tmp\out.def" --elfinput="..\..\tests\libcrypto.dll" --output="..\..\tests\tmp\libcrypto-2.4.5.dll" --dlldata --namedlookup --filecrc=..\..\tests\libcrypto-2.4.5.SDK.crc
 
 elf2e32 --definput=elf2e32\tests\libcryptou.def --dso=elf2e32\tests\tmp\libcrypto.dso --linkas=libcrypto{000a0000}.dll
 
@@ -7,24 +7,24 @@ elf2e32 --definput=elf2e32\tests\libcryptou.def --dso=elf2e32\tests\tmp\libcrypt
 elf2e32 --capability=All-TCB --definput="..\tests\libcryptou.def" --defoutput="..\tests\tmp\out.def" --elfinput="..\tests\libcrypto.dll" --output="..\tests\tmp\libcrypto-2.4.5.dll" --libpath="..\tests\SDK_libs" --linkas="libcrypto{000a0000}.dll" --dso="..\tests\tmp\libcrypto{000a0000}.dso" --fpu=softvfp --uid1=0x10000079 --uid2=0x20004c45 --uid3=0x00000000 --targettype=STDDLL --dlldata --namedlookup
 
 #codeblock run options
-elf2e32 --capability=All-TCB --definput="tests\libcryptou.def" --defoutput="tests\tmp\out.def" --elfinput="tests\libcrypto.dll" --output="tests\tmp\libcrypto-2.4.5.tst.dll" --libpath="tests\SDK_libs" --linkas="libcrypto{000a0000}.dll" --dso="tests\tmp\libcrypto{000a0000}.dso" --fpu=softvfp --uid1=0x10000079 --uid2=0x20004c45 --uid3=0x00000000 --targettype=STDDLL --dlldata --ignorenoncallable --uncompressed --debuggable --smpsafe --namedlookup
+elf2e32 --capability=All-TCB --definput="tests\libcryptou.def" --defoutput="tests\tmp\out.def" --elfinput="tests\libcrypto.dll" --output="tests\tmp\libcrypto-2.4.5.tst.dll" --libpath="tests\SDK_libs" --linkas="libcrypto{000a0000}.dll" --dso="tests\tmp\libcrypto{000a0000}.dso" --fpu=softvfp --uid1=0x10000079 --uid2=0x20004c45 --uid3=0x00000000 --targettype=STDDLL --dlldata --ignorenoncallable --uncompressed --debuggable --smpsafe --namedlookup --filecrc="tests\libcrypto-2.4.5.SDK.crc"
 
 --capability=ReadUserData --definput="tests\basicdll.def" --defoutput="..\tests\tmp\basicdll.def" --elfinput="tests\basicdll.elf" --output="tests\tmp\basicdll.dll" --libpath="tests\SDK_libs" --linkas=basicdll{000a0001}[e84e1a0e].dll --dso="tests\tmp\basicdll.dso" --fpu=softvfp --uid2=0x1000008d --uid3=0xe84e1a0e --targettype=DLL --debuggable --version=10.1
 
 #simplified syntax example
-elf2e32 --capability=All-TCB --definput="tests\libcryptou.def" --defoutput="tests\tmp\out.def" --elfinput="tests\libcrypto.dll" --output="tests\tmp\libcrypto-2.4.5.dll" --libpath="tests\SDK_libs" --linkas="libcrypto{000a0000}.dll" --dso="tests\tmp\libcrypto{000a0000}.dso" --fpu=softvfp --uid3=0x00000000 --targettype=STDDLL --dlldata --namedlookup
+elf2e32 --capability=All-TCB --definput="tests\libcryptou.def" --defoutput="tests\tmp\out.def" --elfinput="tests\libcrypto.dll" --output="tests\tmp\libcrypto-2.4.5.dll" --libpath="tests\SDK_libs" --linkas="libcrypto{000a0000}.dll" --dso="tests\tmp\libcrypto{000a0000}.dso" --fpu=softvfp --uid3=0x00000000 --targettype=STDDLL --dlldata --namedlookup --filecrc=tests\libcrypto-2.4.5.SDK.crc
 
 #inplace
 elf2e32 --capability=All-TCB --definput="libcryptou.def" --defoutput="tmp\out.def" --elfinput="libcrypto.dll" --output="tmp\libcrypto-2.4.5.dll" --libpath="SDK_libs" --linkas="libcrypto{000a0000}.dll" --dso="tmp\libcrypto{000a0000}.dso" --fpu=softvfp --uid1=0x10000079 --uid2=0x20004c45 --uid3=0x00000000 --targettype=STDDLL --dlldata --namedlookup
 
-##Code block run options
 #ECOM test
+##Code block run options
 --capability=ProtServ --defoutput=tests\tmp\AlternateReaderRecog{000a0000}.def --elfinput="tests\AlternateReaderRecog.dll" --output="tests\tmp\AlternateReaderRecogE32.dll" --libpath=tests\SDK_libs --linkas=AlternateReaderRecog{000a0000}[101ff1ec].dll --dso=tests\tmp\AlternateReaderRecog{000a0000}.dso --fpu=softvfp --uid1=0x10000079 --uid2=0x10009d8d --uid3=0x101ff1ec --targettype=PLUGIN --sysdef=_Z24ImplementationGroupProxyRi,1;
- --sid=0x101ff1ec --version=10.0 --ignorenoncallable --debuggable --smpsafe --uncompressed
+ --sid=0x101ff1ec --version=10.0 --ignorenoncallable --debuggable --smpsafe --uncompressed --filecrc=tests\AlternateReaderRecog.SDK.crc
 
 #ECOM test
 --capability=ProtServ --defoutput=tmp\AlternateReaderRecog{000a0000}.def --elfinput="AlternateReaderRecog.dll" --output="tmp\AlternateReaderRecog.tst.dll" --libpath=SDK_libs --linkas=AlternateReaderRecog{000a0000}[101ff1ec].dll --dso=tmp\AlternateReaderRecog{000a0000}.dso --fpu=softvfp --uid1=0x10000079 --uid2=0x10009d8d --uid3=0x101ff1ec --targettype=PLUGIN --sysdef=_Z24ImplementationGroupProxyRi,1; --sid=0x101ff1ec --version=10.0 --ignorenoncallable --uncompressed
- --debuggable --smpsafe
+ --debuggable --smpsafe --filecrc=AlternateReaderRecog.SDK.crc
  
   --e32input="tests\AlternateReaderRecog.SDK.dll" --output="tests\tmp\AlternateReaderRecog.inflate.dll" --compressionmethod=inflate
 
@@ -37,8 +37,16 @@ elf2e32 --capability=All-TCB --definput="libcryptou.def" --defoutput="tmp\out.de
  --capability=All-TCB --definput="tests\libcryptou.def" --defoutput="tests\tmp\libcrypto.inf.def" --elfinput="tests\libcrypto.dll" --output="tests\tmp\libcrypto-2.4.5.inf.dll" --libpath="tests\SDK_libs" --linkas="libcrypto{000a0000}.dll" --dso="tests\tmp\libcrypto{000a0000}.inf.dso" --fpu=softvfp --uid1=0x10000079 --uid2=0x20004c45 --uid3=0x00000000 --targettype=STDDLL --dlldata --ignorenoncallable --compressionmethod=inflate --debuggable --smpsafe
  
  --capability=All-TCB --definput="tests\libcryptou.def" --defoutput="tests\tmp\libcrypto.byt.def" --elfinput="tests\libcrypto.dll" --output="tests\tmp\libcrypto-2.4.5.byt.dll" --libpath="tests\SDK_libs" --linkas="libcrypto{000a0000}.dll" --dso="tests\tmp\libcrypto{000a0000}.byt.dso" --fpu=softvfp --uid1=0x10000079 --uid2=0x20004c45 --uid3=0x00000000 --targettype=STDDLL --dlldata --ignorenoncallable --compressionmethod=bytepair --debuggable --smpsafe
- 
---capability=All-TCB --elfinput="tests\kf_Python_launcher.exe"  --output="tests\tmp\kf_Python_launcher.tst.exe"  --libpath="D:\Symbian\S60_5th_Edition_SDK_v1.0\epoc32\release\armv5\lib"  --linkas="kf_Python_launcher{000a0000}.exe"  --fpu=softvfp --uid1=0x10000079 --uid2=0x20004c45 --uid3=0x00000000 --targettype=STDEXE --dlldata --ignorenoncallable --debuggable --uncompressed
+
+#use uid1 for dll - test for elf2e32
+--capability=All-TCB --elfinput="tests\kf_Python_launcher.exe"  --output="tests\tmp\kf_Python_launcher.tst.exe"  --libpath="D:\Symbian\S60_5th_Edition_SDK_v1.0\epoc32\release\armv5\lib"  --linkas="kf_Python_launcher{000a0000}.exe"  --fpu=softvfp --uid1=0x10000079 --uid2=0x20004c45 --uid3=0x00000000 --targettype=STDEXE --dlldata --ignorenoncallable --debuggable --uncompressed --filecrc="tests\kf_Python_launcher.crc"
+
+--capability=none --elfinput=tests\cmd_test.exe.elf --output=tests\tmp\cmd_teste32.exe --libpath=D:\Symbian\S60_5th_Edition_SDK_v1.0\epoc32\release\armv5\LIB --linkas=cmd_test{000a0000}[e8181dba].exe --fpu=softvfp --uid1=0x1000007a --uid2=0x00000000 --uid3=0xe8181dba --sid=0xe8181dba --targettype=EXE  --uncompressed --version=10.0 --verbose  --filecrc=tests\cmd_test.crc
+
+--capability=none --elfinput=cmd_test.exe.elf --output=tmp\cmd_teste32.exe --libpath=D:\Symbian\S60_5th_Edition_SDK_v1.0\epoc32\release\armv5\LIB --linkas=cmd_test{000a0000}[e8181dba].exe --fpu=softvfp --uid1=0x1000007a --uid2=0x00000000 --uid3=0xe8181dba --sid=0xe8181dba --targettype=EXE  --uncompressed --version=10.0 --verbose  --filecrc=cmd_test.crc
+
+--capability=AllFiles+TCB --defoutput="tests\tmp\kf__speedups.def" --elfinput="tests\kf__speedups.pyd" --output="tests\tmp\kf__speedups.tst.pyd" --libpath="D:\Symbian\S60_5th_Edition_SDK_v1.0\epoc32\release\armv5\lib" --linkas="kf__speedups{000a0000}.dll"  --fpu=softvfp --uid1=0x10000079 --uid2=0x00000000  --uid3=0x00000000 --targettype=DLL --filecrc="tests\kf__speedups.crc"
+ --definput="tests\kf__speedups.def" --dso="tests\tmp\libcrypto{000a0000}.dso" --dlldata --ignorenoncallable --debuggable
 
 00    uint32_t iUid1; uint32_t iUid2; uint32_t iUid3; uint32_t iUidChecksum;
 10    char iSignature[4]; uint32_t iHeaderCrc; uint32_t iModuleVersion; uint32_t iCompressionType;

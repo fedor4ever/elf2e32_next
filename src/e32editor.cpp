@@ -76,13 +76,12 @@ void E32Editor::SetE32Time(uint32_t timeLo, uint32_t timeHi)
     iHeader->iTimeLo = timeLo;
     iHeader->iTimeHi = timeHi;
 }
-#include "common.hpp"
+
 void E32Editor::SetVersion(uint8_t major, uint8_t minor, uint16_t build)
 {
     iHeader->iVersion.iMajor = major;
     iHeader->iVersion.iMinor = minor;
     iHeader->iVersion.iBuild = build;
-    SaveFile("tests/tmp/dump.dll", iE32File, iFile->GetFileSize());
 }
 
 uint32_t E32Editor::FullImage() const

@@ -1,65 +1,77 @@
 ﻿# encoding=utf-8
 import os, subprocess
 
+# elf2e32=r"elf2e32.exe"
+elf2e32=r"..\bin\Release\elf2e32.exe"
+implibs=r""" --libpath="SDK_libs" """
+
+counter=0
+failed_tests = 0
+
+elf2e32+=r" --debuggable --smpsafe"
+
+# libcrypto
 caps=" --capability=All-TCB"
 defin=r""" --definput="libcryptou.def" """
 defout=r""" --defoutput="tmp\out.(%02d).def" """
-elfin=r""" --elfinput="libcrypto.dll" """
+elfin=r""" --elfinput="libcrypto.dll" --filecrc=libcrypto-2.4.5.SDK.crc """
 e32bin=r""" --output="tmp\libcrypto-2.4.5.(%02d).dll" """
-implibs=r""" --libpath="D:\Symbian\S60_5th_Edition_SDK_v1.0\epoc32\release\armv5\lib" """
 linkas=r""" --linkas="libcrypto{000a0000}.dll" """
 dsoout=r""" --dso="tmp\libcrypto{000a0000}.(%02d).dso" """
 fpu=r" --fpu=softvfp"
-iud1=r" --uid1=0x10000079"
+uid1=r" --uid1=0x10000079"
 uid2=r" --uid2=0x20004c45"
 uid3=r" --uid3=0x00000000"
 tgttype=r" --targettype=STDDLL"
 tail=r" --dlldata --ignorenoncallable --uncompressed"
 
-elf2e32=r"D:\codeblock\elf2e32_next\bin\Debug\elf2e32.exe"
-elf2e32+=r" --debuggable --smpsafe"
 
-# elf2e32=r"elf2e32.exe"
+# --capability=All-TCB --definput="tests\libcryptou.def" --defoutput="tests\out.def" --elfinput="tests\libcrypto.dll" --output="tests\libcrypto-2.4.5.tst.dll" --libpath="D:\Symbian\S60_5th_Edition_SDK_v1.0\epoc32\release\armv5\lib" --linkas="libcrypto{000a0000}.dll" --dso="tests\libcrypto{000a0000}.dso" --fpu=softvfp --uid1=0x10000079 --uid2=0x20004c45 --uid3=0x00000000 --targettype=STDDLL --dlldata --ignorenoncallable --debuggable --smpsafe --uncompressed --filecrc=tests\libcrypto-2.4.5.SDK.crc
 
-# --capability=All-TCB --definput="tests\libcryptou.def" --defoutput="tests\out.def" --elfinput="tests\libcrypto.dll" --output="tests\libcrypto-2.4.5.tst.dll" --libpath="D:\Symbian\S60_5th_Edition_SDK_v1.0\epoc32\release\armv5\lib" --linkas="libcrypto{000a0000}.dll" --dso="tests\libcrypto{000a0000}.dso" --fpu=softvfp --uid1=0x10000079 --uid2=0x20004c45 --uid3=0x00000000 --targettype=STDDLL --dlldata --ignorenoncallable --debuggable --smpsafe --uncompressed
+longtail=e32bin+implibs+linkas+dsoout+fpu+uid1+uid2+uid3+tgttype+tail
 
-counter=0
-longtail=e32bin+implibs+linkas+dsoout+fpu+iud1+uid2+uid3+tgttype+tail
+# Build options
+areader_cmd = elf2e32+implibs+fpu+""" --capability=ProtServ --defoutput=tmp\AlternateReaderRecog{000a0000}.def --elfinput="AlternateReaderRecog.dll" --output="tmp\AlternateReaderRecogE32.dll" --linkas=AlternateReaderRecog{000a0000}[101ff1ec].dll --dso=tmp\AlternateReaderRecog{000a0000}.dso --uid1=0x10000079 --uid2=0x10009d8d --uid3=0x101ff1ec --targettype=PLUGIN --sid=0x101ff1ec --version=10.0 --ignorenoncallable --debuggable --smpsafe --sysdef=_Z24ImplementationGroupProxyRi,1; """
+
+outdated_def_file = elf2e32+caps+defout+elfin+longtail+r" --unfrozen"+r""" --definput="libcryptou_openssl.def" """
+dso2def = elf2e32+""" --elfinput="libcrypto{000a0000}.dso" """+defout
+def2def = elf2e32+defin+ """ --defoutput="tmp\def2def.def" """
+elf2baree32 = elf2e32+elfin+""" --output="tmp\elf2baree32.dll" """+implibs+tgttype+linkas+tail
 
 args1=(
 
 ("Test #%d: binary creation with outdated def file",
-elf2e32+caps+defout+elfin+longtail+r" --unfrozen"+r""" --definput="libcryptou_openssl.def" """,
-elf2e32+caps+defout+elfin+longtail+r" --unfrozen"+r""" --definput="libcryptou_openssl.def" """,
+outdated_def_file,
+outdated_def_file,
 ),
 ("Test #%d: Full options list",
 elf2e32+caps+defin+defout+elfin+longtail,
 "Full options list!",
 ),
 ("Test #%d: dso2def conversion",
-elf2e32+""" --elfinput="libcrypto{000a0000}.dso" """+defout,
-elf2e32+""" --elfinput="libcrypto{000a0000}.dso" """+defout,
+dso2def,
+dso2def,
 ),
 ("Test #%d: def2def conversion",
-elf2e32+defin+ """ --defoutput="tmp\def2def.def" """,
-elf2e32+defin+ """ --defoutput="tmp\def2def.def" """,
+def2def,
+def2def,
 ),
 ("Test #%d: simple binary creation",
-elf2e32+elfin+""" --output="tmp\elf2baree32.dll" """+implibs+tgttype+linkas+tail,
-elf2e32+elfin+""" --output="tmp\elf2baree32.dll" """+implibs+tgttype+linkas+tail,
+elf2baree32,
+elf2baree32,
 ),
 ("Test #%d: ful binary creation for ECOM plugin",
-elf2e32+implibs+""" --capability=ProtServ --defoutput=tmp\AlternateReaderRecog{000a0000}.def --elfinput="AlternateReaderRecog.dll" --output="tmp\AlternateReaderRecogE32.dll"  --linkas=AlternateReaderRecog{000a0000}[101ff1ec].dll --dso=tmp\AlternateReaderRecog{000a0000}.dso --fpu=softvfp --uid1=0x10000079 --uid2=0x10009d8d --uid3=0x101ff1ec --targettype=PLUGIN --sid=0x101ff1ec --version=10.0 --ignorenoncallable --debuggable --smpsafe --sysdef=_Z24ImplementationGroupProxyRi,1; """,
-
-elf2e32+implibs+""" --capability=ProtServ --defoutput=tmp\AlternateReaderRecog{000a0000}.def --elfinput="AlternateReaderRecog.dll" --output="tmp\AlternateReaderRecogE32.dll"  --linkas=AlternateReaderRecog{000a0000}[101ff1ec].dll --dso=tmp\AlternateReaderRecog{000a0000}.dso --fpu=softvfp --uid1=0x10000079 --uid2=0x10009d8d --uid3=0x101ff1ec --targettype=PLUGIN --sid=0x101ff1ec --version=10.0 --ignorenoncallable --debuggable --smpsafe --sysdef=_Z24ImplementationGroupProxyRi,1; """,
+areader_cmd,
+areader_cmd,
 ) )
 
 def SuceededTests(*args):
    """These tests must alwais pass!"""
    global counter
+   global failed_tests
    tmp=args[0]
    try:
-      longtail=e32bin %counter+implibs+linkas+dsoout %counter+fpu+iud1+uid2+uid3+tgttype+tail
+      longtail=e32bin %counter+implibs+linkas+dsoout %counter+fpu+uid1+uid2+uid3+tgttype+tail
       print tmp[0] %counter
       tmp1=tmp[1].replace("%02d", str(counter))
       print tmp1
@@ -67,9 +79,11 @@ def SuceededTests(*args):
       subprocess.check_call(tmp1)
    except:
       print "Unexpectable test failure:\n %s" %tmp[2]
+      failed_tests+=1
    finally:
       print "\n"
       counter+=1
+
 
 args=(
 ("Test #%d: elfin without args",
@@ -110,13 +124,15 @@ elf2e32+elfin+""" --output="tmp\elf2baree32.dll" """,
 def FailureTests(*arg):
    """These tests must alwais fail!"""
    global counter
+   global failed_tests
    tmp=arg[0]
    try:
-      longtail=e32bin %counter+implibs+linkas+dsoout %counter+fpu+iud1+uid2+uid3+tgttype+tail
+      longtail=e32bin %counter+implibs+linkas+dsoout %counter+fpu+uid1+uid2+uid3+tgttype+tail
       print tmp[0] %counter
       tmp1=tmp[1].replace("%02d", str(counter))
       print tmp1
       subprocess.check_call(tmp1)
+      failed_tests+=1
    except:
       print "Expectable test failure: %s" %tmp[2]
    finally:
@@ -129,6 +145,7 @@ def run():
       SuceededTests(x)
    for y in args:
       FailureTests(y)
+   print "Tests failed: %d" %failed_tests
 
 if __name__ == "__main__":
     # execute only if run as a script

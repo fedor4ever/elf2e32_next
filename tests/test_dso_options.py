@@ -1,8 +1,8 @@
 # encoding=utf-8
 import os, subprocess
 
-elf2e32=r"D:\codeblock\elf2e32_next\bin\Debug\elf2e32.exe"
-tstdir=r"D:\codeblock\elf2e32_next\tests"
+elf2e32=r"..\bin\Release\elf2e32.exe"
+failed_tests = 0
 
 defin=r""" --definput="libcryptou.def" """
 dsoout=r""" --dso="tmp\libcrypto{000a0000}.def2dso.dso" """
@@ -23,6 +23,7 @@ dsodefTests=(
 
 def SuceededTests(*args):
    """These tests must alwais pass!"""
+   global failed_tests
    tmp=args[0]
    str=tmp[1] %tmp[0]
    try:
@@ -30,12 +31,14 @@ def SuceededTests(*args):
       subprocess.check_call(tmp[0])
    except:
       print "Unexpectable test failure:\n %s\n" %str
+      failed_tests+=1
    else:
       print "Test succeeded: %s!\n" %str
 
 def run():
    for x in dsodefTests:
       SuceededTests(x)
+   print "Tests failed: %d" %failed_tests
 
 if __name__ == "__main__":
    # execute only if run as a script

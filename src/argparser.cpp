@@ -460,8 +460,8 @@ bool operator==(const Opts* left, const Opts& right)
 
 void ArgParser::ArgInfo(const Opts& opt) const
 {
-//    if(!VerboseOutput)
-//        return;
+    if(!VerboseOutput)
+        return;
 
     ReportLog("Got arg: --" + opt.name);
     if(!opt.arg.empty())

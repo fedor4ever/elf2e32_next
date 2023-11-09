@@ -8,7 +8,7 @@ implibs=r""" --libpath="SDK_libs" """
 counter=0
 failed_tests = 0
 
-elf2e32+=r" --debuggable --smpsafe"
+elf2e32+=r" --debuggable --smpsafe --verbose=-1"
 
 # libcrypto
 caps=" --capability=All-TCB"

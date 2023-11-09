@@ -31,9 +31,17 @@
 
 using std::string;
 
-static bool VerboseOutput = false;
+enum VerbosePrint
+{
+    DISABLE_LONG_PRINT = -1,
+    NONE = 0,
+    ENABLE_ALL = 1,
+};
+
+static int VerboseOutput = VerbosePrint::NONE;
 
 bool VerboseOut() {return VerboseOutput;}
+bool DisableLongVerbosePrint() {return VerboseOutput == VerbosePrint::DISABLE_LONG_PRINT;}
 
 ArgParser::ArgParser(int argc, char** argv)
 {
@@ -328,8 +336,13 @@ bool ArgParser::Parse(Args* arg) const
                     arg->iFileCrc = op.arg;
                 break;
             case OptionsType::VERBOSE:
-                VerboseOutput = true;
-                op.binary_arg1 = true;
+                if(!op.arg.empty())
+                {
+                    VerboseOutput = strtol(op.arg.c_str(), nullptr, 10);
+                }
+                else
+                    VerboseOutput = VerbosePrint::ENABLE_ALL;
+                op.binary_arg1 = VerboseOutput;
                 break;
             case OptionsType::FORCEE32BUILD:
                 arg->iForceE32Build = true;
@@ -435,6 +448,8 @@ const string ScreenOptions =
 
 void Help()
 {
+    if(DisableLongVerbosePrint())
+        return;
     ToolVersion v;
     ReportLog("\nSymbian Post Linker, Elf2E32 v %d.%d (Build %d)\n",
               (int16_t)v.iMajor, (int16_t)v.iMinor, (int16_t)v.iBuild);

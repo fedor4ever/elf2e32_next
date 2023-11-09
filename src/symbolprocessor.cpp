@@ -213,7 +213,8 @@ void SymbolProcessor::ProcessElfSymbols()
             continue;
 
         x->SetOrdinal(lastOrdinal++);
-        ReportWarning(ErrorCodes::UNFROZENSYMBOLADDED, x->AliasName());
+        if(!DisableLongVerbosePrint())
+            ReportWarning(ErrorCodes::UNFROZENSYMBOLADDED, x->AliasName());
         filtered.push_back(x);
         ls.push_back(x->AliasName());
     }
@@ -260,7 +261,7 @@ bool IsNoExportEXE(TargetType type)
 
 void SymbolProcessor::CheckForErrors(bool unfrozen, list<string> missedSymbols, const string& src)
 {
-    if(!iSymbols.empty() && VerboseOut())
+    if(!iSymbols.empty() && VerboseOut() && !DisableLongVerbosePrint())
     {
         ReportLog("*********************\n");
         ReportLog("Exported symbols:\n");

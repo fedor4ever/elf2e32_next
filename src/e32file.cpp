@@ -184,7 +184,7 @@ void E32File::WriteE32File()
     arg.iElfinput = iE32Opts->iElfinput;
 
     //call E32Info::HeaderInfo() for verbose output
-    if(VerboseOut())
+    if(VerboseOut() && !DisableLongVerbosePrint())
     {
         hdr->iCompressionType = KFormatNotCompressed;
 

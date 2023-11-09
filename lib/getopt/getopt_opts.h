@@ -71,7 +71,7 @@ static struct option long_opts[] =
     // dev options
     {"filecrc",         optional_argument, nullptr, OptionsType::FILECRC},
     {"time",            required_argument, nullptr, OptionsType::TIME},
-    {"verbose",               no_argument, nullptr, OptionsType::VERBOSE},
+    {"verbose",         optional_argument, nullptr, OptionsType::VERBOSE},
     {"force",                 no_argument, nullptr, OptionsType::FORCEE32BUILD},
     // ignored options
     {"messagefile",     required_argument, nullptr, OptionsType::EMESSAGEFILE},

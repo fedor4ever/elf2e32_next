@@ -204,16 +204,20 @@ std::string GetEcomExportName(TargetType type)
     return "";
 }
 
-void WarnForNonDllUID()
+void WarnForNonDllUID(uint32_t UID1)
 {
+    if(UID1 == KDynamicLibraryUidValue)
+        return;
     ReportLog("********************\n");
     ReportLog("Wrong UID1\n");
     ReportLog("Set uid1 to KDynamicLibraryUidValue\n");
     ReportLog("********************\n");
 }
 
-void WarnForNonExeUID()
+void WarnForNonExeUID(uint32_t UID1)
 {
+    if(UID1 == KExecutableImageUidValue)
+        return;
     ReportLog("********************\n");
     ReportLog("Wrong UID1\n");
     ReportLog("Set uid1 to KExecutableImageUidValue\n");
@@ -329,6 +333,14 @@ void ResolveLinkAsUID(Args* arg)
     arg->iLinkasUid = buf.str();
 }
 
+void CheckE32andElf(bool noElfinput, bool noE32Image)
+{
+    if(noElfinput)
+        ReportError(ErrorCodes::NOREQUIREDOPTION, "--elfinput");
+    if(noE32Image)
+        ReportError(ErrorCodes::NOREQUIREDOPTION, "--output");
+}
+
 /** \brief Verifies and correct wrong input options
  * This function correct multiple conflict opions
  * like --datapaging with different params,
@@ -343,7 +355,8 @@ void ValidateOptions(Args* arg)
     if((arg->iDebuggable) && !IsRunnable(arg->iTargettype))
     {
         arg->iDebuggable = false;
-        ReportLog("--debuggable option allowed for EXE's only!\n");
+        if(VerboseOut)
+            ReportLog("--debuggable option allowed for EXE's only!\n");
     }
 
     bool hasDefinput = !arg->iDefinput.empty();
@@ -406,47 +419,28 @@ void ValidateOptions(Args* arg)
         if(arg->iDso.empty())
             ReportError(ErrorCodes::NOREQUIREDOPTION, "--dso");
         break;
-    case TargetType::EStdDll:
-        if(noElfinput)
-            ReportError(ErrorCodes::NOREQUIREDOPTION, "--elfinput");
-        if(noE32Image)
-            ReportError(ErrorCodes::NOREQUIREDOPTION, "--output");
 
-        if(UID1 != KDynamicLibraryUidValue) //< guard against wrong uids
-            WarnForNonDllUID();
+    case TargetType::EStdDll:
+        CheckE32andElf(noElfinput, noE32Image);
+        WarnForNonDllUID(UID1); //< guard against wrong uids
         arg->iUid1 = KDynamicLibraryUidValue;
         arg->iUid2 = KSTDTargetUid2Value;
-
         if(!UID3) ReportLog("Missed --uid3 option!\n");
         break;
+
     case TargetType::EDll:
-        if(noElfinput)
-            ReportError(ErrorCodes::NOREQUIREDOPTION, "--elfinput");
-        if(noE32Image)
-            ReportError(ErrorCodes::NOREQUIREDOPTION, "--output");
-
-        if(UID1 != KDynamicLibraryUidValue) //< guard against wrong uids
-            WarnForNonDllUID();
+        CheckE32andElf(noElfinput, noE32Image);
+        WarnForNonDllUID(UID1); //< guard against wrong uids
         arg->iUid1 = KDynamicLibraryUidValue;
-        if(!UID2)
-        {
-            ReportLog("********************\n");
-            ReportLog("missed value for UID2\n");
-            ReportLog("********************\n");
-        }
-        if(arg->iTargettype == TargetType::EStdDll) arg->iUid2 = KSTDTargetUid2Value; // only that uid2 accepted for STDDLL & STDEXE
-        if(!UID3) ReportLog("Missed --uid3 option!\n");
         break;
+
     case TargetType::EExe:
-        if(noElfinput)
-            ReportError(ErrorCodes::NOREQUIREDOPTION, "--elfinput");
-        if(noE32Image)
-            ReportError(ErrorCodes::NOREQUIREDOPTION, "--output");
-        if(UID1 != KExecutableImageUidValue)
-            WarnForNonExeUID();
+        CheckE32andElf(noElfinput, noE32Image);
+        WarnForNonExeUID(UID1);
         arg->iUid1 = KExecutableImageUidValue;
         if(!UID3) ReportLog("Missed --uid3 option!\n");
         break;
+
     case TargetType::EAni:
     case TargetType::EFep: //fallthru
     case TargetType::EFsy: //fallthru
@@ -458,12 +452,8 @@ void ValidateOptions(Args* arg)
     case TargetType::ETextNotifier2: //fallthru
         if(noE32Image && noElfinput)
             ReportError(ErrorCodes::NOREQUIREDOPTION, "--elfinput ""--output");
-        if(noElfinput)
-            ReportError(ErrorCodes::NOREQUIREDOPTION, "--elfinput");
-        if(noE32Image)
-            ReportError(ErrorCodes::NOREQUIREDOPTION, "--output");
-        if(UID1 != KDynamicLibraryUidValue)
-            WarnForNonDllUID();
+        CheckE32andElf(noElfinput, noE32Image);
+        WarnForNonDllUID(UID1);
         arg->iUid1 = KDynamicLibraryUidValue;
         if(!UID2)
         {
@@ -476,31 +466,23 @@ void ValidateOptions(Args* arg)
         if(!UID3) ReportLog("Missed --uid3 option!\n");
         break;
     case EExexp:
-        if(noElfinput)
-            ReportError(ErrorCodes::NOREQUIREDOPTION, "--elfinput");
+        CheckE32andElf(noElfinput, noE32Image);
         if(noDefOut)
             ReportError(ErrorCodes::NOREQUIREDOPTION, "--defoutput");
-        if(noE32Image)
-            ReportError(ErrorCodes::NOREQUIREDOPTION, "--output");
-
-        if(UID1 != KExecutableImageUidValue)
-            WarnForNonExeUID();
+        WarnForNonExeUID(UID1);
         arg->iUid1 = KExecutableImageUidValue;
         if(!UID2) ReportLog("Missed --uid2 option!\n");
         if(!UID3) ReportLog("Missed --uid3 option!\n");
         break;
+
     case EStdExe:
-        if(noElfinput)
-            ReportError(ErrorCodes::NOREQUIREDOPTION, "--elfinput");
-        if (noE32Image)
-            ReportError(ErrorCodes::NOREQUIREDOPTION, "--output");
-        if(UID1 != KExecutableImageUidValue)
-            WarnForNonExeUID();
+        CheckE32andElf(noElfinput, noE32Image);
+        WarnForNonExeUID(UID1);
         arg->iUid1 = KExecutableImageUidValue;
         arg->iUid2 = KSTDTargetUid2Value;
-
         if(!UID3) ReportLog("Missed --uid3 option!\n");
         break;
+
     default:
         break;
     }

@@ -34,7 +34,7 @@
 				<Option object_output="obj/Release/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
-				<Option parameters="--elfinput=Neverhoode.exe --output=Neverhood.exe" />
+				<Option parameters='--capability=ProtServ --defoutput=tests\tmp\AlternateReaderRecog{000a0000}.def --elfinput=&quot;tests\AlternateReaderRecog.dll&quot; --output=&quot;tests\tmp\AlternateReaderRecogE32.dll&quot; --libpath=tests\SDK_libs --linkas=AlternateReaderRecog{000a0000}[101ff1ec].dll --dso=tests\tmp\AlternateReaderRecog{000a0000}.dso --fpu=softvfp --uid1=0x10000079 --uid2=0x10009d8d --uid3=0x101ff1ec --targettype=PLUGIN --sysdef=_Z24ImplementationGroupProxyRi,1; --sid=0x101ff1ec --version=10.0 --ignorenoncallable --debuggable --smpsafe --uncompressed --filecrc=tests\AlternateReaderRecog.SDK.crc' />
 				<Compiler>
 					<Add option="-O2" />
 				</Compiler>

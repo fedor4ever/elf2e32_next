@@ -166,7 +166,7 @@ void DefFile::Tokenizer(std::string aLine, size_t aIndex)
         iSymbol->SetR3Unused(true);
     if(aLine.find(" ABSENT") < string::npos)
         iSymbol->SetAbsent(true);
-   if(aLine.find(" MISSING") < string::npos)
+    if(aLine.find(" MISSING") < string::npos)
         iSymbol->SetSymbolStatus(Missing);
 
     std::vector<std::string> tokens;
@@ -177,6 +177,9 @@ void DefFile::Tokenizer(std::string aLine, size_t aIndex)
     {
         tokens.push_back(token);
     }
+
+    if(tokens.empty())
+        ReportError(ErrorCodes::ZEROBUFFER, "Bad input deffile found!\n");
 
     if((tokens.size() > 4) && (iSymbol->CodeDataType() == SymbolTypeData))
     {

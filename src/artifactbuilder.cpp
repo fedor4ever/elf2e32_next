@@ -272,6 +272,21 @@ void ResetInvalidLINKAS(Args* arg)
     }
 }
 
+void DeduceDSO(Args* arg)
+{
+    if(!arg->iDso.empty())
+        return;
+    arg->iDso = arg->iLinkas;
+    size_t pos = arg->iLinkas.find_first_of("[");
+    if(pos == std::string::npos)
+        pos = arg->iLinkas.find_first_of(".");
+    if(pos != std::string::npos)
+        ReportError(ErrorCodes::ZEROBUFFER, "Illformed option linkas in DeduceDSO(): " + arg->iLinkas + "\n");
+
+    arg->iDso.erase(pos);
+    arg->iDso += ".dso";
+}
+
 void DeduceLINKAS(Args* arg)
 {
     if(arg->iLinkas.empty() && (arg->iTargettype != TargetType::EInvalidTargetType))
@@ -355,7 +370,7 @@ void ValidateOptions(Args* arg)
     if((arg->iDebuggable) && !IsRunnable(arg->iTargettype))
     {
         arg->iDebuggable = false;
-        if(VerboseOut)
+        if(VerboseOut())
             ReportLog("--debuggable option allowed for EXE's only!\n");
     }
 

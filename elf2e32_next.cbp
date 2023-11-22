@@ -11,7 +11,7 @@
 				<Option object_output="obj/Debug/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
-				<Option parameters='--capability=All-TCB --elfinput=&quot;tests\kf_Python_launcher.exe&quot;  --output=&quot;tests\tmp\kf_Python_launcher.tst.exe&quot;  --libpath=&quot;D:\Symbian\S60_5th_Edition_SDK_v1.0\epoc32\release\armv5\lib&quot;  --linkas=&quot;kf_Python_launcher{000a0000}.exe&quot;  --fpu=softvfp --uid1=0x10000079 --uid2=0x20004c45 --uid3=0x00000000 --targettype=STDEXE --dlldata --ignorenoncallable --debuggable --uncompressed --filecrc=&quot;tests\kf_Python_launcher.crc&quot;' />
+				<Option parameters='--capability=All-TCB --definput=&quot;tests\libcryptou.def&quot; --defoutput=&quot;tests\tmp\out.def&quot; --elfinput=&quot;tests\libcrypto.dll&quot; --output=&quot;tests\tmp\libcrypto-2.4.5.tst.dll&quot; --libpath=&quot;tests\SDK_libs&quot; --linkas=&quot;libcrypto{000a0000}.dll&quot; --fpu=softvfp --uid1=0x10000079 --uid2=0x20004c45 --uid3=0x00000000 --targettype=STDDLL --dlldata --ignorenoncallable --uncompressed --debuggable --smpsafe --namedlookup --filecrc=&quot;tests\libcrypto-2.4.5.SDK.crc&quot;' />
 				<Compiler>
 					<Add option="-Wshadow" />
 					<Add option="-Winit-self" />
@@ -34,7 +34,7 @@
 				<Option object_output="obj/Release/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
-				<Option parameters='--capability=ProtServ --defoutput=tests\tmp\AlternateReaderRecog{000a0000}.def --elfinput=&quot;tests\AlternateReaderRecog.dll&quot; --output=&quot;tests\tmp\AlternateReaderRecogE32.dll&quot; --libpath=tests\SDK_libs --linkas=AlternateReaderRecog{000a0000}[101ff1ec].dll --dso=tests\tmp\AlternateReaderRecog{000a0000}.dso --fpu=softvfp --uid1=0x10000079 --uid2=0x10009d8d --uid3=0x101ff1ec --targettype=PLUGIN --sysdef=_Z24ImplementationGroupProxyRi,1; --sid=0x101ff1ec --version=10.0 --ignorenoncallable --debuggable --smpsafe --uncompressed --filecrc=tests\AlternateReaderRecog.SDK.crc' />
+				<Option parameters='--capability=All-TCB --definput=&quot;tests\libcryptou.def&quot; --defoutput=&quot;tests\tmp\out.def&quot; --elfinput=&quot;tests\libcrypto.dll&quot; --output=&quot;tests\tmp\libcrypto-2.4.5.tst.dll&quot; --libpath=&quot;tests\SDK_libs&quot; --linkas=&quot;libcrypto{000a0000}.dll&quot; --dso=&quot;tests\tmp\libcrypto{000a0000}.dso&quot; --fpu=softvfp --uid1=0x10000079 --uid2=0x20004c45 --uid3=0x00000000 --targettype=STDDLL --dlldata --ignorenoncallable --uncompressed --debuggable --smpsafe --namedlookup --filecrc=&quot;tests\libcrypto-2.4.5.SDK.crc&quot;' />
 				<Compiler>
 					<Add option="-O2" />
 				</Compiler>
@@ -61,7 +61,6 @@
 		</Linker>
 		<Unit filename="include/elf2e32_opt.hpp" />
 		<Unit filename="include/elf2e32_version.hpp" />
-		<Unit filename="include/getopt_opts.h" />
 		<Unit filename="include/task.hpp" />
 		<Unit filename="lib/e32/bpe_manager.cpp" />
 		<Unit filename="lib/e32/byte_pair.cpp" />
@@ -97,6 +96,7 @@
 		<Unit filename="lib/getopt/getopt_opts.h" />
 		<Unit filename="src/argparser.cpp" />
 		<Unit filename="src/argparser.h" />
+		<Unit filename="src/artifact_build_validator.cpp" />
 		<Unit filename="src/artifactbuilder.cpp" />
 		<Unit filename="src/artifactbuilder.h" />
 		<Unit filename="src/cmdlineprocessor.cpp" />

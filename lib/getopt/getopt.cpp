@@ -8,6 +8,7 @@
 // Initial Contributors:
 // Strizhniou Fiodar - initial contribution.
 
+#include "common.hpp"
 #include "getopt.hpp"
 #include "getopt_opts.h"
 #include "elf2e32_opt.hpp"
@@ -35,7 +36,7 @@ struct Opts getopt(const std::string& argc)
     if(argpos != std::string::npos)
     {
         opt.name = option.substr(0, argpos);
-        opt.arg = option.substr(argpos+1);;
+        opt.arg = ToLower(option.substr(argpos+1));
     }
     else
         opt.name = option;

@@ -142,34 +142,32 @@ void ResetInvalidLINKAS(Args* arg)
     }
 }
 
+std::string ConstructLinkas(const std::string& s, const std::string& s2)
+{
+    std::string tmp(s);
+    tmp.erase(tmp.find_last_of("."));
+    return tmp + s2 + ".dll";
+}
+
 void DeduceLINKAS(Args* arg)
 {
     if(arg->iLinkas.empty() && (arg->iTargettype != TargetType::EInvalidTargetType))
     {
         std::string linkas, version;
         version = VersionAsStr(arg->iVersion);
-        if(!arg->iOutput.empty())
+        version += arg->iLinkasUid;
+        if(!arg->iElfinput.empty())
+            linkas = ConstructLinkas(arg->iElfinput, version);
+        else if(!arg->iOutput.empty())
         {
             linkas = arg->iOutput;
             linkas.insert(linkas.find_last_of("."), version);
-            linkas.insert(linkas.find_last_of("."), arg->iLinkasUid);
         }
         else if(!arg->iDefoutput.empty())
-        {
-            linkas = arg->iDefoutput;
-            linkas.erase(linkas.find_last_of("."));
-            linkas += version;
-            linkas += arg->iLinkasUid;
-            linkas += ".dll";
-        }
+            linkas = ConstructLinkas(arg->iDefoutput, version);
         else if(!arg->iDso.empty())
-        {
-            linkas = arg->iDso;
-            linkas.erase(linkas.find_last_of("."));
-            linkas += version;
-            linkas += arg->iLinkasUid;
-            linkas += ".dll";
-        }
+            linkas = ConstructLinkas(arg->iDso, version);
+
         arg->iLinkas = FileNameFromPath(linkas);
     }
 
@@ -244,7 +242,7 @@ void DeduceDSO(Args* arg)
     size_t pos = arg->iLinkas.find_first_of("[");
     if(pos == std::string::npos)
         pos = arg->iLinkas.find_first_of(".");
-    if(pos != std::string::npos)
+    if(pos == std::string::npos)
         ReportError(ErrorCodes::ZEROBUFFER, "Illformed option linkas in DeduceDSO(): " + arg->iLinkas + "\n");
 
     arg->iDso.erase(pos);
@@ -306,6 +304,8 @@ void ValidateOptions(Args* arg)
     ResolveLinkAsUID(arg);
     ResetInvalidLINKAS(arg);
     DeduceLINKAS(arg);
+
+    DeduceDSO(arg);
 
     if((targetType == TargetType::EPlugin) && arg->iSysdef.empty())
         arg->iSysdef = GetEcomExportName(targetType);

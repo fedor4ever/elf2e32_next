@@ -25,6 +25,14 @@
 #include "elf2e32_opt.hpp"
 #include "artifactbuilder.h"
 
+
+void SetCmdParamAtCompileTime(Args* param)
+{
+    #ifdef SETCMDPARAMATCOMPILETIME_FILECRC
+    param->iFileCrc = DefaultOptionalArg;
+    #endif //SETCMDPARAMATCOMPILETIME_FILECRC
+}
+
 Elf2E32::Elf2E32(int argc, char** argv)
 {
     iHdr = new E32ImageHeader();
@@ -44,6 +52,8 @@ void Elf2E32::Run()
 {
     if(!iArgParser->Parse(iCmdParam))
     	return;
+
+    SetCmdParamAtCompileTime(iCmdParam);
 
     Logger::Instance(iCmdParam->iLog);
     if(!iCmdParam->iE32input.empty() && iCmdParam->iOutput.empty())

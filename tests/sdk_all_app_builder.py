@@ -162,7 +162,6 @@ def find_projects():
                 t = os.path.join(root, name)
                 # print(t)
                 tmp.append(os.path.dirname(t))
-                # tmp += t.split()
                 count += 1
             if name.endswith("Bld.inf"):
                 t = os.path.join(root, name)
@@ -175,8 +174,8 @@ def find_projects():
                 tmp.append(os.path.dirname(t))
                 count += 1
 
-    print "counted bld.inf: %d" %count
-    print tmp
+    print "Projects found: %d" %count
+    # print tmp
     # save2file("log.txt", tmp)
 
     end = time.strftime("%H:%M:%S" )

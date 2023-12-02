@@ -236,6 +236,8 @@ void WarnForNonExeUID(uint32_t UID1)
 
 void DeduceDSO(Args* arg)
 {
+    if(IsRunnable(arg->iTargettype))
+        return;
     if(!arg->iDso.empty())
         return;
     arg->iDso = arg->iLinkas;

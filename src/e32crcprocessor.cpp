@@ -270,24 +270,29 @@ void E32CRCProcessor::DeduceCRCFiles()
     if(iFileIn != DefaultOptionalArg)
         return;
 
-    iFileOut = iArgs->iOutput;
-    if(!iFileOut.empty())
-        CRCFile(iFileOut);
+    if(!iArgs->iE32input.empty())
+    {
+        iFileIn = iArgs->iE32input;
+        CRCFile(iFileIn);
+        fstream file(iFileIn, fstream::in);
+        if(!file)
+        {
+            iFileOut = iFileIn;
+            iFileIn.clear();
+        }
+        file.close();
+        return;
+    }
+
+    if(iArgs->iOutput.empty())
+        ReportError(ErrorCodes::ZEROBUFFER, "Internal error in DeduceCRCFiles(). Got uninitialized E32 output!");
+    if(iArgs->iElfinput.empty())
+        ReportError(ErrorCodes::ZEROBUFFER, "Internal error in DeduceCRCFiles(). Got uninitialized Elf input!");
 
     iFileIn = iArgs->iElfinput;
-    if(iFileIn.empty())
-        iFileIn = iArgs->iE32input;
-    if(iFileIn.empty())
-        ReportError(ErrorCodes::ZEROBUFFER, "Internal error in DeduceCRCFiles() while deduce input CRC file name.");
+    iFileOut = iArgs->iOutput;
     CRCFile(iFileIn);
-
-    fstream file(iFileIn, fstream::in);
-    if(!file)
-    {
-        file.close();
-        iFileOut = iFileIn;
-        iFileIn.clear();
-    }
+    CRCFile(iFileOut);
 }
 
 void CRCFile(string& s)

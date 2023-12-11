@@ -72,7 +72,7 @@ void E32Validator::ValidateHeader()
 	ThrowIfTrue(iBufSize < hdrSize,
         "file is big enough to contain E32ImageHeader header");
 
-	uint32_t hdrfmt = HdrFmtFromFlags(iHdr->iFlags);
+	const uint32_t hdrfmt = HdrFmtFromFlags(iHdr->iFlags);
     if( hdrfmt == KImageHdrFmt_J)
         hdrSize += sizeof(E32ImageHeaderJ);
 
@@ -198,8 +198,8 @@ void E32Validator::ValidateHeader()
          "we link to DLLs but have no import data");
 
 	// check iCodeOffset and iCodeSize specify region in file...
-	uint32_t codeStart = iHdr->iCodeOffset;
-	uint32_t codeEnd = iHdr->iCodeSize+codeStart;
+	const uint32_t codeStart = iHdr->iCodeOffset;
+	const uint32_t codeEnd = iHdr->iCodeSize+codeStart;
 	ThrowIfTrue(codeEnd < codeStart,
         "code section layout. Section can't ends before its start");
 
@@ -210,8 +210,8 @@ void E32Validator::ValidateHeader()
         "code section inside uncompressed file. Section out of range!");
 
 	// check iDataOffset and iDataSize specify region in file...
-	uint32_t dataStart = iHdr->iDataOffset;
-	uint32_t dataEnd = iHdr->iDataSize + dataStart;
+	const uint32_t dataStart = iHdr->iDataOffset;
+	const uint32_t dataEnd = iHdr->iDataSize + dataStart;
 	ThrowIfTrue(dataEnd < dataStart,
         "data section layout. Section can't ends before its start");
     // no data...

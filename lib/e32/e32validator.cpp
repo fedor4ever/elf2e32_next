@@ -254,7 +254,7 @@ void E32Validator::ValidateHeader()
 
         uint32_t* exports = iParser->GetExportTable();
         if(exports[0] != iHdr->iExportDirCount)
-            ReportLog("Export's header: %u and iExportDirOffset: %u size differs.\n", exports[0], iHdr->iExportDirCount);
+            ReportLog("Export's header: %u and iExportDirCount: %u size differs.\n", exports[0], iHdr->iExportDirCount);
 //        ThrowIfTrue(exports[0] != iHdr->iExportDirCount,
 //            "exports size consistency. Export's header and iExportDirOffset size differs.");
     }

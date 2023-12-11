@@ -251,6 +251,20 @@ void DeduceDSO(Args* arg)
     arg->iDso += ".dso";
 }
 
+void ValidateStackSize(Args* arg)
+{
+    // for dll SDK version set stack size to 8 kb aka KDefaultStackSize
+    if((arg->iStack == 0) || !IsRunnable(arg->iTargettype))
+    {
+        arg->iStack = KDefaultStackSize;
+        return;
+    }
+    if(arg->iStack <= KDefaultStackSizeMax)
+        return;
+    ReportLog("Stack overflow: 0x%x. Reset to max: 0x%x.\n", arg->iStack, KDefaultStackSizeMax);
+    arg->iStack = KDefaultStackSizeMax;
+}
+
 /** \brief Verifies and correct wrong input options
  * This function correct multiple conflict opions
  * like --datapaging with different params,
@@ -258,6 +272,7 @@ void DeduceDSO(Args* arg)
  */
 void ValidateOptions(Args* arg)
 {
+    ValidateStackSize(arg);
     FixHeaderName(arg);
 
     ValidateCaps(arg);

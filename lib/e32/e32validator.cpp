@@ -147,10 +147,10 @@ void E32Validator::ValidateHeader()
             "Eka2 entry point type");
     /// TODO (Administrator#1#11/03/18): Enable checks for other arm targets too!
         #if defined(__EABI__)
-        ThrowIfTrue((iFlags&KImageABIMask)!=KImageABI_EABI,
+        ThrowIfTrue((iHdr->iFlags&KImageABIMask)!=KImageABI_EABI,
             "EABI ABI");
         #elif defined(__GCC32__)
-        ThrowIfTrue((iFlags&KImageABIMask)!=KImageABI_GCC98r2,
+        ThrowIfTrue((iHdr->iFlags&KImageABIMask)!=KImageABI_GCC98r2,
             "GCC98r2 ABI");
         #endif
     }
@@ -173,6 +173,7 @@ void E32Validator::ValidateHeader()
 
 	// check iStackSize...
 	ThrowIfTrue(iHdr->iStackSize < 0, "check iStackSize");
+	ThrowIfTrue(iHdr->iStackSize > KDefaultStackSizeMax, "check iStackSize overflow");
 
 	// check iBssSize...
 	ThrowIfTrue(iHdr->iBssSize < 0, "check iBssSize");

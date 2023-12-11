@@ -85,6 +85,9 @@ const uint32_t KImageCrcInitialiser  = 0xc90fdaa2u;
 const int32_t KHeapCommittedSize = 0x1000;
 const int32_t KHeapReservedSize = 0x100000;
 
+const uint32_t KDefaultStackSize = 0x2000; // 8kb
+const uint32_t KDefaultStackSizeMax = 0x14000; //80kb
+
 // export description type E32ImageHeaderV::iExportDescType
 const uint32_t KImageHdr_ExpD_NoHoles       = 0x00;  ///< No holes, all exports present.
 const uint32_t KImageHdr_ExpD_FullBitmap    = 0x01;  ///< Full bitmap present at E32ImageHeaderV::iExportDesc
@@ -114,7 +117,7 @@ struct E32ImageHeader
     uint32_t iDataSize = 0;      // size of initialised data
     int32_t iHeapSizeMin = KHeapCommittedSize;
     int32_t iHeapSizeMax = KHeapReservedSize; //0x1F
-    int32_t iStackSize = 0x2000;
+    int32_t iStackSize = KDefaultStackSize;
     int32_t iBssSize = 0;
     uint32_t iEntryPoint = 0;    // offset into code of entry point
     uint32_t iCodeBase;          // where the code is linked for

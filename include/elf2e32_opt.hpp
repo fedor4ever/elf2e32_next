@@ -103,10 +103,10 @@ struct Args
     uint32_t iVid = 0;
     uint32_t iHeapMin = KHeapCommittedSize;
     uint32_t iHeapMax = KHeapReservedSize;
-    uint32_t iStack = 0x2000;
+    uint32_t iStack = KDefaultStackSize;
     bool iFixedaddress = false;
     bool iCallentry = false;
-    uint32_t iFpu;
+    uint32_t iFpu = TFloatingPointType::EFpTypeNone; //softfp
     Paging iCodePaging = Paging::DEFAULT;
     Paging iDataPaging = Paging::DEFAULT;
     bool iDebuggable = false;

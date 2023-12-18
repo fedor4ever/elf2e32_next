@@ -302,13 +302,13 @@ void SymbolProcessor::MapAbsentWithElfSymbols(const Symbols& fromElf)
     if(it2 == fromElf.end())
         ReportError(ErrorCodes::ZEROBUFFER, "DLL Elf file has no exports! Check symbol(s) visibility!");
 
-    while((it1 != iSymbols.end()) || (it2 != fromElf.end()))
+    while((it1 != iSymbols.end()) && (it2 != fromElf.end()))
     {
         if((*it1)->AliasName() > (*it2)->AliasName())
             it2++;
-        if((*it1)->AliasName() < (*it2)->AliasName())
+        else if((*it1)->AliasName() < (*it2)->AliasName())
             it1++;
-        if((*it1)->AliasName() == (*it2)->AliasName())
+        else if((*it1)->AliasName() == (*it2)->AliasName())
         {
             (*it1)->SetElfSymbol( (*it2)->GetElf32_Sym());
             if( (*it1)->Absent() )
@@ -317,8 +317,6 @@ void SymbolProcessor::MapAbsentWithElfSymbols(const Symbols& fromElf)
                 (*it1)->SetAbsent(false);
             }
             it1++, it2++;
-            if(it1 == iSymbols.end())
-                break;
         }
     }
 

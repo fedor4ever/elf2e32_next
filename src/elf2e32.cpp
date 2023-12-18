@@ -28,9 +28,10 @@
 
 void SetCmdParamAtCompileTime(Args* param)
 {
-    #ifdef SETCMDPARAMATCOMPILETIME_FILECRC
-    param->iFileCrc = DefaultOptionalArg;
-    #endif //SETCMDPARAMATCOMPILETIME_FILECRC
+    #ifdef SET_COMPILETIME_LOAD_EXISTED_FILECRC
+    if(param->iFileCrc.empty())
+        param->iFileCrc = DefaultOptionalArg;
+    #endif //SET_COMPILETIME_LOAD_EXISTED_FILECRC
 }
 
 Elf2E32::Elf2E32(int argc, char** argv)

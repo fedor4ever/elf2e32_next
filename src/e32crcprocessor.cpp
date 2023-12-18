@@ -293,6 +293,15 @@ void E32CRCProcessor::DeduceCRCFiles()
     iFileOut = iArgs->iOutput;
     CRCFile(iFileIn);
     CRCFile(iFileOut);
+
+#ifdef SET_COMPILETIME_LOAD_EXISTED_FILECRC
+    fstream file(iFileOut, fstream::in);
+    if(file.is_open())
+    {
+        std::swap(iFileIn, iFileOut);
+        iFileOut.clear();
+    }
+#endif // SET_COMPILETIME_LOAD_EXISTED_FILECRC
 }
 
 void CRCFile(string& s)

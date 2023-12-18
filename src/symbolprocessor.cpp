@@ -216,7 +216,6 @@ void SymbolProcessor::ProcessElfSymbols()
         if(!DisableLongVerbosePrint())
             ReportWarning(ErrorCodes::UNFROZENSYMBOLADDED, x->AliasName());
         filtered.push_back(x);
-        ls.push_back(x->AliasName());
     }
 
     // dealing with absent symbols

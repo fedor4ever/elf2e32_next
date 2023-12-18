@@ -13,6 +13,13 @@
 #include "getopt_opts.h"
 #include "elf2e32_opt.hpp"
 
+bool NeedRawArg(const std::string& optname)
+{
+    if(optname == "sysdef")
+        return true;
+    return false;
+}
+
 struct Opts getopt(const std::string& argc)
 {
     Opts opt;
@@ -36,7 +43,10 @@ struct Opts getopt(const std::string& argc)
     if(argpos != std::string::npos)
     {
         opt.name = option.substr(0, argpos);
-        opt.arg = ToLower(option.substr(argpos+1));
+        if(NeedRawArg(opt.name))
+            opt.arg = option.substr(argpos+1);
+        else
+            opt.arg = ToLower(option.substr(argpos+1));
     }
     else
         opt.name = option;

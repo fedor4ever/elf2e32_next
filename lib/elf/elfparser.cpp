@@ -580,6 +580,19 @@ Elf32_Word ElfParser::GetRelocationValue(Elf32_Addr offset) const
     return *aLocVal;
 }
 
+
+/* Usually returns KInferredRelocType for weak symbols.
+ * From 206 builded examples in S60_5th_Edition_SDK_v1.0 85 has
+ * at least one relocation for that function with weak symbol:
+ * - __cxa_pure_virtual@@drtaeabi{000a0000}.dll
+ *
+ * Maybe this is relevant - https://gcc.gnu.org/pipermail/gcc-cvs/2020-May/288624.html
+ *
+ * If a program has no other dependencies on libstdc++, we shouldn't require it
+ * just for __cxa_pure_virtual, which is only there to give a prettier
+ * diagnostic before crashing the program; resolving the reference to NULL will
+ * also crash, just without the diagnostic.
+ */
 uint16_t ElfParser::Segment(const Elf32_Sym* s) const
 {
     if(!s)
@@ -587,7 +600,9 @@ uint16_t ElfParser::Segment(const Elf32_Sym* s) const
     Elf32_Phdr* hdr = GetSegmentAtAddr(s->st_value);
     if (hdr == iCodeSegmentHdr) return KTextRelocType;
     else if (hdr == iDataSegmentHdr) return KDataRelocType;
-    return KReservedRelocType;
+// enable to see where present __cxa_pure_virtual
+//    return KReservedRelocType;
+    return KInferredRelocType;
 }
 
 Elf32_Addr* ElfParser::ExportTable() const

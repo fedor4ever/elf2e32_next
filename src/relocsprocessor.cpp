@@ -293,8 +293,25 @@ void RelocsProcessor::ValidateLocalReloc(const LocalReloc& r,
 //    }
 
     if(entryType!=KTextRelocType && entryType!=KDataRelocType && entryType!=KInferredRelocType) {
-//        ReportLog("bad entry type: %d E32 reloc: %d E32 reloc type: %d\n", entryType,
-//              r.iIntermediates.iE32Reloc, r.iIntermediates.iRelocType);
+        string s;
+        char* tmp = iElf->GetSymbolNameFromStringTable(r.iSymNdx);
+        if(tmp)
+            s = tmp;
+
+        if(r.iSymbol->st_shndx == SHN_UNDEF)
+            ReportLog("Weak reference\n");
+        else if(r.iSymbol->st_shndx != SHN_UNDEF)
+            ReportLog("Weak definition\n");
+        else
+            ReportLog("Not weak symbol\n");
+
+        ReportLog(name + " has ");
+        ReportLog("bad entry type: %d E32 reloc: %d E32 reloc type: %d\n", entryType,
+              r.iIntermediates.iE32Reloc, r.iIntermediates.iRelocType);
+
+        if(tmp)
+            ReportLog("with symbol name: %s\n", tmp);
+
         if(name == "CODERELOCKS")
             iBadCodeReloc[iElf->GetSymbolNameFromStringTable(r.iSymNdx)].push_back(r);
         else if(name == "DATARELOCKS")

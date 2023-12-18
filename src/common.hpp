@@ -86,7 +86,8 @@ enum ErrorCodes
     UNFROZENSYMBOLADDED,
     ELF_ST_VALUE,
     ILLEGALEXPORTFROMDATASEGMENT,
-    BADFILE
+    BADFILE,
+    IMPORTSECTION,
 };
 
 // handy macro for tracing

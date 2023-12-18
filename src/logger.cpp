@@ -87,7 +87,8 @@ struct Message Messages[]=
     {ErrorCodes::UNFROZENSYMBOLADDED, "New Symbol %s found, export(s) not yet Frozen.\n"},
     {ErrorCodes::ELF_ST_VALUE, "Copying elf symbols failed.\n"},
     {ErrorCodes::ILLEGALEXPORTFROMDATASEGMENT, "'%s' : '%s' Import relocation does not refer to code segment.\n"},
-    {ErrorCodes::BADFILE, "File %s has %s.\n"}//,
+    {ErrorCodes::BADFILE, "File %s has %s.\n"},
+    {ErrorCodes::IMPORTSECTION, "Failed to create import section! Expected: %d, have: %d\n"},
 //    {ErrorCodes::, ".\n"}//,
 };
 

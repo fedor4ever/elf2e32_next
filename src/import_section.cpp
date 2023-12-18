@@ -148,7 +148,9 @@ E32Section ImportsSection::Imports()
 		}
 		idx++;
     }
-    assert(importSectionSize == aImportSection.size() * sizeof(Elf32_Word));
+
+    if(importSectionSize != aImportSection.size() * sizeof(Elf32_Word))
+        ReportError(ErrorCodes::IMPORTSECTION, importSectionSize, aImportSection.size());
 
     E32Section imports;
     imports.type = E32Sections::IMPORTS;

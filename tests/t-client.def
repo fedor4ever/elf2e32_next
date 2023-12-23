@@ -1,0 +1,6 @@
+EXPORTS
+	_ZN10RMySession13CancelReceiveEv @ 1 NONAME
+	_ZN10RMySession4SendERK7TDesC16 @ 2 NONAME
+	_ZN10RMySession7ConnectEv @ 3 NONAME
+	_ZN10RMySession7ReceiveER14TRequestStatusR6TDes16 @ 4 NONAME
+

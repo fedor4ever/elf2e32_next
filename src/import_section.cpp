@@ -149,7 +149,7 @@ E32Section ImportsSection::Imports()
 		idx++;
     }
 
-    if(importSectionSize != aImportSection.size() * sizeof(Elf32_Word))
+    if((importSectionSize != aImportSection.size() * sizeof(Elf32_Word)) && !iOpts->iForceE32Build)
         ReportError(ErrorCodes::IMPORTSECTION, importSectionSize, aImportSection.size());
 
     E32Section imports;

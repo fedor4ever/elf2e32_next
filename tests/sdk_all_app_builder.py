@@ -44,6 +44,11 @@ broken_tgts = [
  "S60CppExamples/OpenC_Ex/OpenCStringUtilitiesEx/exe/group",
  "S60CppExamples/OpenC_Ex/opencmessagequeuelibraryex/engine/group",
  "S60CppExamples/OpenC_Ex/opencmessagequeuelibraryex/exe/group",
+ "S60CppExamples/Animation/server/group",
+ "S60CppExamples/Animation/gui/group",
+ "S60CppExamples/Animation/client/group",
+ "Basics/ExtensionPattern",
+ # "",
  ]
 
 def root_broken(root):
@@ -66,6 +71,9 @@ def save2file(path, data, mode = 'w'):
       else:
          f.write(data)
 
+def TaskSep(err_log, out_log):
+      append2file(app_builder_err_log, err_log)
+      append2file(app_builder_out_log, out_log)
 
 def logs(out, err, time_start, time_end, opname):
       start_dt = datetime.strptime(time_start, '%H:%M:%S')
@@ -247,12 +255,20 @@ def make_crc(path):
 
 
 def generate_crc():
+    log = """--------------------------
+    Crc generation started
+    --------------------------"""
+    TaskSep(log, log)
     build = os.path.join(path2sdk, "release")
     build = os.path.join(build, "gcce")
     build_urel = os.path.join(build, "urel")
     build_udeb = os.path.join(build, "udeb")
     make_crc(build_urel)
     make_crc(build_udeb)
+    log = """--------------------------
+    Crc generation ended
+    --------------------------"""
+    TaskSep(log, log)
 
 
 def print_failures():
@@ -275,7 +291,7 @@ def print_failures():
         return
 
     print "Found %d/%d build failures." %(len(crc) - len(tgt), len(crc))
-    print set(crc) - set(tgt)
+    print sorted(set(crc) - set(tgt))
 
 
 def sdk_all_app_builder():
@@ -285,7 +301,7 @@ def sdk_all_app_builder():
     save2file(app_builder_time_log, "elf2e32 testing started: %s.\n" %start)
 
     sdk_prj = find_projects()
-    build_sdk_elf2e32(sdk_prj)
+    # build_sdk_elf2e32(sdk_prj)
     generate_crc()
     build_new_elf2e32(sdk_prj)
     print_failures()

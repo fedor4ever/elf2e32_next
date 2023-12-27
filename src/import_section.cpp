@@ -13,6 +13,11 @@
 // Description:
 // Create E32Image import section.
 //
+// Import section contains of string table and record offsets into string table of each used.
+// Note: used imports only!
+//
+// There example of library which have two imported library but only one used.
+// See at tests\t-client.dll
 //
 
 #include <string>
@@ -45,17 +50,17 @@ ImportsSection::~ImportsSection()
     //dtor
 }
 
+//! Set up the string table and record offsets into string table of each used
 void ImportsSection::AllocStringTable()
 {
-    auto imps = iRelocs->StrTableData();
-// First set up the string table and record offsets into string table of each
-// LinkAs name.
-	for (auto x: imps)
-	{
-		iStrTabOffsets.push_back(iStrTab.size());
-        iStrTab += x;
+    auto imps = iRelocs->GetImports();
+    for (auto p: imps)
+    {
+        iStrTabOffsets.push_back(iStrTab.size());
+        Relocations& imports = p.second;
+        iStrTab += imports[0].iLinkAs;
         iStrTab.push_back(0);
-	}
+    }
     while(iStrTab.size()%4)
         iStrTab.push_back(0);
 }
@@ -150,7 +155,7 @@ E32Section ImportsSection::Imports()
     }
 
     if((importSectionSize != aImportSection.size() * sizeof(Elf32_Word)) && !iOpts->iForceE32Build)
-        ReportError(ErrorCodes::IMPORTSECTION, importSectionSize, aImportSection.size());
+        ReportError(ErrorCodes::IMPORTSECTION, importSectionSize, aImportSection.size() * sizeof(Elf32_Word));
 
     E32Section imports;
     imports.type = E32Sections::IMPORTS;

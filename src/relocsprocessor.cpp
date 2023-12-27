@@ -509,7 +509,7 @@ uint32_t RelocsProcessor::ImportsCount() const
 
 uint32_t RelocsProcessor::DllCount() const
 {
-    return iDllCount;
+    return iImports.size();
 }
 
 std::vector<std::string> RelocsProcessor::StrTableData() const

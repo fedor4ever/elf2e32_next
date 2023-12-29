@@ -371,8 +371,11 @@ bool ArgParser::Parse(Args* arg) const
         }
         ArgInfo(op);
     };
-
+#if ELF2E32_PRINT_INPUT_ARGS
+    if(1)
+#else
     if(VerboseOutput)
+#endif // ELF2E32_PRINT_INPUT_ARGS
     {
         printf("Args to parse: \n");
         for(int i = 0; i<iArgc; i++)

@@ -307,7 +307,6 @@ void ValidateOptions(Args* arg)
 
     if(targetType == TargetType::EInvalidTargetType || targetType == TargetType::ETargetTypeNotSet)
     {
-        ReportWarning(ErrorCodes::NOREQUIREDOPTION, "--targettype");
         if(hasDefinput)
             arg->iTargettype = TargetType::EImportLib;
 // handle special Custom target
@@ -317,6 +316,9 @@ void ValidateOptions(Args* arg)
             arg->iTargettype = TargetType::EExe;
         targetType = arg->iTargettype;
     }
+
+    if(targetType == TargetType::EInvalidTargetType || targetType == TargetType::ETargetTypeNotSet)
+        ReportWarning(ErrorCodes::NOREQUIREDOPTION, "--targettype");
 
     ResolveLinkAsUID(arg);
     ResetInvalidLINKAS(arg);

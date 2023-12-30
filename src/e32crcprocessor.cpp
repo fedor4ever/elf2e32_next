@@ -205,9 +205,10 @@ void E32CRCProcessor::ParseFile()
 
     iCrc->SetCaps(iCRCIn.iCaps);
     iCrc->SetFlags(iCRCIn.iFlags);
-    iCrc->SetHeaderCrc(iCRCIn.iHeaderCrc);
     iCrc->SetE32Time(iCRCIn.iTimeLo, iCRCIn.iTimeHi);
     iCrc->SetVersion(iCRCIn.iVersion_Major, iCRCIn.iVersion_Minor, iCRCIn.iVersion_Build);
+    iCrc->ReGenerateCRCs();
+    iCrc->DumpE32Img();
 }
 
 void E32CRCProcessor::Tokenize(const string& line)

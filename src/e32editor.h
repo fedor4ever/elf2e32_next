@@ -37,6 +37,8 @@ class E32Editor
         void SetHeaderCrc(uint32_t headercrc);
         void SetE32Time(uint32_t timeLo, uint32_t timeHi);
         void SetVersion(uint8_t major, uint8_t minor, uint16_t build);
+        void ReGenerateCRCs();
+        void DumpE32Img();
     public: //return E32Image header fields
         uint64_t Caps() const;
         uint32_t Flags() const;

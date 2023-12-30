@@ -17,6 +17,7 @@
 
 #include <string.h>
 
+#include "common.hpp"
 #include "e32common.h"
 #include "e32editor.h"
 #include "e32parser.h"
@@ -82,6 +83,18 @@ void E32Editor::SetVersion(uint8_t major, uint8_t minor, uint16_t build)
     iHeader->iVersion.iMajor = major;
     iHeader->iVersion.iMinor = minor;
     iHeader->iVersion.iBuild = build;
+}
+
+void E32Editor::ReGenerateCRCs()
+{
+	iHeader->iUidChecksum = GetUidChecksum(iHeader->iUid1, iHeader->iUid2, iHeader->iUid3);
+	iHeader->iHeaderCrc = KImageCrcInitialiser;
+	iHeader->iHeaderCrc = Crc32(iE32File, iHeader->iCodeOffset);
+}
+
+void E32Editor::DumpE32Img()
+{
+//    SaveFile("tests/tmp/e32file.tmp", iFile->GetBufferedImage(), iFile->GetFileSize());
 }
 
 uint32_t E32Editor::FullImage() const

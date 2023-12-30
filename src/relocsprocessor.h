@@ -94,7 +94,6 @@ class RelocsProcessor
         uint32_t ImportsCount() const;
         uint32_t DllCount() const;
         void ProcessVerInfo();
-        std::vector<std::string> StrTableData() const;
         uint16_t Fixup(const Elf32_Sym* s);
         size_t ExportTableAddress() const;
         void ValidateLocalReloc(const LocalReloc& r,
@@ -119,8 +118,6 @@ class RelocsProcessor
 
     private:
         const ElfParser* iElf = nullptr;
-        std::vector<std::string> iDSONames;
-        std::vector<std::string> iLinkAsNames;
         std::vector<VersionInfo> iVerInfo;
         std::vector<LocalReloc> iCodeRelocations;
         std::vector<LocalReloc> iDataRelocations;
@@ -128,7 +125,6 @@ class RelocsProcessor
         ImportLibs iImports;
         uint16_t* iVersionTbl = nullptr;  //= iElf->VersionTbl();
         uint32_t iImportsCount = 0;
-        uint32_t iDllCount = 0;
         size_t iExportTableAddress = 0;
         bool iSymLook = false;
 

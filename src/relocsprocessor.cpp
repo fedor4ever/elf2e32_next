@@ -488,13 +488,10 @@ void RelocsProcessor::ProcessVerInfo()
 		iVerInfo[aNaux->vna_other].iLinkAs = aLinkAs;
 		iVerInfo[aNaux->vna_other].iSOName = aSoName;
 
-        iLinkAsNames.push_back(aLinkAs);
-        iDllCount++;
 		if(!aNeed->vn_next)
 			break;
 		aNeed = ELF_ENTRY_PTR(Elf32_Verneed, aNeed, aNeed->vn_next);
 	}
-	std::sort(iLinkAsNames.begin(), iLinkAsNames.end());
 }
 
 ImportLibs RelocsProcessor::GetImports() const
@@ -510,11 +507,6 @@ uint32_t RelocsProcessor::ImportsCount() const
 uint32_t RelocsProcessor::DllCount() const
 {
     return iImports.size();
-}
-
-std::vector<std::string> RelocsProcessor::StrTableData() const
-{
-    return iLinkAsNames;
 }
 
 E32Section RelocsProcessor::CodeRelocsSection()

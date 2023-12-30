@@ -375,7 +375,10 @@ void E32CRCProcessor::PrintInvalidCRCs()
     PrintIfNEQ(iCRCIn.iVersion_Build, iCRCOut.iVersion_Build, "Version_iBuild");
     PrintIfNEQ(iCRCIn.iHeaderCrc, iCRCOut.iHeaderCrc, "HeaderCrc");
     PrintIfNEQ(iCRCIn.iVersion_Build, iCRCOut.iVersion_Build, "HeaderCrc");
-    ReportError(ErrorCodes::ZEROBUFFER, "CRC32 validation failed!\n");
+    if(iArgs->iForceE32Build)
+        ReportLog("\n");
+    else
+        ReportError(ErrorCodes::ZEROBUFFER, "CRC32 validation failed!\n");
 }
 
 E32CRCProcessor::E32CRCProcessor(const E32Parser* parser, const Args* args):

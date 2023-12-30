@@ -13,6 +13,12 @@
 // Description:
 // Create E32Image import section.
 //
+// Import section contains of string table and record offsets into string table of each used.
+// Note: used imports only!
+//
+// There example of library which have two imported library but only one used.
+// See at tests\t-client.dll
+//
 //
 
 #ifndef IMPORTPROCESSOR_H

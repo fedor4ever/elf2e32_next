@@ -45,6 +45,7 @@ void E32Rebuilder::Run()
     file.assign(iFile, iFile + iFileSize);
 // We reinit E32Parser object because it's consistency broken.
     delete iParser;
+    iFile = nullptr;
     iParser = E32Parser::NewL(file);
 
     ValidateE32Image(iParser);
@@ -101,9 +102,10 @@ void E32Rebuilder::ReCompress()
 {
     if(!iHdr)
         ReportError(ErrorCodes::ZEROBUFFER, __func__);
+
+    iHdr->iCompressionType = iReBuildOptions->iCompressionMethod;
     if(!iReBuildOptions->iCompressionMethod)
         return;
-    iHdr->iCompressionType = iReBuildOptions->iCompressionMethod;
 
     char* compressed = new char[iFileSize * 2]();
     uint32_t compressedSize = 0;

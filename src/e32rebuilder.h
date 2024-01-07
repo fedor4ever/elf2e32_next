@@ -23,16 +23,19 @@
 struct Args;
 class E32Parser;
 
+typedef std::vector<char> E32Buf;
+
 class E32Rebuilder: public Task
 {
 	public:
 		E32Rebuilder(Args* param);
 		virtual ~E32Rebuilder();
 		virtual void Run() final;
-		void Compress(const std::vector<char>& e32File);
+		void Compress(const E32Buf& e32File);
 	private:
 		void EditHeader();
-		void ReCompress();
+		E32Buf ReCompress();
+		void SaveAndValidate(const E32Buf& e32);
 	private:
 		E32Parser* iParser = nullptr;
 		Args* iReBuildOptions = nullptr;

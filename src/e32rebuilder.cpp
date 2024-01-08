@@ -120,8 +120,12 @@ E32Buf E32Rebuilder::ReCompress()
     return E32Buf(compressed, compressed + iFileSize);
 }
 
+//! Works with uncompressed E32Image only
 void E32Rebuilder::Compress(const E32Buf& e32File)
 {
+    iHdr = (E32ImageHeader*)&e32File[0];
+    iHdr->iCompressionType = KFormatNotCompressed;
+
     iParser = E32Parser::NewL(e32File);
     iHdr = (E32ImageHeader*)iParser->GetE32Hdr();
     iFileSize = e32File.size();

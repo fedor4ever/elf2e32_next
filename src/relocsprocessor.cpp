@@ -294,7 +294,7 @@ void RelocsProcessor::ValidateLocalReloc(const LocalReloc& r,
 
     if(entryType!=KTextRelocType && entryType!=KDataRelocType && entryType!=KInferredRelocType) {
         string s;
-        char* tmp = iElf->GetSymbolNameFromStringTable(r.iSymNdx);
+        const char* tmp = iElf->GetSymbolNameFromStringTable(r.iSymNdx);
         if(tmp)
             s = tmp;
 
@@ -310,7 +310,7 @@ void RelocsProcessor::ValidateLocalReloc(const LocalReloc& r,
               r.iIntermediates.iE32Reloc, r.iIntermediates.iRelocType);
 
         if(tmp)
-            ReportLog("with symbol name: %s\n", tmp);
+            ReportLog(std::string("with symbol name: %s\n") + tmp + "\n");
 
         if(name == "CODERELOCKS")
             iBadCodeReloc[iElf->GetSymbolNameFromStringTable(r.iSymNdx)].push_back(r);

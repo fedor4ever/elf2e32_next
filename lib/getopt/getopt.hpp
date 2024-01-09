@@ -29,7 +29,7 @@ struct option		/* specification for a long form option...	*/
 {
   const char *name;		/* option name, without leading hyphens */
   int         has_arg;		/* does it take an argument?		*/
-  int        *flag;		/* where to save its status, or NULL	*/
+  int        flag;
   int         val;		/* its associated status value		*/
 };
 

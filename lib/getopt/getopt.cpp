@@ -13,9 +13,9 @@
 #include "getopt_opts.h"
 #include "elf2e32_opt.hpp"
 
-bool NeedRawArg(const std::string& optname)
+bool NeedRawArg(Flags::Flags flag)
 {
-    if(optname == "sysdef")
+    if(flag == Flags::CASE_SENSITIVE)
         return true;
     return false;
 }
@@ -43,10 +43,7 @@ struct Opts getopt(const std::string& argc)
     if(argpos != std::string::npos)
     {
         opt.name = option.substr(0, argpos);
-        if(NeedRawArg(opt.name))
-            opt.arg = option.substr(argpos+1);
-        else
-            opt.arg = ToLower(option.substr(argpos+1));
+        opt.arg = option.substr(argpos+1);
     }
     else
         opt.name = option;
@@ -56,6 +53,8 @@ struct Opts getopt(const std::string& argc)
     {
         if(opt.name == optptr->name) {
             opt.val = optptr->val;
+            if(!NeedRawArg(optptr->flag))
+                opt.arg = ToLower(opt.arg);
             break;
         }
 		optptr++;

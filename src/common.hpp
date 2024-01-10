@@ -118,6 +118,7 @@ void ReportLog(const std::string& str, int x = -1, int y = -1, int z = -1);
 const char* ReadFile(const char* filename, std::streamsize& fsize);
 void SaveFile(const char* filename, const char* filebuf, int fsize);
 void SaveFile(const std::string& filename, const std::string& filebuf);
+bool IsFileExist(const std::string& filename);
 
 Symbols SymbolsFromDef(const char *defFile);
 

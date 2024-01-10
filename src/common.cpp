@@ -17,6 +17,7 @@
 
 #include <string>
 #include <fstream>
+#include <unistd.h>
 #include <algorithm>
 
 using std::string;
@@ -141,6 +142,11 @@ void SaveFile(const char* filename, const char* filebuf, int fsize)
     if(!fs)
         ReportError(FILESTORERROR, filename);
     fs.close();
+}
+
+bool IsFileExist(const std::string& s)
+{
+    return access(s.c_str(), 0) == 0;
 }
 
 string FileNameFromPath(string& s)

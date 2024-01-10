@@ -23,9 +23,7 @@
 #include <string>
 #include <vector>
 #include <assert.h>
-#include <unistd.h>
 #include <algorithm>
-        #include <stdio.h>
 
 #include "elfdefs.h"
 #include "elfparser.h"
@@ -63,11 +61,6 @@ void ImportsSection::AllocStringTable()
     }
     while(iStrTab.size()%4)
         iStrTab.push_back(0);
-}
-
-bool IsFileExist(std::string& s)
-{
-    return access(s.c_str(), 0) == 0;
 }
 
 string ImportsSection::FindDSO(std::string name)

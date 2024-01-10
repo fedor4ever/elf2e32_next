@@ -253,8 +253,7 @@ void DeduceDSO(Args* arg)
 
 void ValidateStackSize(Args* arg)
 {
-    // for dll SDK version set stack size to 8 kb aka KDefaultStackSize
-    if((arg->iStack == 0) || !IsRunnable(arg->iTargettype))
+    if(arg->iStack == 0)
     {
         arg->iStack = KDefaultStackSize;
         return;

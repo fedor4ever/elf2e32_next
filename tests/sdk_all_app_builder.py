@@ -39,7 +39,12 @@ import _strptime
 # missing headers, broken builds, ignored subtargets for complex projects
 # as unix path
 broken_tgts = [
-"plugins/openc/glib", "biomessagemgr", "S60CppExamples/SIPExample/gameengine",
+#build errors
+ "plugins/openc/glib",
+# missing header
+ "biomessagemgr",
+# ignore multiple bld.inf in project except main
+ "S60CppExamples/SIPExample/gameengine",
  "S60CppExamples/OpenC_Ex/OpenCStringUtilitiesEx/library/group",
  "S60CppExamples/OpenC_Ex/OpenCStringUtilitiesEx/exe/group",
  "S60CppExamples/OpenC_Ex/opencmessagequeuelibraryex/engine/group",
@@ -47,7 +52,11 @@ broken_tgts = [
  "S60CppExamples/Animation/server/group",
  "S60CppExamples/Animation/gui/group",
  "S60CppExamples/Animation/client/group",
+ "S60CppExamples/GuiEngine/gui/group",
+# two conflicting projects in same directory
  "Basics/ExtensionPattern",
+# SDK has two helloworld.exe examples. This one trivial
+ "S60CppExamples/OpenCpp_Ex/helloworld",
  # "",
  ]
 
@@ -93,6 +102,11 @@ def thread_func(q, plats):
       if pth is None:  # EOF?
          return
 
+      log = """\n--------------------------
+      %s build started
+--------------------------\n""" %pth
+      TaskSep(log, log)
+
       cmd = subprocess.Popen('bldmake bldfiles', stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=pth, shell=True)
       out, err = cmd.communicate()
       # Clean build directory from previous build.
@@ -111,12 +125,22 @@ def thread_func(q, plats):
       err = err.decode('utf-8', errors='ignore')
       logs(out, err, time_start, time_end, pth)
 
+      log = """--------------------------
+      %s build ended
+--------------------------\n""" %pth
+      TaskSep(log, log)
+
 
 def thread_func1(q, plats):
    while True:
       pth = q.get()
       if pth is None:  # EOF?
          return
+
+      log = """\n--------------------------
+      %s build started
+--------------------------\n""" %pth
+      TaskSep(log, log)
 
       # Needed because datetime.now() returns the same time for every call.
       start = time.strftime("%H:%M:%S")
@@ -135,6 +159,11 @@ def thread_func1(q, plats):
       append2file(app_builder_err_log, out.replace(u"\r", u""))
       append2file(app_builder_out_log, err.replace(u"\r", u""))
       append2file(app_builder_time_log, "Target %s build time: %s.\n" %(pth, str(diff)) )
+
+      log = """--------------------------
+	  %s build ended
+--------------------------\n""" %pth
+      TaskSep(log, log)
       print "Target %s done!" %pth
 
 
@@ -236,6 +265,11 @@ def revert_elf2e32(new, orig):
 
 
 def make_crc(path):
+    try:
+        os.makedirs("backups")
+    except OSError as e:
+        if e.errno == errno.EEXIST:
+            pass
     tmp = [os.path.join(path, file) for file in os.listdir(path)]
     tmp1 = [file for file in tmp if file.endswith(".dll")]
     tmp2 = [file for file in tmp if file.endswith(".exe")]
@@ -248,6 +282,7 @@ def make_crc(path):
         elf2e32_r = elf2e32_rel + file
         cmd = subprocess.Popen(elf2e32_r, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         out, err = cmd.communicate()
+        shutil.copy2(file, "backups")
         os.remove(file) #at next step only only E32image created
 
     end = time.strftime("%H:%M:%S" )
@@ -301,7 +336,7 @@ def sdk_all_app_builder():
     save2file(app_builder_time_log, "elf2e32 testing started: %s.\n" %start)
 
     sdk_prj = find_projects()
-    # build_sdk_elf2e32(sdk_prj)
+    build_sdk_elf2e32(sdk_prj)
     generate_crc()
     build_new_elf2e32(sdk_prj)
     print_failures()

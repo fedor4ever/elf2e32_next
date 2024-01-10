@@ -22,8 +22,6 @@
 
 #include <string>
 #include <vector>
-#include <assert.h>
-#include <algorithm>
 
 #include "elfdefs.h"
 #include "elfparser.h"

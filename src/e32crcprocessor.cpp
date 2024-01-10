@@ -186,11 +186,11 @@ void E32CRCProcessor::CRCToFile()
 
 void E32CRCProcessor::ParseFile()
 {
-    fstream file(iFileIn, fstream::in);
-    if(!file)
+    if(!IsFileExist(iFileIn))
         return;
 
     ReportLog("Reading checksums from file: " + iFileIn + "\n\n");
+    fstream file(iFileIn, fstream::in);
 
     string s;
     while(file.good())
@@ -296,8 +296,7 @@ void E32CRCProcessor::DeduceCRCFiles()
     CRCFile(iFileOut);
 
 #ifdef SET_COMPILETIME_LOAD_EXISTED_FILECRC
-    fstream file(iFileOut, fstream::in);
-    if(file.is_open())
+    if(IsFileExist(iFileOut))
     {
         std::swap(iFileIn, iFileOut);
         iFileOut.clear();
@@ -349,7 +348,7 @@ void PrintIfNEQ(uint32_t in, uint32_t out, const string& msg)
   */
 void E32CRCProcessor::PrintInvalidCRCs()
 {
-    if(iFileIn.empty())
+    if(!IsFileExist(iFileIn))
         return;
 
     ReportLog("E32CRCProcessor: ");

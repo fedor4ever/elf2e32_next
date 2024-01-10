@@ -205,7 +205,7 @@ void SymbolProcessor::ProcessElfSymbols()
     Symbols filtered;
     for(auto x: newsymbols)
     {
-        if(UnCallableSymbol(x->AliasName()))
+        if(UnCallableSymbol(x->AliasName()) && iArgs->iIgnorenoncallable)
             continue;
 
         if( (iArgs->iCustomdlltarget || iArgs->iExcludeunwantedexports) &&

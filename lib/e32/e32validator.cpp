@@ -98,6 +98,7 @@ void E32Validator::ValidateHeader()
 	bool isARM = (cpu==ArmV4Cpu || cpu==ArmV5Cpu || cpu==ArmV6Cpu);
 	iPointerAlignMask = isARM ? 3 : 0; // mask of bits which must be zero for aligned pointers/offsets
 
+	// check iUid1,iUid2,iUid3,iUidChecksum...
 	uint32_t checksum = GetUidChecksum(iHdr->iUid1, iHdr->iUid2, iHdr->iUid3);
 	ThrowIfTrue(checksum != iHdr->iUidChecksum, "UID checksum");
 

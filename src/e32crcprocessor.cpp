@@ -203,11 +203,10 @@ void E32CRCProcessor::ParseFile()
         ReportError(FILEREADERROR, iFileIn);
     file.close();
 
-    iCrc->SetCaps(iCRCIn.iCaps);
-
 // For example in manual E32Image builds comression maybe off for easy hex view.
 // This change header and even entire file checksums and test failed.
 #ifndef SET_COMPILETIME_LOAD_EXISTED_FILECRC
+    iCrc->SetCaps(iCRCIn.iCaps);
     iCrc->SetFlags(iCRCIn.iFlags);
 #endif // SET_COMPILETIME_LOAD_EXISTED_FILECRC
     iCrc->SetE32Time(iCRCIn.iTimeLo, iCRCIn.iTimeHi);

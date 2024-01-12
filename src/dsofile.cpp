@@ -109,9 +109,7 @@ void DSOFile::CreateTablesFromSymbols(const Symbols& s)
         {
             char *symName = new char[length]();
             sprintf(symName, "_._.absent_export_%d", x->Ordinal());
-            iDSOSymNameStrTbl.push_back('"');
             iDSOSymNameStrTbl += symName;
-            iDSOSymNameStrTbl.push_back('"');
             delete[] symName;
         }
         else

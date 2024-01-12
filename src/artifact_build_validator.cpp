@@ -142,11 +142,14 @@ void ResetInvalidLINKAS(Args* arg)
     }
 }
 
-std::string ConstructLinkas(const std::string& s, const std::string& s2)
+std::string ConstructLinkas(TargetType type, const std::string& s, const std::string& s2)
 {
     std::string tmp(s);
     tmp.erase(tmp.find_last_of("."));
-    return tmp + s2 + ".dll";
+    if(IsRunnable(type))
+        return tmp + s2 + ".exe";
+    else
+        return tmp + s2 + ".dll";
 }
 
 void DeduceLINKAS(Args* arg)
@@ -157,16 +160,16 @@ void DeduceLINKAS(Args* arg)
         version = VersionAsStr(arg->iVersion);
         version += arg->iLinkasUid;
         if(!arg->iElfinput.empty())
-            linkas = ConstructLinkas(arg->iElfinput, version);
+            linkas = ConstructLinkas(arg->iTargettype, arg->iElfinput, version);
         else if(!arg->iOutput.empty())
         {
             linkas = arg->iOutput;
             linkas.insert(linkas.find_last_of("."), version);
         }
         else if(!arg->iDefoutput.empty())
-            linkas = ConstructLinkas(arg->iDefoutput, version);
+            linkas = ConstructLinkas(arg->iTargettype, arg->iDefoutput, version);
         else if(!arg->iDso.empty())
-            linkas = ConstructLinkas(arg->iDso, version);
+            linkas = ConstructLinkas(arg->iTargettype, arg->iDso, version);
 
         arg->iLinkas = FileNameFromPath(linkas);
     }
@@ -234,12 +237,26 @@ void WarnForNonExeUID(uint32_t UID1)
     ReportLog("********************\n");
 }
 
+//< Deduced DSO location is first set argument from: elfinput or E32output or defoutput
 void DeduceDSO(Args* arg)
 {
     if(IsRunnable(arg->iTargettype))
         return;
     if(!arg->iDso.empty())
         return;
+
+    std::string path;
+    if(!arg->iElfinput.empty())
+        path = arg->iElfinput;
+    else if(!arg->iOutput.empty())
+        path = arg->iOutput;
+    else if(!arg->iDefoutput.empty())
+        path = arg->iDefoutput;
+    if(path.empty())
+        ReportError(ErrorCodes::ZEROBUFFER, "Failed to deduce dso output in DeduceDSO()\n");
+    std::size_t found = path.find_last_of("/\\");
+    path = path.substr(0 ,found+1);
+
     arg->iDso = arg->iLinkas;
     size_t pos = arg->iLinkas.find_first_of("[");
     if(pos == std::string::npos)
@@ -249,6 +266,8 @@ void DeduceDSO(Args* arg)
 
     arg->iDso.erase(pos);
     arg->iDso += ".dso";
+    arg->iDso = path + arg->iDso;
+    ReportLog("Deduced DSO: " + arg->iDso + "\n");
 }
 
 void ValidateStackSize(Args* arg)
@@ -262,6 +281,29 @@ void ValidateStackSize(Args* arg)
         return;
     ReportLog("Stack overflow: 0x%x. Reset to max: 0x%x.\n", arg->iStack, KDefaultStackSizeMax);
     arg->iStack = KDefaultStackSizeMax;
+}
+
+void ValidateDeducedLinkas(Args* arg)
+{
+#if SET_COMPILETIME_LOAD_EXISTED_FILECRC
+    Args tmp;
+    tmp.iUid3 = arg->iUid3;
+    tmp.iVersion = arg->iVersion;
+    tmp.iLinkasUid = arg->iLinkasUid;
+    tmp.iTargettype = arg->iTargettype;
+    tmp.iElfinput = arg->iElfinput;
+    tmp.iOutput = arg->iOutput;
+    tmp.iDefoutput = arg->iDefoutput;
+
+    ResolveLinkAsUID(&tmp);
+    ResetInvalidLINKAS(&tmp);
+    DeduceLINKAS(&tmp);
+    if(arg->iLinkas != tmp.iLinkas)
+        ReportError(ErrorCodes::ZEROBUFFER, "Deduce linkas failed!"
+                    "Expected: " + arg->iLinkas + " Got: " + tmp.iLinkas + "\n");
+    else
+        ReportLog("Deduce linkas success!\n");
+#endif // SET_COMPILETIME_LOAD_EXISTED_FILECRC
 }
 
 /** \brief Verifies and correct wrong input options
@@ -319,6 +361,7 @@ void ValidateOptions(Args* arg)
     if(targetType == TargetType::EInvalidTargetType || targetType == TargetType::ETargetTypeNotSet)
         ReportWarning(ErrorCodes::NOREQUIREDOPTION, "--targettype");
 
+    ValidateDeducedLinkas(arg);
     ResolveLinkAsUID(arg);
     ResetInvalidLINKAS(arg);
     DeduceLINKAS(arg);

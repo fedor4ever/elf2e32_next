@@ -33,6 +33,7 @@ typedef uint32_t Elf32_Off;    //Unsigned file offset
 typedef int32_t Elf32_Sword;   //Signed large integer
 typedef uint32_t Elf32_Word;   //Unsigned large integer
 
+typedef Elf32_Half Elf32_Versym;//Version symbol section
 typedef char* MemAddr;
 /*
 3.2 ELF Header

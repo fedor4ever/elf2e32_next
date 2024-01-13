@@ -139,7 +139,7 @@ private:
     /** This member points to the base of the section header table. */
     Elf32_Shdr*    iSections   = nullptr;
     Elf32_Verdef*  iVersionDef = nullptr;
-    Elf32_Half*    iVersionTbl = nullptr;
+    Elf32_Versym*  iVersionTbl = nullptr;
 
     /** The dynamic program header of the elf file */
     Elf32_Phdr*    iProgHeader = nullptr;

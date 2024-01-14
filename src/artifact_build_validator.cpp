@@ -169,7 +169,11 @@ void DeduceLINKAS(Args* arg)
         else if(!arg->iDefoutput.empty())
             linkas = ConstructLinkas(arg->iTargettype, arg->iDefoutput, version);
         else if(!arg->iDso.empty())
+        {
+            if(arg->iDso.find("{") != std::string::npos) //Example: --dso="libcrypto{000a0000}.dso"
+                version = arg->iLinkasUid;
             linkas = ConstructLinkas(arg->iTargettype, arg->iDso, version);
+        }
 
         arg->iLinkas = FileNameFromPath(linkas);
     }
@@ -286,6 +290,8 @@ void ValidateStackSize(Args* arg)
 void ValidateDeducedLinkas(Args* arg)
 {
 #if SET_COMPILETIME_LOAD_EXISTED_FILECRC
+    if(arg->iLinkas.empty())
+        return;
     Args tmp;
     tmp.iUid3 = arg->iUid3;
     tmp.iVersion = arg->iVersion;
@@ -294,6 +300,7 @@ void ValidateDeducedLinkas(Args* arg)
     tmp.iElfinput = arg->iElfinput;
     tmp.iOutput = arg->iOutput;
     tmp.iDefoutput = arg->iDefoutput;
+    tmp.iDso = arg->iDso;
 
     ResolveLinkAsUID(&tmp);
     ResetInvalidLINKAS(&tmp);

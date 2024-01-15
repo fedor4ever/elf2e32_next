@@ -161,6 +161,9 @@ void DSOFile::CreateSectionHeaders()
     iSections        = new Elf32_Shdr[MAX_SECTIONS+1]();
 
     iElfDynSym        = new Elf32_Sym[iNSymbols]();
+//in origin:
+//    iVersionTbl        = new Elf32_Versym[iNSymbols];
+// so  iVersionTbl[0] contain garbage. Hard to verify with CRC32 DSO file =(
     iVersionTbl        = new Elf32_Versym[iNSymbols]();
     iVersionDef        = new Elf32_Verdef[2]();
     iDSODaux        = new Elf32_Verdaux[2]();

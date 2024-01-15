@@ -150,6 +150,9 @@ void CheckE32CRC(const E32Parser* parser, const Args* args)
     if(args->iFileCrc.empty()) // option --filecrc not used
         return;
 
+    if(args->iFileCrc.find(".dcrc") != std::string::npos)
+        return;
+
     E32CRCProcessor crc(parser, args);
     crc.Run();
 }

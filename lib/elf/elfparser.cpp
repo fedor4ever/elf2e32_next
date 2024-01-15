@@ -643,3 +643,9 @@ const char* ElfParser::ElfWithFixedHashTable()
     h->nBuckets = 0; //buckets[0] = 0;
     return iFileBuf;
 }
+
+std::streamsize ElfParser::FileSize()
+{
+    return iFileBufSize;
+}
+

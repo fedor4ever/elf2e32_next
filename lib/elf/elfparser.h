@@ -93,6 +93,7 @@ class ElfParser
         std::vector<std::string> DsoImpLibName();
     public: // only for DSO CRC32 checksum, see DSOFile::CreateSectionHeaders()
         const char* ElfWithFixedHashTable();
+        std::streamsize FileSize();
     private:
         std::vector<std::string> iDsoImpLibName;
     private:

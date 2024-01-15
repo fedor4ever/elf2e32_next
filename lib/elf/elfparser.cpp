@@ -635,3 +635,11 @@ vector<string> ElfParser::DsoImpLibName()
 {
     return iDsoImpLibName;
 }
+
+const char* ElfParser::ElfWithFixedHashTable()
+{
+    Elf32_HashTable* h = iHashTbl;
+    h++;
+    h->nBuckets = 0; //buckets[0] = 0;
+    return iFileBuf;
+}

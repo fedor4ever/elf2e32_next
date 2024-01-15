@@ -91,6 +91,8 @@ class ElfParser
         const char* StrTab() const;
     public: // needed by ArtifactBuilder
         std::vector<std::string> DsoImpLibName();
+    public: // only for DSO CRC32 checksum, see DSOFile::CreateSectionHeaders()
+        const char* ElfWithFixedHashTable();
     private:
         std::vector<std::string> iDsoImpLibName;
     private:

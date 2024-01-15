@@ -102,6 +102,7 @@ void DSOFile::CreateTablesFromSymbols(const Symbols& s)
         //set symbol info..
         iElfDynSym[aPos].st_name = iDSOSymNameStrTbl.size();
 
+        string name = x->AliasName();
         /* If a symbol is marked as Absent in the DEF file, replace the
          * symbol name with "_._.absent_export_<Ordinal Number>"
          */
@@ -110,6 +111,7 @@ void DSOFile::CreateTablesFromSymbols(const Symbols& s)
             char *symName = new char[length]();
             sprintf(symName, "_._.absent_export_%d", x->Ordinal());
             iDSOSymNameStrTbl += symName;
+            name = symName;
             delete[] symName;
         }
         else
@@ -120,7 +122,7 @@ void DSOFile::CreateTablesFromSymbols(const Symbols& s)
 
         //set version table info...
         iVersionTbl[aPos] = DEFAULT_VERSION;
-        AddToHashTable(x->AliasName().c_str(), aPos);
+        AddToHashTable(name.c_str(),  x->Ordinal());
     }
 }
 

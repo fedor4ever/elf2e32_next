@@ -110,12 +110,10 @@ void DSOFile::CreateTablesFromSymbols(const Symbols& s)
         {
             char *symName = new char[length]();
             sprintf(symName, "_._.absent_export_%d", x->Ordinal());
-            iDSOSymNameStrTbl += symName;
             name = symName;
             delete[] symName;
         }
-        else
-            iDSOSymNameStrTbl += x->AliasName();
+        iDSOSymNameStrTbl += name;
         iDSOSymNameStrTbl.push_back(0);
 
         SetElfSymbols(x, &iElfDynSym[aPos], aPos);

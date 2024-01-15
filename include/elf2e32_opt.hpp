@@ -105,7 +105,7 @@ struct Args
     uint32_t iHeapMax = KHeapReservedSize;
     uint32_t iStack = KDefaultStackSize;
     bool iFixedaddress = false;
-    bool iCallentry = true;
+    bool iCallentry = true; // callentry flag always on!
     uint32_t iFpu = TFloatingPointType::EFpTypeNone; //softfp
     Paging iCodePaging = Paging::DEFAULT;
     Paging iDataPaging = Paging::DEFAULT;

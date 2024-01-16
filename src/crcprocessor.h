@@ -26,6 +26,7 @@ class CRCProcessor
         void CRCToFile();
         void PrintInvalidCRCs();
         void Tokenize(const std::string& line);
+    protected:
         void ReadOrCreateCRCFile();
     protected:
         const Args* iArgs = nullptr;

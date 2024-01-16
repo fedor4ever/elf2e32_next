@@ -83,7 +83,7 @@ void ArtifactBuilder::DsoImpLibName()
 
 void ArtifactBuilder::MakeDSO()
 {
-    if(iOpts->iDso.empty())
+    if(iOpts->iDso.empty() || iOpts->iUnfrozen)
         return;
     DSOFile* dso = new DSOFile();
     dso->WriteDSOFile(iOpts, iSymbols, iDsoImpLibName);

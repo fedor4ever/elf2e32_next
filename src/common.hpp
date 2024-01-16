@@ -130,5 +130,6 @@ bool DisableLongVerbosePrint();
 std::string ToLower(const std::string& s);
 
 void CheckE32CRC(const E32Parser* parser, const Args* args);
+void CheckDSOCrc(const Args* arg);
 
 #endif // COMMON_HPP_INCLUDED

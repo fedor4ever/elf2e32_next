@@ -88,6 +88,7 @@ void ArtifactBuilder::MakeDSO()
     DSOFile* dso = new DSOFile();
     dso->WriteDSOFile(iOpts, iSymbols, iDsoImpLibName);
     delete dso;
+    CheckDSOCrc(iOpts);
 }
 
 void ArtifactBuilder::MakeDef()

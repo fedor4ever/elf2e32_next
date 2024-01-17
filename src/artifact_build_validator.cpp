@@ -332,6 +332,9 @@ void ValidateOptions(Args* arg)
             ReportLog("--debuggable option allowed for EXE's only!\n");
     }
 
+    if(arg->iUnfrozen)
+        arg->iDefinput.clear();
+
     bool hasDefinput = !arg->iDefinput.empty();
     bool noDefOut = arg->iDefoutput.empty();
     bool noElfinput = arg->iElfinput.empty();

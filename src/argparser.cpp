@@ -243,8 +243,8 @@ bool ArgParser::Parse(Args* arg) const
                 arg->iSysdef = op.arg;
                 break;
             case OptionsType::EDLLDATA:
-                arg->iDlldata = true;
-                op.binary_arg1 = true;
+                arg->iNoDlldata = false;
+                op.binary_arg1 = false;
                 break;
             case OptionsType::EPRIORITY:
                 arg->iPriority = ProcessPriority(op.arg);

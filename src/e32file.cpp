@@ -102,10 +102,13 @@ void E32File::WriteE32File()
     hdr->iExportDirCount = iSymbols.size();
     hdr->iCompressionType = 0;
 
-    if(hdr->iDataSize && iE32Opts->iDlldata)
-        ReportError(ErrorCodes::ZEROBUFFER, "ELF File" + iE32Opts->iDso + "contains initialized writable data.");
-    if(hdr->iBssSize && iE32Opts->iDlldata)
-        ReportError(ErrorCodes::ZEROBUFFER, "ELF File" + iE32Opts->iDso + "contains uninitialized writable data.");
+    if((hdr->iFlags & KImageDll) && iE32Opts->iNoDlldata)
+    {
+        if(hdr->iDataSize)
+            ReportError(ErrorCodes::ZEROBUFFER, "ELF File: " + iE32Opts->iDso + " contains initialized writable data.");
+        if(hdr->iBssSize)
+            ReportError(ErrorCodes::ZEROBUFFER, "ELF File: " + iE32Opts->iDso + " contains uninitialized writable data.");
+    }
 
     SetFixedAddress(hdr);
 

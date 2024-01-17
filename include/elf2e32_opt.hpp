@@ -118,7 +118,7 @@ struct Args
     bool iIgnorenoncallable = false;
     std::string iCapability = "NONE";
     std::string iSysdef;
-    bool iDlldata = false;
+    bool iNoDlldata = true; //on by default
     uint16_t iPriority = (uint16_t)TProcessPriority::EPriorityForeground; // executables priority
     bool iExcludeunwantedexports = false;
     bool iCustomdlltarget = false;

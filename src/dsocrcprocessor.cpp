@@ -38,10 +38,7 @@ void DSOCRCProcessor::SetCRCFiles()
 
 DSOCRCProcessor::DSOCRCProcessor(const Args* args): CRCProcessor(args) {}
 
-DSOCRCProcessor::~DSOCRCProcessor()
-{
-    delete iParser;
-}
+DSOCRCProcessor::~DSOCRCProcessor() {}
 
 std::string DSOCRCProcessor::CRCAsStr()
 {

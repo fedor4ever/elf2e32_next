@@ -5,8 +5,7 @@
 
 #include "crcprocessor.h"
 
-class Args;
-class ElfParser;
+struct Args;
 
 struct CRCData
 {
@@ -26,7 +25,6 @@ class DSOCRCProcessor: public CRCProcessor
         virtual bool PrintInvalidTargetCRC() final override;
         virtual void ProcessTokens(const std::string&, uint32_t crc) final override;
     private:
-        const ElfParser* iParser = nullptr;
         CRCData iCRCIn;
         CRCData iCRCOut;
 

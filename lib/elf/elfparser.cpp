@@ -638,9 +638,11 @@ vector<string> ElfParser::DsoImpLibName()
 
 const char* ElfParser::ElfWithFixedHashTable()
 {
-    Elf32_HashTable* h = iHashTbl;
-    h++;
-    h->nBuckets = 0; //buckets[0] = 0;
+//in origin:
+//    iVersionTbl        = new Elf32_Versym[iNSymbols];
+// later fill starts from iVersionTbl[1]
+// so  iVersionTbl[0] contain garbage. Hard to verify with CRC32 DSO file =(
+    iVersionTbl[0] = 0;
     return iFileBuf;
 }
 

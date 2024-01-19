@@ -98,9 +98,9 @@ void E32Parser::DecompressImage()
     if(!IsCompressed())
         return;
 
-    const size_t offset = iHdr->iCodeOffset;
+    const uint32_t offset = iHdr->iCodeOffset;
     const uint32_t extracted = iHdrJ->iUncompressedSize;
-    std::streamoff e32Size = Adjust(extracted + offset);
+    size_t e32Size = Adjust(extracted + offset);
 
     if(e32Size != (extracted + offset))
         ReportError(ErrorCodes::WRONGFILESIZEFORDECOMPRESSION,

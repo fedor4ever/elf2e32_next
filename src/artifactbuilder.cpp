@@ -85,6 +85,9 @@ void ArtifactBuilder::MakeDSO()
 {
     if(iOpts->iDso.empty() || iOpts->iUnfrozen)
         return;
+#if SET_COMPILETIME_LOAD_EXISTED_FILECRC
+    CheckDSOCrc(iOpts); //builded with original tool =)
+#endif // SET_COMPILETIME_LOAD_EXISTED_FILECRC
     DSOFile* dso = new DSOFile();
     dso->WriteDSOFile(iOpts, iSymbols, iDsoImpLibName);
     delete dso;

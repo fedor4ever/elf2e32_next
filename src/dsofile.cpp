@@ -525,8 +525,9 @@ void DSOFile::WriteElfContents(const char* dsoFile)
         //version table
         fs.write((const char*)iVersionTbl, iNSymbols * sizeof(Elf32_Half));
 
-        uint32_t nPads = 4 - (iSections[VERSION_SECTION].sh_size %4);
+        uint32_t nPads = iSections[VERSION_SECTION].sh_size %4;
         if(nPads){
+            nPads = 4 - nPads;
             const char c[4] = {};
             fs.write(c, nPads);
         }

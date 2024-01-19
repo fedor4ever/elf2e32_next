@@ -337,6 +337,7 @@ void DSOFile::InitProgramHeaderTable()
     }
 }
 
+// TODO: convert to SetSectionFields(Elf32_Shdr&& hdr)
 /**
 This function sets the section header fields and creates headers name table.
 @param aSectionIndex The index of the section
@@ -350,10 +351,9 @@ This function sets the section header fields and creates headers name table.
 @param aFlags Section flags
 @param aAddr The address of this section in memory(Here it remains 0)
 */
-void DSOFile::SetSectionFields(uint32_t aSectionIndex, const char* aSectionName, uint32_t aType, \
-                                   uint32_t aEntSz, uint32_t aSectionSize, uint32_t aLink, \
-                                   uint32_t aInfo, uint32_t aAddrAlign, uint32_t aFlags, \
-                                   uint32_t aAddr)
+void DSOFile::SetSectionFields(uint32_t aSectionIndex, const char* aSectionName,
+       uint32_t aType, uint32_t aEntSz, uint32_t aSectionSize, uint32_t aLink,
+       uint32_t aInfo, uint32_t aAddrAlign, uint32_t aFlags, uint32_t aAddr)
 {
     iSections[aSectionIndex].sh_name            = iDSOSectionNames.size();
     iDSOSectionNames += aSectionName;
@@ -363,9 +363,9 @@ void DSOFile::SetSectionFields(uint32_t aSectionIndex, const char* aSectionName,
     iSections[aSectionIndex].sh_entsize        = aEntSz;
     iSections[aSectionIndex].sh_size            = aSectionSize;
     iSections[aSectionIndex].sh_link            = aLink;
-    iSections[aSectionIndex].sh_flags        = aFlags;
-    iSections[aSectionIndex].sh_addralign    = aAddrAlign;
     iSections[aSectionIndex].sh_info            = aInfo;
+    iSections[aSectionIndex].sh_addralign    = aAddrAlign;
+    iSections[aSectionIndex].sh_flags        = aFlags;
     iSections[aSectionIndex].sh_addr            = aAddr;
 }
 

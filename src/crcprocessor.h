@@ -13,8 +13,8 @@ class CRCProcessor
         CRCProcessor(const Args* arg);
         virtual ~CRCProcessor();
         virtual void Run();
-    public:
-        virtual void SetCRCFiles();
+    private:
+        virtual void SetCRCFiles() = 0;
         virtual void CRCFromFile() = 0;
         virtual std::string CRCAsStr() = 0;
         virtual void CRCFile(std::string& s) = 0;
@@ -27,7 +27,7 @@ class CRCProcessor
         void PrintInvalidCRCs();
         void Tokenize(const std::string& line);
     protected:
-        void ReadOrCreateCRCFile();
+        void ReadOrCreateCRCFile(const std::string& file);
     protected:
         const Args* iArgs = nullptr;
         std::string iFileIn;

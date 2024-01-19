@@ -30,10 +30,7 @@ void DSOCRCProcessor::SetCRCFiles()
 {
     if(iArgs->iDso.empty())
         ReportError(ErrorCodes::ZEROBUFFER, "Internal error in DSOCRCProcessor::SetCRCFiles(). Got uninitialized DSO output!");
-
-    iFileIn = iArgs->iDso;
-    CRCFile(iFileIn);
-    ReadOrCreateCRCFile();
+    ReadOrCreateCRCFile(iArgs->iDso);
 }
 
 DSOCRCProcessor::DSOCRCProcessor(const Args* args): CRCProcessor(args) {}

@@ -59,6 +59,7 @@
 #include "common.hpp"
 #include "e32editor.h"
 #include "e32parser.h"
+#include "crcprocessor.h"
 #include "elf2e32_opt.hpp"
 
 using std::string;
@@ -117,27 +118,25 @@ struct CRCData
     uint32_t iDataRelocs = -1;
 };
 
-class E32CRCProcessor
+class E32CRCProcessor: public CRCProcessor
 {
     public:
         E32CRCProcessor(const E32Parser* parser, const Args* args);
-        ~E32CRCProcessor();
-        void Run();
+        virtual ~E32CRCProcessor();
     private:
-        void DeduceCRCFiles();
-        void ParseFile();
-        void CRCToFile();
-        void Tokenize(const string& line);
-        void CRCsOnE32();
-        void PrintInvalidCRCs();
+        virtual void CRCFromFile() final override;
+        virtual void SetCRCFiles() final override;
+        virtual std::string CRCAsStr() final override;
+        virtual void CRCFile(std::string& s) final override;
+        virtual bool PrintInvalidTargetCRC() final override;
+        virtual void ProcessTokens(const std::string&, uint32_t crc) final override;
+    private:
+        void FixE32Hdr();
     private:
         const E32Parser* iParser = nullptr;
-        const Args* iArgs = nullptr;
         E32Editor* iCrc;
         CRCData iCRCIn;
         CRCData iCRCOut;
-        string iFileIn;
-        string iFileOut;
 };
 
 void CheckE32CRC(const E32Parser* parser, const Args* args)
@@ -157,12 +156,8 @@ void CheckE32CRC(const E32Parser* parser, const Args* args)
     crc.Run();
 }
 
-void E32CRCProcessor::CRCToFile()
+std::string E32CRCProcessor::CRCAsStr()
 {
-    if(iFileOut.empty())
-        return;
-
-    ReportLog("Saving checksums to file: " + iFileOut + "\n\n");
     stringstream buf;
     buf << std::hex;
     buf << E32Crcs::FULLIMAGE << " = 0x" << iCRCOut.iFullImage << "\n";
@@ -183,55 +178,11 @@ void E32CRCProcessor::CRCToFile()
     buf << E32Crcs::VERSION_BUILD << " = 0x" << iCRCOut.iVersion_Build << "\n";
     buf << E32Crcs::HEADERCRC << " = 0x" << iCRCOut.iHeaderCrc << "\n";
     buf << E32Crcs::CAPS << " = 0x" << iCRCOut.iCaps;
-
-    SaveFile(iFileOut, buf.str());
+    return buf.str();
 }
 
-void E32CRCProcessor::ParseFile()
+void E32CRCProcessor::ProcessTokens(const std::string& type, uint32_t crc)
 {
-    if(!IsFileExist(iFileIn))
-        return;
-
-    ReportLog("Reading checksums from file: " + iFileIn + "\n\n");
-    fstream file(iFileIn, fstream::in);
-
-    string s;
-    while(file.good())
-    {
-        getline(file, s);
-        Tokenize(s);
-    }
-
-    if(!file)
-        ReportError(FILEREADERROR, iFileIn);
-    file.close();
-
-// For example in manual E32Image builds comression maybe off for easy hex view.
-// This change header and even entire file checksums and test failed.
-#ifndef SET_COMPILETIME_LOAD_EXISTED_FILECRC
-    iCrc->SetCaps(iCRCIn.iCaps);
-    iCrc->SetFlags(iCRCIn.iFlags);
-#endif // SET_COMPILETIME_LOAD_EXISTED_FILECRC
-    iCrc->SetE32Time(iCRCIn.iTimeLo, iCRCIn.iTimeHi);
-    iCrc->SetVersion(iCRCIn.iVersion_Major, iCRCIn.iVersion_Minor, iCRCIn.iVersion_Build);
-    iCrc->ReGenerateCRCs();
-    iCrc->DumpE32Img();
-}
-
-void E32CRCProcessor::Tokenize(const string& line)
-{
-    if(line.empty())
-        return;
-
-    stringstream stream(line);
-    string type;
-    char delim;
-    uint32_t crc;
-    stream >> std::hex >> type >> delim >> crc;
-
-    if(delim != '=')
-        ReportError(ErrorCodes::ZEROBUFFER, "Error while parsing .crc file. Delimeter '=' not found!");
-
     if(type == E32Crcs::FULLIMAGE)
         iCRCIn.iFullImage = crc;
     else if(type == E32Crcs::HEADER)
@@ -269,26 +220,14 @@ void E32CRCProcessor::Tokenize(const string& line)
     else if(type == E32Crcs::CAPS)
         iCRCIn.iCaps = crc;
     else
-        ReportError(ErrorCodes::ZEROBUFFER, "Error while parsing .crc file. Invalid data: " + line);
+        ReportError(ErrorCodes::ZEROBUFFER, "Error while parsing .crc file. Invalid data: " + type);
 }
 
-void E32CRCProcessor::DeduceCRCFiles()
+void E32CRCProcessor::SetCRCFiles()
 {
-    iFileIn = iArgs->iFileCrc;
-    if(iFileIn != DefaultOptionalArg)
-        return;
-
     if(!iArgs->iE32input.empty())
     {
-        iFileIn = iArgs->iE32input;
-        CRCFile(iFileIn);
-        fstream file(iFileIn, fstream::in);
-        if(!file)
-        {
-            iFileOut = iFileIn;
-            iFileIn.clear();
-        }
-        file.close();
+        ReadOrCreateCRCFile(iArgs->iE32input);
         return;
     }
 
@@ -301,25 +240,18 @@ void E32CRCProcessor::DeduceCRCFiles()
     iFileOut = iArgs->iOutput;
     CRCFile(iFileIn);
     CRCFile(iFileOut);
-
-#ifdef SET_COMPILETIME_LOAD_EXISTED_FILECRC
-    if(IsFileExist(iFileOut))
-    {
-        std::swap(iFileIn, iFileOut);
-        iFileOut.clear();
-    }
-#endif // SET_COMPILETIME_LOAD_EXISTED_FILECRC
 }
 
-void CRCFile(string& s)
+void E32CRCProcessor::CRCFile(string& s)
 {
     s.erase(s.find_last_of("."));
     s += ".crc";
 }
 
 /// Generate CRC on E32Image
-void E32CRCProcessor::CRCsOnE32()
+void E32CRCProcessor::CRCFromFile()
 {
+    FixE32Hdr();
     iCRCOut.iTimeLo = iCrc->TimeLo();
     iCRCOut.iTimeHi = iCrc->TimeHi();
     iCRCOut.iFullImage = iCrc->FullImage();
@@ -340,29 +272,17 @@ void E32CRCProcessor::CRCsOnE32()
     iCRCOut.iCaps = iCrc->Caps();
 }
 
-void PrintIfNEQ(uint32_t in, uint32_t out, const string& msg)
-{
-    if(in == out)
-        return;
-    std::stringstream s;
-    s << std::hex << msg + ": 0x" << in << " - 0x" << out << "\n";
-    ReportLog(s.str());
-}
-
 /** @brief Print difference for CRCs if any.
   *
   * Print difference between predefined CRCs from .crc file and generated from E32Image if any.
   */
-void E32CRCProcessor::PrintInvalidCRCs()
+bool E32CRCProcessor::PrintInvalidTargetCRC()
 {
-    if(!IsFileExist(iFileIn))
-        return;
-
     ReportLog("E32CRCProcessor: ");
     if(iCRCIn == iCRCOut)
     {
-        ReportLog("All CRC matches!\n");
-        return;
+        ReportLog("All E32 CRC matches!\n");
+        return false;
     }
     ReportWarning(ErrorCodes::ZEROBUFFER, "Found CRC32 mismatch(es) between in - out:\n");
     PrintIfNEQ(iCRCIn.iFullImage,    iCRCOut.iFullImage, "FullImage");
@@ -381,14 +301,11 @@ void E32CRCProcessor::PrintInvalidCRCs()
     PrintIfNEQ(iCRCIn.iVersion_Build, iCRCOut.iVersion_Build, "Version_iBuild");
     PrintIfNEQ(iCRCIn.iHeaderCrc, iCRCOut.iHeaderCrc, "HeaderCrc");
     PrintIfNEQ(iCRCIn.iVersion_Build, iCRCOut.iVersion_Build, "HeaderCrc");
-    if(iArgs->iForceE32Build)
-        ReportLog("\n");
-    else
-        ReportError(ErrorCodes::ZEROBUFFER, "CRC32 validation failed!\n");
+    return true;
 }
 
 E32CRCProcessor::E32CRCProcessor(const E32Parser* parser, const Args* args):
-     iParser(parser), iArgs(args)
+     CRCProcessor(args), iParser(parser)
 {
     iCrc = E32Editor::NewL(parser);
 }
@@ -398,13 +315,18 @@ E32CRCProcessor::~E32CRCProcessor()
     delete iCrc;
 }
 
-void E32CRCProcessor::Run()
+void E32CRCProcessor::FixE32Hdr()
 {
-    DeduceCRCFiles();
-    ParseFile();
-    CRCsOnE32();
-    CRCToFile();
-    PrintInvalidCRCs();
+// For example in manual E32Image builds comression maybe off for easy hex view.
+// This change header and even entire file checksums and test failed.
+#ifndef SET_COMPILETIME_LOAD_EXISTED_FILECRC
+    iCrc->SetCaps(iCRCIn.iCaps);
+    iCrc->SetFlags(iCRCIn.iFlags);
+#endif // SET_COMPILETIME_LOAD_EXISTED_FILECRC
+    iCrc->SetE32Time(iCRCIn.iTimeLo, iCRCIn.iTimeHi);
+    iCrc->SetVersion(iCRCIn.iVersion_Major, iCRCIn.iVersion_Minor, iCRCIn.iVersion_Build);
+    iCrc->ReGenerateCRCs();
+    iCrc->DumpE32Img();
 }
 
 

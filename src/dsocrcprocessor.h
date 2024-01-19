@@ -17,7 +17,7 @@ class DSOCRCProcessor: public CRCProcessor
     public:
         DSOCRCProcessor(const Args* arg);
         virtual ~DSOCRCProcessor();
-    public:
+    private:
         virtual void CRCFromFile() final override;
         virtual void SetCRCFiles() final override;
         virtual std::string CRCAsStr() final override;

@@ -40,26 +40,6 @@ void CRCProcessor::DeduceCRCFiles()
 #endif // SET_COMPILETIME_LOAD_EXISTED_FILECRC
 }
 
-void CRCProcessor::SetCRCFiles()
-{
-    if(!iArgs->iE32input.empty())
-    {
-        iFileIn = iArgs->iE32input;
-        CRCFile(iFileIn);
-        ReadOrCreateCRCFile();
-        return;
-    }
-
-    if(iArgs->iOutput.empty())
-        ReportError(ErrorCodes::ZEROBUFFER, "Internal error in CRCProcessor::SetCRCFiles(). Got uninitialized E32 output!");
-    if(iArgs->iElfinput.empty())
-        ReportError(ErrorCodes::ZEROBUFFER, "Internal error in CRCProcessor::SetCRCFiles(). Got uninitialized Elf input!");
-    iFileIn = iArgs->iElfinput;
-    iFileOut = iArgs->iOutput;
-    CRCFile(iFileIn);
-    CRCFile(iFileOut);
-}
-
 void CRCProcessor::ParseFile()
 {
     if(!IsFileExist(iFileIn))
@@ -123,15 +103,16 @@ void CRCProcessor::Tokenize(const string& line)
     ProcessTokens(type, crc);
 }
 
-void CRCProcessor::ReadOrCreateCRCFile()
+void CRCProcessor::ReadOrCreateCRCFile(const std::string& file)
 {
+    iFileIn = file;
+    CRCFile(iFileIn);
     if(IsFileExist(iFileIn))
         return;
     iFileOut = iFileIn;
     iFileIn.clear();
 }
 
-#if 0
 void PrintIfNEQ(uint32_t in, uint32_t out, const string& msg)
 {
     if(in == out)
@@ -140,4 +121,3 @@ void PrintIfNEQ(uint32_t in, uint32_t out, const string& msg)
     s << std::hex << msg + ": 0x" << in << " - 0x" << out << "\n";
     ReportLog(s.str());
 }
-#endif // 0

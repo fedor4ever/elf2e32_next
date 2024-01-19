@@ -76,8 +76,9 @@ bool DSOCRCProcessor::PrintInvalidTargetCRC()
     if(iCRCIn.iDSOCrc == iCRCOut.iDSOCrc)
     {
         ReportLog("All DSO CRC matches!\n");
-        return;
+        return false;
     }
     ReportWarning(ErrorCodes::ZEROBUFFER, "Found CRC32 mismatch(es) between in - out:\n");
     PrintIfNEQ(iCRCIn.iDSOCrc, iCRCOut.iDSOCrc, "DSO Crc");
+    return true;
 }

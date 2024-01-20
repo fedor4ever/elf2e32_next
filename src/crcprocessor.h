@@ -1,3 +1,20 @@
+// Copyright (c) 2024 Strizhniou Fiodar
+// All rights reserved.
+// This component and the accompanying materials are made available
+// under the terms of "Eclipse Public License v1.0"
+// which accompanies this distribution, and is available
+// at the URL "http://www.eclipse.org/legal/epl-v10.html".
+//
+// Initial Contributors:
+// Strizhniou Fiodar - initial contribution.
+//
+// Contributors:
+//
+// Description:
+//  Base class for file verification with CRC32
+//
+//
+
 #ifndef CRCPROCESSOR_H
 #define CRCPROCESSOR_H
 #include <string>

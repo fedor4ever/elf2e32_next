@@ -7,6 +7,11 @@
 //
 // Initial Contributors:
 // Strizhniou Fiodar - initial contribution.
+//
+// Description:
+//  Parse command options
+//
+//
 
 #ifndef GETOPT_LONG_H_INCLUDED
 #define GETOPT_LONG_H_INCLUDED

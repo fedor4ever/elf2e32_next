@@ -7,6 +7,11 @@
 //
 // Initial Contributors:
 // Strizhniou Fiodar - initial contribution.
+//
+// Description:
+//  Hold accepted command options
+//
+//
 
 #ifndef GETOPT_OPTS_H_INCLUDED
 #define GETOPT_OPTS_H_INCLUDED

@@ -1,3 +1,21 @@
+// Copyright (c) 2024 Strizhniou Fiodar
+// All rights reserved.
+// This component and the accompanying materials are made available
+// under the terms of "Eclipse Public License v1.0"
+// which accompanies this distribution, and is available
+// at the URL "http://www.eclipse.org/legal/epl-v10.html".
+//
+// Initial Contributors:
+// Strizhniou Fiodar - initial contribution.
+//
+// Contributors:
+//
+// Description:
+//  It creates CRC32 checksums for DSO files and store them in file with ".dcrc" extension.
+//  Also verify generated DSO between different versions if precalculated file used.
+//
+//
+
 #ifndef DSOCRCProcessor_H
 #define DSOCRCProcessor_H
 

@@ -7,6 +7,11 @@
 //
 // Initial Contributors:
 // Strizhniou Fiodar - initial contribution.
+//
+// Description:
+//  Parse command options
+//
+//
 
 #include "common.hpp"
 #include "getopt.hpp"

@@ -1,4 +1,4 @@
-# Copyright (C) 2023 Stryzhniou Fiodar
+# Copyright (C) 2023-2024 Stryzhniou Fiodar
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@ reload(sys)
 sys.setdefaultencoding('utf-8')
 
 path2sdk = "G:/Symbian/S60_5th_Edition_SDK_v1.0/epoc32"
-elf2e32_rel = "F:\\codeblock\\elf2e32_next\\bin\\Release\\elf2e32.exe --filecrc --e32input="
+elf2e32_rel = "D:\\codeblock\\elf2e32_next\\bin\\Release\\elf2e32.exe --filecrc --e32input="
 
 app_builder_err_log = "app_builder_err.log"
 app_builder_out_log = "app_builder_out.log"

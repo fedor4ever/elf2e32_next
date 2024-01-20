@@ -1,4 +1,4 @@
-// Copyright (c) 2019-2023 Strizhniou Fiodar
+// Copyright (c) 2019-2024 Strizhniou Fiodar
 // All rights reserved.
 // This component and the accompanying materials are made available
 // under the terms of "Eclipse Public License v1.0"

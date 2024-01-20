@@ -1,5 +1,5 @@
 // Copyright (c) 2001-2009 Nokia Corporation and/or its subsidiary(-ies).
-// Copyright (c) 2017-2020 Strizhniou Fiodar
+// Copyright (c) 2017-2024 Strizhniou Fiodar
 // All rights reserved.
 // This component and the accompanying materials are made available
 // under the terms of the License "Eclipse Public License v1.0"

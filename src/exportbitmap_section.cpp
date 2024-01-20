@@ -1,4 +1,5 @@
 // Copyright (c) 2021-2024 Strizhniou Fiodar.
+// Copyright (c) 1996-2009 Nokia Corporation and/or its subsidiary(-ies).
 // All rights reserved.
 // This component and the accompanying materials are made available
 // under the terms of "Eclipse Public License v1.0"
@@ -7,6 +8,9 @@
 //
 // Initial Contributors:
 // Strizhniou Fiodar - initial contribution.
+//
+// Contributors:
+// Use some code from original elf2e32
 //
 // Description:
 // This class creates Exports bitmap

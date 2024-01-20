@@ -32,7 +32,6 @@ class Elf2E32
         void Run();
 
     private:
-        E32ImageHeader* iHdr = nullptr;
         ArgParser* iArgParser = nullptr;
         Args* iCmdParam = nullptr;
         Task* iTask = nullptr;

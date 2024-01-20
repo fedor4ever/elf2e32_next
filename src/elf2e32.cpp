@@ -36,14 +36,12 @@ void SetCmdParamAtCompileTime(Args* param)
 
 Elf2E32::Elf2E32(int argc, char** argv)
 {
-    iHdr = new E32ImageHeader();
     iArgParser = new ArgParser(argc, argv);
     iCmdParam = new Args();
 }
 
 Elf2E32::~Elf2E32()
 {
-    delete iHdr;
     delete iArgParser;
     delete iCmdParam;
     delete iTask;

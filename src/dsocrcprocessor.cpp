@@ -37,6 +37,9 @@ void CheckDSOCrc(const Args* args)
     if(args->iFileCrc.empty()) // option --filecrc not used
         return;
 
+    if(!IsFileExist(args->iDso))
+        return;
+
     if(args->iFileCrc.find(".crc") != std::string::npos)
         return;
 

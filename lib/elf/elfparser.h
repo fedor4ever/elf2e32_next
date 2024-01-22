@@ -59,8 +59,8 @@ class ElfParser
     public:
         const char* GetSymbolNameFromStringTable(uint32_t index) const;
         const char* GetNameFromStringTable(uint32_t offset) const;
-        uint32_t GetSymbolOrdinal(char* aSymName) const;
-        Elf32_Sym* FindSymbol(char* aName) const;
+        uint32_t GetSymbolOrdinal(const char* aSymName) const;
+        Elf32_Sym* FindSymbol(const char* aName) const;
         uint32_t GetSymbolOrdinal(Elf32_Sym* aSym) const;
     public:
         Elf32_Sym* GetSymbolTableEntity(uint32_t index) const;

@@ -124,7 +124,7 @@ E32Section ImportsSection::Imports()
 		parser.GetElfFileLayout();
 		for(auto aReloc: imports)
         {
-            char* aSymName = (char*)iElf->GetSymbolNameFromStringTable(aReloc.iSymNdx);
+            const char* aSymName = iElf->GetSymbolNameFromStringTable(aReloc.iSymNdx);
             uint32_t aOrdinal = parser.GetSymbolOrdinal(aSymName);
 
 //check the reloc refers to Code Segment

@@ -519,7 +519,7 @@ Elf32_Verneed* ElfParser::GetElf32_Verneed() const
     return iVersionNeed;
 }
 
-Elf32_Sym* ElfParser::FindSymbol(char* aName) const
+Elf32_Sym* ElfParser::FindSymbol(const char* aName) const
 {
 	if(!aName )
 		return nullptr;
@@ -541,7 +541,7 @@ Elf32_Sym* ElfParser::FindSymbol(char* aName) const
 	return nullptr;
 }
 
-uint32_t ElfParser::GetSymbolOrdinal(char* aSymName) const
+uint32_t ElfParser::GetSymbolOrdinal(const char* aSymName) const
 {
     Elf32_Sym* s = FindSymbol(aSymName);
     if(!s)

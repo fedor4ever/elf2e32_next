@@ -285,6 +285,10 @@ void ElfParser::ProcessDynamicTable()
 		case DT_RELASZ:
 			iRela.size = aDyn[i].d_val;
 			break;
+        case DT_PLTREL:
+            aPltRelTypeSeen = true;
+            iPltRelType = aDyn[i].d_val;
+			break;
 		case DT_VERSYM:
 			iVersionTbl = ELF_ENTRY_PTR(Elf32_Half, iElfHeader, aDyn[i].d_val);
 			break;

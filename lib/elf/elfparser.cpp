@@ -48,7 +48,15 @@ bool GlobalSymbol(Elf32_Sym* aSym)
 	return (ELF32_ST_BIND(aSym->st_info) == STB_GLOBAL);
 }
 
-ElfParser::ElfParser(string elf): iFile(elf) {}
+ElfParser::ElfParser(string elf): iFile(elf)
+{
+#if EXPLORE_RELOCS_PROCESSING
+    iRel.type = "rel";
+    iRela.type = "rela";
+    iPltRel.type = "pltrel";
+    iPltRela.type = "pltrela";
+#endif // EXPLORE_RELOCS_PROCESSING
+}
 
 ElfParser::~ElfParser()
 {

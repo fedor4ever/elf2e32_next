@@ -60,6 +60,8 @@ struct RelocLocalValues
     uint16_t iE32Reloc;  // = (uint16_t)((r.iRela.r_offset & 0xfff) | relocType);
     uint16_t iRelocType; // = rp->Fixup(r.iSymbol);
     int      iPage;      // = r.iRela.r_offset & 0xfffff000;
+    std::string iSymbolName;
+    const char* iType = "unknown";
 };
 
 struct LocalReloc
@@ -105,10 +107,10 @@ class RelocsProcessor
         void ProcessVeneers();
         void AddToImports(uint32_t index, Elf32_Rela rela);
         void AddToLocalRelocations(uint32_t index,
-                uint8_t relType, Elf32_Rela rela);
+                uint8_t relType, Elf32_Rela rela, const char* srcname);
         void AddToLocalRelocations(uint32_t aAddr, uint32_t index,
-                uint8_t relType,
-                Elf32_Sym* aSym, bool aDelSym = false,
+                uint8_t relType, Elf32_Sym* aSym,
+                const char* srcname, bool aDelSym = false,
                 bool veneerSymbol = false);
         template <class T>
         void ProcessRelocations(const T* elfRel, const RelocBlock& r);

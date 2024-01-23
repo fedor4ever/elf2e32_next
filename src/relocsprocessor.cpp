@@ -20,6 +20,11 @@
 #include <string.h>
 #include <algorithm>
 
+#if EXPLORE_RELOCS_PROCESSING
+#include <sstream>
+#include <iomanip>
+#endif // EXPLORE_RELOCS_PROCESSING
+
 #include "symbol.h"
 #include "elfdefs.h"
 #include "e32common.h"
@@ -121,7 +126,7 @@ void RelocsProcessor::RelocsFromSymbols()
     {
         iExportTableAddress = (uintptr_t)aPlace;
         AddToLocalRelocations(iExportTableAddress, i, R_ARM_ABS32,
-                              x->GetElf32_Sym(), x->Absent());
+                              x->GetElf32_Sym(), "symbols", x->Absent());
         aPlace++;
         i++;
     }
@@ -132,7 +137,7 @@ void RelocsProcessor::ProcessSymbolInfo()
     if(!iSymLook)
         return;
     Elf32_Addr elfAddr = iExportTableAddress - 4;// This location points to 0th ord.;
-    AddToLocalRelocations(elfAddr, 0, R_ARM_ABS32, nullptr);
+    AddToLocalRelocations(elfAddr, 0, R_ARM_ABS32, nullptr, "exports");
 
 /// TODO (Administrator#1#06/25/20): find how os linker handle syminfo section. ...
 ///Is commented code wrong?
@@ -145,7 +150,7 @@ void RelocsProcessor::ProcessSymbolInfo()
     {
         if(x->Absent())
             continue;
-        AddToLocalRelocations(elfAddr, 0, R_ARM_ABS32, x->GetElf32_Sym());
+        AddToLocalRelocations(elfAddr, 0, R_ARM_ABS32, x->GetElf32_Sym(), "exports");
         elfAddr += sizeof(uint32_t);
     }
 }
@@ -203,11 +208,10 @@ void RelocsProcessor::ProcessVeneers()
              * 3) The instruction in the location provided by the pointer is a thumb symbol
              */
             if (aInstruction == 0xE51FF004 && !aRelocEntryFound && aIsThumbSymbol)
-                AddToLocalRelocations(aOffset, 0, R_ARM_NONE, aSym, false, true);
+                AddToLocalRelocations(aOffset, 0, R_ARM_NONE, aSym, "veneers", false, true);
         }
     }
 }
-
 
 /**
 This function creates Code and Data relocations from the corresponding
@@ -225,6 +229,13 @@ E32Section CreateRelocations(std::vector<LocalReloc>& aRelocations, E32Section& 
     E32RelocSection* section = (E32RelocSection*)&aRelocs.section[0];
     section->iSize = rsize;
     section->iNumberOfRelocs = aRelocations.size();
+
+#if EXPLORE_RELOCS_PROCESSING
+    std::stringstream relnfo;
+    relnfo << std::hex << "E32RelocSection size: " << section->iSize << "\n";
+    relnfo << std::hex << "Number Of Relocs: " << section->iNumberOfRelocs << "\n";
+    relnfo << std::hex << "ElfRel entry | E32Rel entry | relfrom | function name: \n";
+#endif // EXPLORE_RELOCS_PROCESSING
 
     E32RelocBlock* block = section->iRelocBlock;
     // data should point to iEntry field, set later.
@@ -244,10 +255,18 @@ E32Section CreateRelocations(std::vector<LocalReloc>& aRelocations, E32Section& 
                 // at first run does nothing
                 *data++ = 0;
                 pagesize += sizeof(uint16_t);
+#if EXPLORE_RELOCS_PROCESSING
+                relnfo << std::hex << "Zero padding page\n";
+#endif // EXPLORE_RELOCS_PROCESSING
             }
             if (page == -1) page = p;
             block->iPageOffset = page - aBase;
             block->iBlockSize = pagesize;
+
+#if EXPLORE_RELOCS_PROCESSING
+            relnfo << std::hex << "Reloc Page Offset: " << block->iPageOffset << "\n";
+            relnfo << std::hex << "Reloc Block Size: " << block->iBlockSize << "\n";
+#endif // EXPLORE_RELOCS_PROCESSING
 
             pagesize = E32RelocSectionStatic;
             page = p;
@@ -261,6 +280,10 @@ E32Section CreateRelocations(std::vector<LocalReloc>& aRelocations, E32Section& 
         r.iIntermediates.iRelocType = relocType;
         r.iIntermediates.iE32Reloc = (uint16_t)((r.iRela.r_offset & 0xfff) | relocType);
         rp->ValidateLocalReloc(r, aRelocs.info);
+#if EXPLORE_RELOCS_PROCESSING
+        relnfo << std::hex << std::setw(12) << r.iRela.r_offset << " |" << std::setw(13) << r.iIntermediates.iE32Reloc <<
+                " |" << std::setw(8) << r.iIntermediates.iType << " | " << r.iIntermediates.iSymbolName << "\n";
+#endif // EXPLORE_RELOCS_PROCESSING
     }
 
     if(aRelocs.info == "CODERELOCKS")
@@ -274,9 +297,20 @@ E32Section CreateRelocations(std::vector<LocalReloc>& aRelocations, E32Section& 
     {
         *data++ = 0;
         pagesize += sizeof(uint16_t);
+#if EXPLORE_RELOCS_PROCESSING
+        relnfo << std::hex << "Zero padding section\n";
+#endif // EXPLORE_RELOCS_PROCESSING
     }
     block->iPageOffset = page - aBase;
     block->iBlockSize = pagesize;
+#if EXPLORE_RELOCS_PROCESSING
+    relnfo << "After padding\n";
+    relnfo << std::hex << "Reloc Page Offset: " << block->iPageOffset << "\n";
+    relnfo << std::hex << "Reloc Block Size: " << block->iBlockSize << "\n";
+
+    if(aRelocs.info == "CODERELOCKS")
+        SaveFile("tests/tmp/relocsreport.txt", relnfo.str());
+#endif // EXPLORE_RELOCS_PROCESSING
     return aRelocs;
 }
 
@@ -288,7 +322,7 @@ void RelocsProcessor::ValidateLocalReloc(const LocalReloc& r,
 //              r.iIntermediates.iE32Reloc, r.iIntermediates.iRelocType);
 
     if(!r.iSymbol)
-        ReportLog("Elf symbol not found!\n");
+        ReportLog("Elf symbol not found for symbol: " + name + "!\n");
 //    else {
 //        ReportLog("Elf symbol ST_BIND: %d\n", ELF32_ST_BIND(r.iSymbol->st_info) );
 //        ReportLog("Elf symbol st_value: %d\n", r.iSymbol->st_value & ~1);
@@ -388,7 +422,7 @@ void RelocsProcessor::ProcessRelocations(const T* elfRel, const RelocBlock& r)
                 AddToImports(aSymIdx, tmp);
 			}
 			else
-                AddToLocalRelocations(aSymIdx, aType, tmp);
+                AddToLocalRelocations(aSymIdx, aType, tmp, r.type);
 		}
 		elfRel++;
 	}
@@ -409,7 +443,7 @@ void RelocsProcessor::AddToImports(uint32_t index, Elf32_Rela rela)
 }
 
 void RelocsProcessor::AddToLocalRelocations(uint32_t index,
-                     uint8_t relType, Elf32_Rela rela)
+                     uint8_t relType, Elf32_Rela rela, const char* srcname)
 {
     LocalReloc loc;
     loc.iSegment = iElf->GetSegmentAtAddr(rela.r_offset);
@@ -419,6 +453,7 @@ void RelocsProcessor::AddToLocalRelocations(uint32_t index,
     loc.iRelType = relType;
     loc.iSymbol = iElf->GetSymbolTableEntity(index);
     loc.iSegmentType = iElf->SegmentType(rela.r_offset);
+    loc.iIntermediates.iType = srcname;
     SortReloc(loc);
 }
 
@@ -426,7 +461,7 @@ void RelocsProcessor::AddToLocalRelocations(uint32_t index,
 //tmp.r_addend = iElf->Addend(elfRel);
 //aAddr = tmp.r_offset
 void RelocsProcessor::AddToLocalRelocations(uint32_t aAddr, uint32_t index,
-            uint8_t relType, Elf32_Sym* aSym, bool aDelSym, bool veneerSymbol)
+            uint8_t relType, Elf32_Sym* aSym, const char* srcname, bool aDelSym, bool veneerSymbol)
 {
     LocalReloc loc;
     uint16_t type = Fixup(aSym);
@@ -439,6 +474,8 @@ void RelocsProcessor::AddToLocalRelocations(uint32_t aAddr, uint32_t index,
     loc.iDelSym = aDelSym; // true for absent symbols only
     loc.iVeneerSymbol = veneerSymbol;
     loc.iSegmentType = ESegmentType::ESegmentRO;
+    loc.iIntermediates.iSymbolName = iElf->GetSymbolNameFromStringTable(index);
+    loc.iIntermediates.iType = srcname;
     SortReloc(loc);
 }
 

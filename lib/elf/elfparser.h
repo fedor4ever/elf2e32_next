@@ -31,6 +31,7 @@ struct RelocBlock
     uint32_t    size;
     Elf32_Rel*  rel  = nullptr;
     Elf32_Rela* rela = nullptr;
+    const char* type = nullptr; // or rel, rela, pltrel, pltrela
 };
 
 class ElfParser

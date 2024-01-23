@@ -120,16 +120,27 @@ size_t RelocationsSize(const std::vector<LocalReloc>& relocs)
 
 void RelocsProcessor::RelocsFromSymbols()
 {
+#if EXPLORE_RELOCS_PROCESSING
+    std::stringstream relnfo;
+    relnfo << std::hex << "ElfRel entry | function name | elf function name \n";
+#endif // EXPLORE_RELOCS_PROCESSING
     Elf32_Addr* aPlace = iElf->ExportTable();
     uint32_t i = 1;
     for(auto x: iRelocSrc)
     {
         iExportTableAddress = (uintptr_t)aPlace;
+#if EXPLORE_RELOCS_PROCESSING
+        relnfo << std::hex << std::setw(12) << iExportTableAddress << " |" << std::setw(13) <<
+                x->AliasName() << " |" << iElf->GetSymbolNameFromStringTable(i) << "\n";
+#endif // EXPLORE_RELOCS_PROCESSING
         AddToLocalRelocations(iExportTableAddress, i, R_ARM_ABS32,
                               x->GetElf32_Sym(), "symbols", x->Absent());
         aPlace++;
         i++;
     }
+#if EXPLORE_RELOCS_PROCESSING
+    SaveFile("tests/tmp/relocswithsymbolst.txt", relnfo.str());
+#endif // EXPLORE_RELOCS_PROCESSING
 }
 
 void RelocsProcessor::ProcessSymbolInfo()
@@ -453,6 +464,7 @@ void RelocsProcessor::AddToLocalRelocations(uint32_t index,
     loc.iRelType = relType;
     loc.iSymbol = iElf->GetSymbolTableEntity(index);
     loc.iSegmentType = iElf->SegmentType(rela.r_offset);
+    loc.iIntermediates.iSymbolName = iElf->GetSymbolNameFromStringTable(index);
     loc.iIntermediates.iType = srcname;
     SortReloc(loc);
 }

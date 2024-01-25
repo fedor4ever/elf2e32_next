@@ -125,6 +125,8 @@ void RelocsProcessor::RelocsFromSymbols()
     relnfo << std::hex << "ElfRel entry | function name | elf function name \n";
 #endif // EXPLORE_RELOCS_PROCESSING
     Elf32_Addr* aPlace = iElf->ExportTable();
+    if(iSymLook)
+        aPlace--;
     uint32_t i = 1;
     for(auto x: iRelocSrc)
     {
@@ -138,6 +140,8 @@ void RelocsProcessor::RelocsFromSymbols()
         aPlace++;
         i++;
     }
+    if(iSymLook)
+        iExportTableAddress = (uintptr_t)aPlace; // point to E32EpocExpSymInfoHdr
 #if EXPLORE_RELOCS_PROCESSING
     SaveFile("tests/tmp/relocswithsymbolst.txt", relnfo.str());
 #endif // EXPLORE_RELOCS_PROCESSING
@@ -147,21 +151,18 @@ void RelocsProcessor::ProcessSymbolInfo()
 {
     if(!iSymLook)
         return;
-    Elf32_Addr elfAddr = iExportTableAddress - 4;// This location points to 0th ord.;
-    AddToLocalRelocations(elfAddr, 0, R_ARM_ABS32, nullptr, "exports");
 
-/// TODO (Administrator#1#06/25/20): find how os linker handle syminfo section. ...
-///Is commented code wrong?
-    elfAddr += ((iRelocSrc.size() + 1) * sizeof(uint32_t));// now points to the symInfo
-//	uint32 *aZerothOrd = iUseCase->GetExportTable();
-//	aZerothOrd[0] = elfAddr;
-	elfAddr += sizeof(E32EpocExpSymInfoHdr);// now points to the symbol address
-											// which is just after the syminfo header.
+    Elf32_Addr elfAddr = iExportTableAddress; // already point to E32EpocExpSymInfoHdr
+    // Create a relocation entry for the start E32EpocExpSymInfoHdr.
+    AddToLocalRelocations(elfAddr, 0, R_ARM_ABS32, nullptr, "sym lookup");
+	elfAddr += sizeof(E32EpocExpSymInfoHdr);// now points after the syminfo header.
+    elfAddr += sizeof(uint32_t);// TODO: why this needed?
+
     for(auto x: iRelocSrc)
     {
         if(x->Absent())
             continue;
-        AddToLocalRelocations(elfAddr, 0, R_ARM_ABS32, x->GetElf32_Sym(), "exports");
+        AddToLocalRelocations(elfAddr, 0, R_ARM_ABS32, x->GetElf32_Sym(), "sym lookup");
         elfAddr += sizeof(uint32_t);
     }
 }

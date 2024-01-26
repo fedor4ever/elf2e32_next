@@ -577,7 +577,7 @@ E32Section RelocsProcessor::DataRelocsSection()
     return CreateRelocations(iDataRelocations, dataRel, this);
 }
 
-size_t RelocsProcessor::ExportTableAddress() const
+size_t RelocsProcessor::EpocExpSymInfoHdrAddress() const
 {
     return iExportTableAddress;
 }

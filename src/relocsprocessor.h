@@ -97,7 +97,7 @@ class RelocsProcessor
         uint32_t DllCount() const;
         void ProcessVerInfo();
         uint16_t Fixup(const Elf32_Sym* s);
-        size_t ExportTableAddress() const;
+        size_t EpocExpSymInfoHdrAddress() const;
         void ValidateLocalReloc(const LocalReloc& r,
                     const std::string& name);
 

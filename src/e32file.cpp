@@ -212,7 +212,7 @@ void E32File::WriteE32File()
 
 // Export Section consist of uint32_t array, first element contains section's size.
 // Absent symbols values set E32 image entry point, other set to their elf st_value.
-E32Section ExportSection(const Symbols& s, uintptr_t iExportTableAddress,
+E32Section ExportSection(const Symbols& s, uintptr_t iExpSymInfoHdrAddress,
                              bool symlook, bool HasNoDefIn)
 {
     E32Section exports;
@@ -233,7 +233,7 @@ E32Section ExportSection(const Symbols& s, uintptr_t iExportTableAddress,
     if(HasNoDefIn && symlook) // original algorithm works as no symbols provided
         sz = 4;
     if(symlook)
-        iTable[0] = sz + iExportTableAddress;
+        iTable[0] = sz + iExpSymInfoHdrAddress;
 
     uint32_t i = 1;
     for(auto x: s)
@@ -272,7 +272,7 @@ bool IsEXE(TargetType type)
 void E32File::PrepareData()
 {
     E32Section tmp;
-    tmp = ExportSection(iSymbols, iRelocs->ExportTableAddress(),
+    tmp = ExportSection(iSymbols, iRelocs->EpocExpSymInfoHdrAddress(),
                     iE32Opts->iNamedlookup, iE32Opts->iDefinput.empty());
 
     if(IsEXE(iE32Opts->iTargettype))

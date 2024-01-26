@@ -17,6 +17,7 @@
 
 #include <cstring>
 #include <sstream>
+#include <limits.h>
 
 #include "common.hpp"
 #include "e32common.h"

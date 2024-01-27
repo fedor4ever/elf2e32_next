@@ -56,11 +56,10 @@ void UpdateImportTable(const E32SectionUnit& s, const std::vector<int32_t>& iImp
 {
     E32Parser* p = E32Parser::NewL(s);
     const E32ImageHeader* h = p->GetE32Hdr();
-//    const E32EpocExpSymInfoHdr* symInf = p->GetEpocExpSymInfoHdr();
+    const E32EpocExpSymInfoHdr* sInf = p->GetEpocExpSymInfoHdr();
     size_t offSet = p->ExpSymInfoTableOffset();
-    E32EpocExpSymInfoHdr* sInf = (E32EpocExpSymInfoHdr*)(p->GetBufferedImage() + offSet);
     offSet += sInf->iDepDllZeroOrdTableOffset; // This points to the ordinal zero offset table now
-    offSet -= h->iCodeOffset;
+    offSet -= h->iCodeOffset; // Starts from code section
 
     uint32_t* aImportTab = (uint32_t*)p->GetImportSection();
     for(auto x: iImportTabLocations)
@@ -68,6 +67,7 @@ void UpdateImportTable(const E32SectionUnit& s, const std::vector<int32_t>& iImp
         aImportTab[x] = offSet;
         offSet += sizeof(uint32_t);
     }
+    s.assign(p->GetBufferedImage(), p->GetBufferedImage() + p->GetFileSize());
     delete p;
 }
 

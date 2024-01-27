@@ -141,7 +141,18 @@ E32Section ImportsSection::Imports()
         {
             // Keep track of the location of the entry
 			iImportTabLocations.push_back(aImportSection.size());
-			// Put the entry as 0 now, which shall be updated
+/** \brief Add empty entry which shall be updated with iImportTabLocations
+ *
+ * Update made in UpdateImportTable()
+ * Fomula:
+ *    offset = E32ImageHeader.iExportDirOffset + E32ImageHeader.iExportDirCount * sizeof(uint32_t) +
+ *          (E32EpocExpSymInfoHdr.iDepDllZeroOrdTableOffset - E32ImageHeader.iCodeOffset)
+ *    for(auto x: iImportTabLocations)
+ *    {
+ *        aImportTab[x] = offSet;
+ *        offSet += sizeof(uint32_t);
+ *    }
+ */
 			aImportSection.push_back(0);
 		}
 		idx++;

@@ -238,6 +238,8 @@ uint32_t E32Parser::ExpSymInfoTableOffset() const
 
 const E32EpocExpSymInfoHdr* E32Parser::GetEpocExpSymInfoHdr() const
 {
+    if(!(iHdr->iFlags & KImageNmdExpData))
+        ReportError(ErrorCodes::ZEROBUFFER, "Call GetEpocExpSymInfoHdr() on target without named lookup section");
     uint32_t* tbl = GetExportTable();
 // We ignore that formula because my build elf2e32 set wrong header for Export Table.
 // elf2e32 shipped with SDK crashes from internal error.

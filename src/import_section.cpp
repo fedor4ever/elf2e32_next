@@ -26,6 +26,7 @@
 #include <vector>
 
 #include "elfdefs.h"
+#include "e32parser.h"
 #include "elfparser.h"
 #include "elf2e32_opt.hpp"
 #include "import_section.h"
@@ -141,19 +142,7 @@ E32Section ImportsSection::Imports()
         {
             // Keep track of the location of the entry
 			iImportTabLocations.push_back(aImportSection.size());
-/** \brief Add empty entry which shall be updated with iImportTabLocations
- *
- * Update made in UpdateImportTable()
- * Fomula:
- *    offset = E32ImageHeader.iExportDirOffset + E32ImageHeader.iExportDirCount * sizeof(uint32_t) +
- *          (E32EpocExpSymInfoHdr.iDepDllZeroOrdTableOffset - E32ImageHeader.iCodeOffset)
- *    for(auto x: iImportTabLocations)
- *    {
- *        aImportTab[x] = offSet;
- *        offSet += sizeof(uint32_t);
- *    }
- */
-			aImportSection.push_back(0);
+			aImportSection.push_back(0); // Update made in UpdateImportTable()
 		}
 		idx++;
     }
@@ -174,4 +163,36 @@ E32Section ImportsSection::Imports()
 vector<int32_t> ImportsSection::ImportTabLocations()
 {
     return iImportTabLocations;
+}
+
+/** \brief Add empty entry which shall be updated with iImportTabLocations
+ *
+ * Fomula:
+ *    offset = E32ImageHeader.iExportDirOffset + E32ImageHeader.iExportDirCount * sizeof(uint32_t) +
+ *          (E32EpocExpSymInfoHdr.iDepDllZeroOrdTableOffset - E32ImageHeader.iCodeOffset)
+ *    for(auto x: iImportTabLocations)
+ *    {
+ *        aImportTab[x] = offSet;
+ *        offSet += sizeof(uint32_t);
+ *    }
+ */
+void UpdateImportTable(const E32SectionUnit& s, const std::vector<int32_t>& iImportTabLocations, bool iSNamedlookup)
+{
+    if(!iSNamedlookup)
+        return;
+    E32Parser* p = E32Parser::NewL(s);
+    const E32ImageHeader* h = p->GetE32Hdr();
+    const E32EpocExpSymInfoHdr* sInf = p->GetEpocExpSymInfoHdr();
+    size_t offSet = p->ExpSymInfoTableOffset();
+    offSet += sInf->iDepDllZeroOrdTableOffset; // This points to the ordinal zero offset table now
+    offSet -= h->iCodeOffset; // Starts from code section
+
+    uint32_t* aImportTab = (uint32_t*)p->GetImportSection();
+    for(auto x: iImportTabLocations)
+    {
+        aImportTab[x] = offSet;
+        offSet += sizeof(uint32_t);
+    }
+    s.assign(p->GetBufferedImage(), p->GetBufferedImage() + p->GetFileSize());
+    delete p;
 }

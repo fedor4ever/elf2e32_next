@@ -52,27 +52,6 @@ E32File::~E32File()
     delete iRelocs;
 }
 
-void UpdateImportTable(const E32SectionUnit& s, const std::vector<int32_t>& iImportTabLocations, bool iSNamedlookup)
-{
-    if(!iSNamedlookup)
-        return;
-    E32Parser* p = E32Parser::NewL(s);
-    const E32ImageHeader* h = p->GetE32Hdr();
-    const E32EpocExpSymInfoHdr* sInf = p->GetEpocExpSymInfoHdr();
-    size_t offSet = p->ExpSymInfoTableOffset();
-    offSet += sInf->iDepDllZeroOrdTableOffset; // This points to the ordinal zero offset table now
-    offSet -= h->iCodeOffset; // Starts from code section
-
-    uint32_t* aImportTab = (uint32_t*)p->GetImportSection();
-    for(auto x: iImportTabLocations)
-    {
-        aImportTab[x] = offSet;
-        offSet += sizeof(uint32_t);
-    }
-    s.assign(p->GetBufferedImage(), p->GetBufferedImage() + p->GetFileSize());
-    delete p;
-}
-
 void E32File::SetFixedAddress(E32ImageHeader* hdr)
 {
     if(iE32Opts->iFixedaddress)

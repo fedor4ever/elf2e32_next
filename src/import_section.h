@@ -70,4 +70,6 @@ class ImportsSection
         bool iNamedLookUp = false;
 };
 
+void UpdateImportTable(const E32SectionUnit& s, const std::vector<int32_t>& iImportTabLocations, bool iSNamedlookup);
+
 #endif // IMPORTPROCESSOR_H

@@ -52,8 +52,10 @@ E32File::~E32File()
     delete iRelocs;
 }
 
-void UpdateImportTable(const E32SectionUnit& s, const std::vector<int32_t>& iImportTabLocations)
+void UpdateImportTable(const E32SectionUnit& s, const std::vector<int32_t>& iImportTabLocations, bool iSNamedlookup)
 {
+    if(!iSNamedlookup)
+        return;
     E32Parser* p = E32Parser::NewL(s);
     const E32ImageHeader* h = p->GetE32Hdr();
     const E32EpocExpSymInfoHdr* sInf = p->GetEpocExpSymInfoHdr();
@@ -168,7 +170,7 @@ void E32File::WriteE32File()
         hdr = (E32ImageHeader*)&iHeader[0];
         hdrv = (E32ImageHeaderV*)&iHeader[offset];
     }
-    UpdateImportTable(iHeader, iImportTabLocations);
+    UpdateImportTable(iHeader, iImportTabLocations, iE32Opts->iNamedlookup);
     E32ImageHeaderJ* j = (E32ImageHeaderJ*)&iHeader[sizeof(E32ImageHeader)];
     j->iUncompressedSize = iHeader.size() - hdr->iCodeOffset;
 

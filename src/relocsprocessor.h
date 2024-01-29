@@ -106,17 +106,19 @@ class RelocsProcessor
         void ProcessSymbolInfo();
         void ProcessVeneers();
         void AddToImports(uint32_t index, Elf32_Rela rela);
+        template <class T>
+        void ProcessRelocations(const T* elfRel, const RelocBlock& r);
+        void SortReloc(const LocalReloc& r);
+        void SortRelocs();
+        void ApplyLocalReloc(const LocalReloc& rel);
+
+    private:
         void AddToLocalRelocations(uint32_t index,
                 uint8_t relType, Elf32_Rela rela, const char* srcname);
         void AddToLocalRelocations(uint32_t aAddr, uint32_t index,
                 uint8_t relType, Elf32_Sym* aSym,
                 const char* srcname, bool aDelSym = false,
                 bool veneerSymbol = false);
-        template <class T>
-        void ProcessRelocations(const T* elfRel, const RelocBlock& r);
-        void SortReloc(const LocalReloc& r);
-        void SortRelocs();
-        void ApplyLocalReloc(const LocalReloc& rel);
 
     private:
         const ElfParser* iElf = nullptr;

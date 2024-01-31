@@ -130,15 +130,12 @@ void RelocsProcessor::RelocsFromSymbols()
     uint32_t i = 1;
     for(auto x: iRelocSrc)
     {
-        iExportTableAddress = (uintptr_t)aPlace;
 #if EXPLORE_RELOCS_PROCESSING
-        relnfo << std::hex << std::setw(12) << iExportTableAddress << " |" << std::setw(13) <<
+        relnfo << std::hex << std::setw(12) << (uintptr_t)aPlace << " |" << std::setw(13) <<
                 x->AliasName() << " |" << iElf->GetSymbolNameFromStringTable(i) << "\n";
 #endif // EXPLORE_RELOCS_PROCESSING
-        AddToLocalRelocations(iExportTableAddress, i, R_ARM_ABS32,
+        AddToLocalRelocations((uintptr_t)aPlace++, i++, R_ARM_ABS32,
                               x->GetElf32_Sym(), "symbols", x->Absent());
-        aPlace++;
-        i++;
     }
     if(iSymLook)
         iExportTableAddress = (uintptr_t)aPlace; // point to E32EpocExpSymInfoHdr

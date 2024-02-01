@@ -125,8 +125,11 @@ void RelocsProcessor::RelocsFromSymbols()
     relnfo << std::hex << "ElfRel entry | function name | elf function name \n";
 #endif // EXPLORE_RELOCS_PROCESSING
     Elf32_Addr* aPlace = iElf->ExportTable();
+
+	// Create a relocation entry for the 0th ordinal in ELF export table.
     if(iSymLook)
-        aPlace--;
+        AddToLocalRelocations((uintptr_t)(aPlace - 1), 0, R_ARM_ABS32,
+                              nullptr, "sym lookup");
     uint32_t i = 1;
     for(auto x: iRelocSrc)
     {
@@ -138,7 +141,7 @@ void RelocsProcessor::RelocsFromSymbols()
                               x->GetElf32_Sym(), "symbols", x->Absent());
     }
     if(iSymLook)
-        iExportTableAddress = (uintptr_t)aPlace; // point to E32EpocExpSymInfoHdr
+        iExportTableAddress = (uintptr_t)--aPlace; // points to before E32EpocExpSymInfoHdr
 #if EXPLORE_RELOCS_PROCESSING
     SaveFile("tests/tmp/relocswithsymbolst.txt", relnfo.str());
 #endif // EXPLORE_RELOCS_PROCESSING
@@ -149,11 +152,9 @@ void RelocsProcessor::ProcessSymbolInfo()
     if(!iSymLook)
         return;
 
-    Elf32_Addr elfAddr = iExportTableAddress; // already point to E32EpocExpSymInfoHdr
-    // Create a relocation entry for the start E32EpocExpSymInfoHdr.
-    AddToLocalRelocations(elfAddr, 0, R_ARM_ABS32, nullptr, "sym lookup");
+    Elf32_Addr elfAddr = iExportTableAddress; // point to before E32EpocExpSymInfoHdr
+    elfAddr += sizeof(uint32_t);// points to E32EpocExpSymInfoHdr
 	elfAddr += sizeof(E32EpocExpSymInfoHdr);// now points after the syminfo header.
-    elfAddr += sizeof(uint32_t);// TODO: why this needed?
 
     for(auto x: iRelocSrc)
     {

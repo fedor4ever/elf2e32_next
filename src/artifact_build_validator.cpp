@@ -351,11 +351,6 @@ void ValidateOptions(Args* arg)
         return;
     }
 
-    if(!hasDefinput && arg->iNamedlookup)
-        ReportLog("Note: if option \"--namedlookup\" supplied and \"--definput\" omitted E32"
-                "image generated that tool differs from SDK tool output for code relocs"
-                "section. Correctness unknown.\n");
-
     if(targetType == TargetType::EInvalidTargetType || targetType == TargetType::ETargetTypeNotSet)
     {
         if(hasDefinput)

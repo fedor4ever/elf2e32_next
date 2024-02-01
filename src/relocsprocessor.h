@@ -25,6 +25,14 @@
 // Note: if option "--namedlookup" supplied and "--definput" omitted E32
 // image generated that tool differs from SDK tool output for code relocs
 // section. Correctness unknown.
+//
+// Size of relocation section depends on relocs itself. See at RelocationsSize();
+//
+// Code relocs builded from 3 sources:
+// 1. The dynamic segment relocations
+// 2. Exported symbols
+// 3. Symbol lookup table (optional)
+//
 
 #ifndef RELOCSPROCESSOR_H
 #define RELOCSPROCESSOR_H

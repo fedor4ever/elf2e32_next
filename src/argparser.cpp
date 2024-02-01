@@ -365,6 +365,19 @@ bool ArgParser::Parse(Args* arg) const
             case OptionsType::EMESSAGEFILE: // fallthru
             case OptionsType::EDUMPMESSAGEFILE: // fallthru
                 break;
+        //ignored options
+            case OptionsType::EASM:
+                ReportLog("Unsupported option for BELLE SDK --" + op.name + "/n");
+                op.binary_arg1 = true;
+                break;
+            case OptionsType::EE32TRAN:
+                ReportLog("Unsupported option for BELLE SDK --" + op.name + "=" + op.arg + "/n");
+                op.binary_arg1 = true;
+                break;
+            case OptionsType::EEXPORTAUTOUPDATE:
+                ReportLog("Unsupported option for BELLE SDK --" + op.name + "/n");
+                op.binary_arg1 = true;
+                break;
             default:
                 Help();
                 return false;
@@ -442,6 +455,10 @@ const string ScreenOptions =
 "        --namedlookup: Enable named lookup of symbols\n"
 "        --debuggable: Debuggable by run-mode debug subsystem\n"
 "        --smpsafe: SMP Safe\n"
+"\n"
+"        --asm=Dialect of arm assembly to write for the --dump option. Either \"gas\" (GNU as) or \"armas\" (RVCT as: default) - Unsupported\n"
+"        --e32tran=Translate E32 image --e32input=<inputfile> --output=<outputfile> - Unsupported\n"
+"        --exportautoupdate=Auto update output def file according to the input elf file - Unsupported\n"
 "        --header: Generate C++ header file for dynamic linking.\n"
 "        --man: Describe advanced usage new features.\n"
 "        --verbose: Display the operations inside elf2e32.\n"

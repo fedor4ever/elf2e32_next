@@ -86,6 +86,10 @@ static struct option long_opts[] =
     {"time",            required_argument,  Flags::NONE, OptionsType::TIME},
     {"verbose",         optional_argument,  Flags::NONE, OptionsType::VERBOSE},
     {"force",                 no_argument,  Flags::NONE, OptionsType::FORCEE32BUILD},
+    // Nokia_Symbian_Belle_SDK_v1.0 ignored options
+    {"asm",             no_argument,        Flags::NONE, OptionsType::EASM},
+    {"e32tran",         required_argument,  Flags::NONE, OptionsType::EE32TRAN},
+    {"exportautoupdate", no_argument,       Flags::NONE, OptionsType::EEXPORTAUTOUPDATE},
     // ignored options
     {"messagefile",     required_argument,  Flags::CASE_SENSITIVE, OptionsType::EMESSAGEFILE},
     {"dumpmessagefile", required_argument,  Flags::CASE_SENSITIVE, OptionsType::EDUMPMESSAGEFILE},

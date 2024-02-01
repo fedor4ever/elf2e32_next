@@ -87,6 +87,10 @@ struct OptionsType
         // ignored
         EMESSAGEFILE,
         EDUMPMESSAGEFILE,
+        // Nokia_Symbian_Belle_SDK_v1.0
+        EASM,
+        EE32TRAN,
+        EEXPORTAUTOUPDATE,
         // error codes
         EMISSEDARG,
         ENOTRECOGNIZEDARG

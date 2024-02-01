@@ -17,6 +17,7 @@
 
 #ifndef CRCPROCESSOR_H
 #define CRCPROCESSOR_H
+
 #include <string>
 
 struct Args;

@@ -15,8 +15,8 @@
 //
 //
 
-#include <cstring>
 #include <cstdlib>
+#include <cstring>
 
 #include "common.hpp"
 #include "e32common.h"

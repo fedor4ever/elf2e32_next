@@ -20,7 +20,6 @@
 #define DSOCRCProcessor_H
 
 #include <string>
-
 #include "crcprocessor.h"
 
 struct Args;

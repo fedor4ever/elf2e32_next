@@ -17,6 +17,7 @@
 
 #ifndef E32COMPRESSOR_H_INCLUDED
 #define E32COMPRESSOR_H_INCLUDED
+
 #include <vector>
 
 //! set input buffer as nullptr to decompress next block

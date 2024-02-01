@@ -23,6 +23,7 @@
 
 #include <cstdint>
 #include <string.h>
+
 #ifdef NDEBUG
 #undef NDEBUG
 #endif //NDEBUG

@@ -15,8 +15,8 @@
 //
 //
 
-#include <inttypes.h>
 #include <stdio.h>
+#include <inttypes.h>
 
 #include "e32common.h"
 #include "e32importsprocessor.hpp"

@@ -21,8 +21,8 @@
 #define E32COMMON_H_INCLUDED
 
 #include <string>
-#include <cstdint>
 #include <cstddef>
+#include <cstdint>
 
 #include "elf2e32_version.hpp"
 

@@ -19,8 +19,8 @@
 //
 
 #include <memory.h>
-#include "common.hpp"
 #include "inflate.h"
+#include "common.hpp"
 
 /*
 Inline constructor for CInflater

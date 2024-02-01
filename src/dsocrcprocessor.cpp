@@ -16,14 +16,14 @@
 //
 //
 
-#include "DSOCRCProcessor.h"
-#include "common.hpp"
-#include "elfparser.h"
-#include "elf2e32_opt.hpp"
-
 #include <string>
 #include <fstream>
 #include <sstream>
+
+#include "common.hpp"
+#include "elfparser.h"
+#include "elf2e32_opt.hpp"
+#include "DSOCRCProcessor.h"
 
 using std::string;
 using std::fstream;

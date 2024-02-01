@@ -18,8 +18,8 @@
 #ifndef E32IMPORTPROCESSOR_H_INCLUDED
 #define E32IMPORTPROCESSOR_H_INCLUDED
 
-#include <cstdint>
 #include <cstddef>
+#include <cstdint>
 
 /**
 A block of relocations for a single page (4kB) of code/data.

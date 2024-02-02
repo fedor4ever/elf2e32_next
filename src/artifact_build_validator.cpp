@@ -306,10 +306,10 @@ void ValidateDeducedLinkas(Args* arg)
     ResetInvalidLINKAS(&tmp);
     DeduceLINKAS(&tmp);
     if(arg->iLinkas != tmp.iLinkas)
-        ReportError(ErrorCodes::ZEROBUFFER, "Deduce linkas failed!"
+        ReportError(ErrorCodes::ZEROBUFFER, "Deduced linkas invalid!"
                     "Expected: " + arg->iLinkas + " Got: " + tmp.iLinkas + "\n");
     else
-        ReportLog("Deduce linkas success!\n");
+        ReportLog("Deduced linkas valid!\n");
 #endif // SET_COMPILETIME_LOAD_EXISTED_FILECRC
 }
 

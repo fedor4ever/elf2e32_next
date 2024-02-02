@@ -292,6 +292,8 @@ void ValidateDeducedLinkas(Args* arg)
 #if SET_COMPILETIME_LOAD_EXISTED_FILECRC
     if(arg->iLinkas.empty())
         return;
+    if(IsRunnable(arg->iTargettype))
+        return;
     Args tmp;
     tmp.iUid3 = arg->iUid3;
     tmp.iVersion = arg->iVersion;

@@ -306,10 +306,12 @@ void ValidateDeducedLinkas(Args* arg)
     ResetInvalidLINKAS(&tmp);
     DeduceLINKAS(&tmp);
     if(arg->iLinkas != tmp.iLinkas)
-        ReportWarning(ErrorCodes::ZEROBUFFER, "Deduced linkas invalid!"
-                    "Expected: " + arg->iLinkas + " Got: " + tmp.iLinkas + "\n");
+        ReportWarning(ErrorCodes::ZEROBUFFER, "Deduced linkas invalid!\n"
+                    "Expected: " + arg->iLinkas + "\nGot: " + tmp.iLinkas + "\n"
+                    "Valid format: <filename>{<version>}{<UID3>}.<ext>\n");
     else
         ReportLog("Deduced linkas valid!\n");
+    ReportLog("\n");
 #endif // SET_COMPILETIME_LOAD_EXISTED_FILECRC
 }
 

@@ -12,9 +12,9 @@ elf2e32+=r" --debuggable --smpsafe --verbose=-1"
 
 # libcrypto
 caps=" --capability=All-TCB"
-defin=r""" --definput="libcryptou.def" """
+defin=r""" --definput="libcryptou.def" --filecrc=libcrypto-2.4.5.SDK.crc """
 defout=r""" --defoutput="tmp\out.(%02d).def" """
-elfin=r""" --elfinput="libcrypto.dll" --filecrc=libcrypto-2.4.5.SDK.crc """
+elfin=r""" --elfinput="libcrypto.dll" """
 e32bin=r""" --output="tmp\libcrypto-2.4.5.(%02d).dll" """
 linkas=r""" --linkas="libcrypto{000a0000}.dll" """
 dsoout=r""" --dso="tmp\libcrypto{000a0000}.(%02d).dso" """

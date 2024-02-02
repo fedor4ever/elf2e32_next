@@ -156,18 +156,18 @@ void DSOFile::WriteDSOFile(const Args* arg, const Symbols& s,
 
 void DSOFile::CreateSectionHeaders()
 {
-    iElfHeader        = CreateElfHeader();
+    iElfHeader       = CreateElfHeader();
     iSections        = new Elf32_Shdr[MAX_SECTIONS+1]();
 
-    iElfDynSym        = new Elf32_Sym[iNSymbols]();
+    iElfDynSym       = new Elf32_Sym[iNSymbols]();
 //in origin:
-//    iVersionTbl        = new Elf32_Versym[iNSymbols];
+//    iVersionTbl      = new Elf32_Versym[iNSymbols];
 // so  iVersionTbl[0] contain garbage. Hard to verify with CRC32 DSO file =(
-    iVersionTbl        = new Elf32_Versym[iNSymbols]();
-    iVersionDef        = new Elf32_Verdef[2]();
-    iDSODaux        = new Elf32_Verdaux[2]();
+    iVersionTbl      = new Elf32_Versym[iNSymbols]();
+    iVersionDef      = new Elf32_Verdef[2]();
+    iDSODaux         = new Elf32_Verdaux[2]();
 
-    iProgHeader         = new Elf32_Phdr[2]();
+    iProgHeader      = new Elf32_Phdr[2]();
     iCodeSectionData = new uint32_t[iNSymbols]();
 }
 
@@ -189,13 +189,13 @@ void DSOFile::InitVersionTable(const Args* opts)
 {
     string tmp = DSOName(opts->iLinkas);
     //Fill verdef table...
-    iVersionDef[0].vd_ndx = 1;
-    iVersionDef[0].vd_cnt = 1;
-    iVersionDef[0].vd_flags = 1;
-    iVersionDef[0].vd_hash = elf_hash((const uint8_t*)tmp.c_str());
+    iVersionDef[0].vd_ndx     = 1;
+    iVersionDef[0].vd_cnt     = 1;
+    iVersionDef[0].vd_flags   = 1;
+    iVersionDef[0].vd_hash    = elf_hash((const uint8_t*)tmp.c_str());
     iVersionDef[0].vd_version = 1;
 
-    iVersionDef[0].vd_aux = sizeof(Elf32_Verdef);
+    iVersionDef[0].vd_aux  = sizeof(Elf32_Verdef);
     iVersionDef[0].vd_next = sizeof(Elf32_Verdef) + sizeof(Elf32_Verdaux);
 
     iDSODaux[0].vda_name = iDSOSymNameStrTbl.size();
@@ -205,13 +205,13 @@ void DSOFile::InitVersionTable(const Args* opts)
     iDSOSymNameStrTbl.push_back(0);
 
     tmp = opts->iLinkas;
-    iVersionDef[1].vd_ndx = DEFAULT_VERSION;
-    iVersionDef[1].vd_cnt = 1;
-    iVersionDef[1].vd_flags = 0;
-    iVersionDef[1].vd_hash = elf_hash((const uint8_t*)tmp.c_str());
+    iVersionDef[1].vd_ndx     = DEFAULT_VERSION;
+    iVersionDef[1].vd_cnt     = 1;
+    iVersionDef[1].vd_flags   = 0;
+    iVersionDef[1].vd_hash    = elf_hash((const uint8_t*)tmp.c_str());
     iVersionDef[1].vd_version = 1;
 
-    iVersionDef[1].vd_aux = sizeof(Elf32_Verdef);
+    iVersionDef[1].vd_aux  = sizeof(Elf32_Verdef);
     iVersionDef[1].vd_next = 0;
 
     iDSODaux[1].vda_name = iDSOSymNameStrTbl.size();
@@ -226,7 +226,7 @@ void SetElfSymbols(Symbol *src, Elf32_Sym* dst, uint32_t aCodeIndex)
     dst->st_other = STV_DEFAULT;
 
     dst->st_info = (uint8_t) (ELF32_ST_INFO(STB_GLOBAL, src->CodeDataType()));
-    dst->st_value    = (aCodeIndex - 1)*sizeof(Elf32_Word);
+    dst->st_value = (aCodeIndex - 1)*sizeof(Elf32_Word);
 
     if(src->CodeDataType() == SymbolTypeCode){
         dst->st_size = sizeof(Elf32_Word);
@@ -356,18 +356,18 @@ void DSOFile::SetSectionFields(uint32_t aSectionIndex, const char* aSectionName,
        uint32_t aType, uint32_t aEntSz, uint32_t aSectionSize, uint32_t aLink,
        uint32_t aInfo, uint32_t aAddrAlign, uint32_t aFlags, uint32_t aAddr)
 {
-    iSections[aSectionIndex].sh_name            = iDSOSectionNames.size();
+    iSections[aSectionIndex].sh_name      = iDSOSectionNames.size();
     iDSOSectionNames += aSectionName;
     iDSOSectionNames.push_back(0);
 
-    iSections[aSectionIndex].sh_type            = aType;
-    iSections[aSectionIndex].sh_entsize        = aEntSz;
-    iSections[aSectionIndex].sh_size            = aSectionSize;
-    iSections[aSectionIndex].sh_link            = aLink;
-    iSections[aSectionIndex].sh_info            = aInfo;
-    iSections[aSectionIndex].sh_addralign    = aAddrAlign;
-    iSections[aSectionIndex].sh_flags        = aFlags;
-    iSections[aSectionIndex].sh_addr            = aAddr;
+    iSections[aSectionIndex].sh_type      = aType;
+    iSections[aSectionIndex].sh_entsize   = aEntSz;
+    iSections[aSectionIndex].sh_size      = aSectionSize;
+    iSections[aSectionIndex].sh_link      = aLink;
+    iSections[aSectionIndex].sh_info      = aInfo;
+    iSections[aSectionIndex].sh_addralign = aAddrAlign;
+    iSections[aSectionIndex].sh_flags     = aFlags;
+    iSections[aSectionIndex].sh_addr      = aAddr;
 }
 
 void DSOFile::InitDynamicEntries()
@@ -432,42 +432,42 @@ Elf32_Ehdr* CreateElfHeader()
     for (uint32_t i=0; i <EI_NIDENT;i++)
         h->e_ident[i] = c[i];
 
-    h->e_type        = ET_DYN;
-    h->e_machine    = EM_ARM;
-    h->e_version    = EV_CURRENT;
-    h->e_entry        = 0;
-    h->e_shoff        = sizeof(Elf32_Ehdr);
-    h->e_flags        = EF_ARM_BPABI_VERSION | EF_ARM_SYMSARESORTED;
+    h->e_type      = ET_DYN;
+    h->e_machine   = EM_ARM;
+    h->e_version   = EV_CURRENT;
+    h->e_entry     = 0;
+    h->e_shoff     = sizeof(Elf32_Ehdr);
+    h->e_flags     = EF_ARM_BPABI_VERSION | EF_ARM_SYMSARESORTED;
     h->e_ehsize    = sizeof(Elf32_Ehdr);
     h->e_phentsize = sizeof(Elf32_Phdr);
     h->e_shentsize = sizeof(Elf32_Shdr);
-    h->e_shnum        = MAX_SECTIONS + 1;
-    h->e_shstrndx    = SH_STR_SECTION;
-    h->e_phnum        = 2;
+    h->e_shnum     = MAX_SECTIONS + 1;
+    h->e_shstrndx  = SH_STR_SECTION;
+    h->e_phnum     = 2;
     return h;
 }
 
 void DSOFile::InitProgHeader()
 {
     //Update the program header offset..
-    iElfHeader->e_phoff        = iCurrentSectionOffset;
+    iElfHeader->e_phoff     = iCurrentSectionOffset;
 
-    iProgHeader[0].p_align    = 4;
+    iProgHeader[0].p_align  = 4;
     iProgHeader[0].p_offset = iSections[CODE_SECTION].sh_offset;
-    iProgHeader[0].p_type    = PT_LOAD;
-    iProgHeader[0].p_flags    = (PF_X | PF_ARM_ENTRY);
+    iProgHeader[0].p_type   = PT_LOAD;
+    iProgHeader[0].p_flags  = (PF_X | PF_ARM_ENTRY);
     iProgHeader[0].p_filesz = iSections[CODE_SECTION].sh_size;
-    iProgHeader[0].p_paddr    = 0;
-    iProgHeader[0].p_vaddr    = 0;
+    iProgHeader[0].p_paddr  = 0;
+    iProgHeader[0].p_vaddr  = 0;
     iProgHeader[0].p_memsz  = iSections[CODE_SECTION].sh_size;
 
-    iProgHeader[1].p_align    = 4;
+    iProgHeader[1].p_align  = 4;
     iProgHeader[1].p_offset = iSections[DYNAMIC_SECTION].sh_offset;
-    iProgHeader[1].p_type    = PT_DYNAMIC;
-    iProgHeader[1].p_flags    = (PF_R );
+    iProgHeader[1].p_type   = PT_DYNAMIC;
+    iProgHeader[1].p_flags  = (PF_R );
     iProgHeader[1].p_filesz = iSections[DYNAMIC_SECTION].sh_size;
-    iProgHeader[1].p_paddr    = 0;
-    iProgHeader[1].p_vaddr    = 0;
+    iProgHeader[1].p_paddr  = 0;
+    iProgHeader[1].p_vaddr  = 0;
     iProgHeader[1].p_memsz  = 0;
 }
 

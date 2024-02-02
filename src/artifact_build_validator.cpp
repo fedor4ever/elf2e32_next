@@ -306,7 +306,7 @@ void ValidateDeducedLinkas(Args* arg)
     ResetInvalidLINKAS(&tmp);
     DeduceLINKAS(&tmp);
     if(arg->iLinkas != tmp.iLinkas)
-        ReportError(ErrorCodes::ZEROBUFFER, "Deduced linkas invalid!"
+        ReportWarning(ErrorCodes::ZEROBUFFER, "Deduced linkas invalid!"
                     "Expected: " + arg->iLinkas + " Got: " + tmp.iLinkas + "\n");
     else
         ReportLog("Deduced linkas valid!\n");

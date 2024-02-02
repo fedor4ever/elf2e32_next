@@ -19,7 +19,7 @@ uid1=r" --uid1=0x10000079"
 uid2=r" --uid2=0x20004c45"
 uid3=r" --uid3=0x00000000"
 tgttype=r" --targettype=STDEXE"
-tail=r" --dlldata --ignorenoncallable --debuggable --smpsafe --uncompressed"
+tail=r" --dlldata --ignorenoncallable --debuggable --uncompressed"
 
 longtail=e32bin+implibs+linkas+fpu+uid1+uid2+uid3+tgttype+tail
 

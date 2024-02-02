@@ -29,8 +29,8 @@ elf2e32+append+""" --capability=ProtServ --defoutput=tmp\AlternateReaderRecog{00
 "creation ECOM plugin failed!",
 ),
 ("Test #%d: simple exe creation.\n",
-elf2e32+caps+elfin+longtail,
-elf2e32+caps+elfin+longtail,
+elf2e32+caps+elfin+longtail+" --debuggable",
+elf2e32+caps+elfin+longtail+" --debuggable",
 ) )
 
 

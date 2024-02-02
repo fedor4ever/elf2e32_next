@@ -8,6 +8,7 @@ implibs=r""" --libpath="SDK_libs" """
 counter=0
 failed_tests = 0
 
+elf2e=elf2e32+r" --debuggable --verbose=-1"
 elf2e32+=r" --debuggable --smpsafe --verbose=-1"
 
 # libcrypto
@@ -45,7 +46,7 @@ outdated_def_file,
 outdated_def_file,
 ),
 ("Test #%d: Full options list",
-elf2e32+caps+defin+defout+elfin+longtail,
+elf2e+caps+defin+defout+elfin+longtail,
 "Full options list!",
 ),
 ("Test #%d: dso2def conversion",

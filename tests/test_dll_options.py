@@ -27,7 +27,7 @@ tgttype=r" --targettype=STDDLL"
 tail=r" --dlldata --ignorenoncallable --uncompressed"
 
 
-# --capability=All-TCB --definput="tests\libcryptou.def" --defoutput="tests\out.def" --elfinput="tests\libcrypto.dll" --output="tests\libcrypto-2.4.5.tst.dll" --libpath="D:\Symbian\S60_5th_Edition_SDK_v1.0\epoc32\release\armv5\lib" --linkas="libcrypto{000a0000}.dll" --dso="tests\libcrypto{000a0000}.dso" --fpu=softvfp --uid1=0x10000079 --uid2=0x20004c45 --uid3=0x00000000 --targettype=STDDLL --dlldata --ignorenoncallable --debuggable --smpsafe --uncompressed --filecrc=tests\libcrypto-2.4.5.SDK.crc
+# --capability=All-TCB --definput="tests\libcryptou.def" --defoutput="tests\out.def" --elfinput="tests\libcrypto.dll" --output="tests\libcrypto-2.4.5.tst.dll" --libpath="D:\Symbian\S60_5th_Edition_SDK_v1.0\epoc32\release\armv5\lib" --linkas="libcrypto{000a0000}.dll" --dso="tests\tmp\libcrypto{000a0000}.dso" --fpu=softvfp --uid1=0x10000079 --uid2=0x20004c45 --uid3=0x00000000 --targettype=STDDLL --dlldata --ignorenoncallable --debuggable --smpsafe --uncompressed --filecrc=tests\libcrypto-2.4.5.SDK.crc
 
 longtail=e32bin+implibs+linkas+dsoout+fpu+uid1+uid2+uid3+tgttype+tail
 
@@ -140,14 +140,19 @@ def FailureTests(*arg):
       print "\n"
       counter+=1
 
-def run():
+def Run():
    print "Tests running"
    for x in args1:
       SuceededTests(x)
    for y in args:
       FailureTests(y)
-   print "Tests failed: %d" %failed_tests
+
+   if failed_tests > 0:
+      print "Tests failed: %d" %failed_tests
+   else:
+      print "Good Job! All test passed! =D"
+   return failed_tests
 
 if __name__ == "__main__":
     # execute only if run as a script
-   run()
+   Run()

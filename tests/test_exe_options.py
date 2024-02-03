@@ -50,8 +50,16 @@ def SuceededTests(*args):
       print "\n"
       counter+=1
 
-if __name__ == "__main__":
+def Run():
    print "exe tests running"
    for x in args:
       SuceededTests(x)
-   print "Tests failed: %d" %failed_tests
+
+   if failed_tests > 0:
+      print "Tests failed: %d" %failed_tests
+   else:
+      print "Good Job! All test passed! =D"
+   return failed_tests
+
+if __name__ == "__main__":
+   Run()

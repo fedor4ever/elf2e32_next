@@ -35,11 +35,16 @@ def SuceededTests(*args):
    else:
       print "Test succeeded: %s!\n" %str
 
-def run():
+def Run():
    for x in dsodefTests:
       SuceededTests(x)
-   print "Tests failed: %d" %failed_tests
+
+   if failed_tests > 0:
+      print "Tests failed: %d" %failed_tests
+   else:
+      print "Good Job! All test passed! =D"
+   return failed_tests
 
 if __name__ == "__main__":
    # execute only if run as a script
-   run()
+   Run()

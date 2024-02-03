@@ -131,11 +131,15 @@ void RelocsProcessor::RelocsFromSymbols()
         AddToLocalRelocations((uintptr_t)(aPlace - 1), 0, R_ARM_ABS32,
                               nullptr, "sym lookup");
     uint32_t i = 1;
+    bool has_absents = false;
     for(auto x: iRelocSrc)
     {
 #if EXPLORE_RELOCS_PROCESSING
+        if(x->Absent())
+            has_absents = true;
+        string SymbolName = has_absents ? "Absent symbols starts" : iElf->GetSymbolNameFromStringTable(i);
         relnfo << std::hex << std::setw(12) << (uintptr_t)aPlace << " |" << std::setw(13) <<
-                x->AliasName() << " |" << iElf->GetSymbolNameFromStringTable(i) << "\n";
+                x->AliasName() << " |" << SymbolName << "\n";
 #endif // EXPLORE_RELOCS_PROCESSING
         AddToLocalRelocations((uintptr_t)aPlace++, i++, R_ARM_ABS32,
                               x->GetElf32_Sym(), "symbols", x->Absent());
@@ -485,7 +489,8 @@ void RelocsProcessor::AddToLocalRelocations(uint32_t aAddr, uint32_t index,
     loc.iDelSym = aDelSym; // true for absent symbols only
     loc.iVeneerSymbol = veneerSymbol;
     loc.iSegmentType = ESegmentType::ESegmentRO;
-    loc.iIntermediates.iSymbolName = iElf->GetSymbolNameFromStringTable(index);
+// If absent symbols present we out of export table range
+//    loc.iIntermediates.iSymbolName = iElf->GetSymbolNameFromStringTable(index);
     loc.iIntermediates.iType = srcname;
     SortReloc(loc);
 }

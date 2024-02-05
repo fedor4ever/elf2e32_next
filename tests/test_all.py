@@ -4,6 +4,12 @@ import os, subprocess
 import test_common, test_dll_options, test_dso_options, test_exe_options
 
 if __name__ == "__main__":
+   try:
+      os.makedirs("tmp")
+   except OSError as e:
+      if e.errno == errno.EEXIST:
+         pass
+
    failed_tests = 0
    print "all tests running"
    

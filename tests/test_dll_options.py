@@ -79,7 +79,7 @@ def SuceededTests(*args):
       print "\n"
       subprocess.check_call(tmp1)
    except:
-      print "Unexpectable test failure:\n %s" %tmp[2]
+      print "Unexpectable test #%s failure:\n %s" %(counter, tmp[2])
       failed_tests+=1
    finally:
       print "\n"
@@ -135,7 +135,7 @@ def FailureTests(*arg):
       subprocess.check_call(tmp1)
       failed_tests+=1
    except:
-      print "Expectable test failure: %s" %tmp[2]
+      print "Expectable test #%s failure:\n %s" %(counter, tmp[2])
    finally:
       print "\n"
       counter+=1

@@ -58,8 +58,10 @@ If you wish add some new tricks for E32 Image target use new modules:
 
 ## Bad E32Image output
 ### Bad E32Image output
- - if you forget to mark function(s) with EXPORT_C/IMPORT_C original version in worst case it creates something unverified in E32Image format. Symptom - DEF file without exported functions. Without crash! Example: tests/AlternateReaderRecog.dll
+ - if you forget to mark function(s) with EXPORT_C/IMPORT_C original version in worst case it creates something unverified in E32Image format. Symptom - DEF file without exported functions. Without crash! Example: tests/kf__speedups.pyd
 Fix - stop job with error message
+
+> elf2e32 --capability=AllFiles+TCB --defoutput="tmp\kf__speedups.def" --elfinput="kf__speedups.pyd" --output="tmp\kf__speedups.tst.pyd" --libpath="SDK_libs" --linkas="kf__speedups{000a0000}.dll" --fpu=softvfp --uid1=0x10000079 --uid2=0x00000000  --uid3=0x00000000 --dso="tmp\libcrypto{000a0000}.dso" --targettype=DLL
 
 ### Crash instead E32Image output
  - if you forget to mark function(s) with EXPORT_C/IMPORT_C original version in early SDKs stop working from unknown error, later versions crashes at runtime. It's same as EXPORT_C/IMPORT_C case technically.

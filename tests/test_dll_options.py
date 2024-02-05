@@ -37,7 +37,7 @@ areader_cmd = elf2e32+implibs+fpu+""" --capability=ProtServ --defoutput=tmp\Alte
 outdated_def_file = elf2e32+caps+defout+elfin+longtail+r" --unfrozen"+r""" --definput="libcryptou_openssl.def" """
 dso2def = elf2e32+""" --elfinput="libcrypto{000a0000}.dso" """+defout
 def2def = elf2e32+defin+ """ --defoutput="tmp\def2def.def" """
-elf2baree32 = elf2e32+elfin+""" --output="tmp\elf2baree32.dll" """+implibs+tgttype+linkas+tail
+elf2baree32 = elf2e32+elfin+""" --output="tmp\elf2baree32.dll" --filecrc=tmp\elf2baree32.dcrc """+implibs+tgttype+linkas+tail
 
 args1=(
 

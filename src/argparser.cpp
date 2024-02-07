@@ -329,11 +329,11 @@ bool ArgParser::Parse(Args* arg) const
             case OptionsType::FILECRC:
                 if(op.arg.empty())
                 {
-                    arg->iFileCrc = DefaultOptionalArg;
-                    op.arg = arg->iFileCrc;
+                    arg->iFileCrc = DefaultCrcFiles();
+                    op.arg = DefaultOptionalArg;
                 }
                 else
-                    arg->iFileCrc = op.arg;
+                    arg->iFileCrc = CrcFiles(op.arg);
                 break;
             case OptionsType::VERBOSE:
                 if(!op.arg.empty())

@@ -28,7 +28,7 @@ void PrintIfNEQ(uint32_t in, uint32_t out, const std::string& msg);
 class CRCProcessor
 {
     public:
-        CRCProcessor(const Args* arg);
+        CRCProcessor(const Args* arg, std::string fileext);
         virtual ~CRCProcessor();
         virtual void Run();
     private:
@@ -39,15 +39,17 @@ class CRCProcessor
         virtual bool PrintInvalidTargetCRC() = 0;
         virtual void ProcessTokens(const std::string& type, uint32_t crc) = 0;
     private:
-        void DeduceCRCFiles();
+        bool DeduceCRCFiles();
         void ParseFile();
         void CRCToFile();
         void PrintInvalidCRCs();
+        std::string Arg2CRCFile();
         void Tokenize(const std::string& line);
     protected:
         void ReadOrCreateCRCFile(const std::string& file);
     protected:
         const Args* iArgs = nullptr;
+        std::string iFileExt;
         std::string iFileIn;
         std::string iFileOut;
 };

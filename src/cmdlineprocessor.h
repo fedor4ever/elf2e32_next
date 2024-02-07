@@ -19,6 +19,7 @@
 #define CMDLINEPROCESSOR_H_INCLUDED
 
 #include <string>
+#include <vector>
 
 enum Paging
 {
@@ -83,5 +84,7 @@ uint32_t SetToolVersion(const std::string& str);
 TargetType GetTarget(const std::string& fromArgument);
 void VarningForDeprecatedUID(uint32_t UID2);
 uint16_t ProcessPriority(const std::string& str);
+std::vector<std::string> CrcFiles(std::string &opt);
+std::vector<std::string> DefaultCrcFiles();
 
 #endif // CMDLINEPROCESSOR_H_INCLUDED

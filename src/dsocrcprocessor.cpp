@@ -40,9 +40,6 @@ void CheckDSOCrc(const Args* args)
     if(!IsFileExist(args->iDso))
         return;
 
-    if(args->iFileCrc.find(".crc") != std::string::npos)
-        return;
-
     DSOCRCProcessor crc(args);
     crc.Run();
 }
@@ -54,7 +51,7 @@ void DSOCRCProcessor::SetCRCFiles()
     ReadOrCreateCRCFile(iArgs->iDso);
 }
 
-DSOCRCProcessor::DSOCRCProcessor(const Args* args): CRCProcessor(args) {}
+DSOCRCProcessor::DSOCRCProcessor(const Args* args): CRCProcessor(args, ".dcrc") {}
 
 DSOCRCProcessor::~DSOCRCProcessor() {}
 

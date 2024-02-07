@@ -466,3 +466,24 @@ void ValidateOptions(Args* arg)
         break;
     }
 }
+
+//< List crc files separated by ";". Example foo.crc;foo.dcrc
+std::vector<std::string> CrcFiles(std::string &opt)
+{
+    std::vector<std::string> elements;
+    std::stringstream stream(opt);
+    std::string element;
+
+    while(getline(stream, element, ';')){
+        elements.push_back(element);
+    }
+
+    if(elements.empty())
+        ReportError(ErrorCodes::ZEROBUFFER, "Bad value for --crcfile=" + opt + "\n");
+    return elements;
+}
+
+std::vector<std::string> DefaultCrcFiles()
+{
+    return {DefaultOptionalArg, DefaultOptionalArg};
+}

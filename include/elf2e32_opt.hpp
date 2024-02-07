@@ -18,6 +18,7 @@
 #define ELF2E32_OPT_HPP_INCLUDED
 
 #include <string>
+#include <vector>
 #include "e32common.h"
 #include "cmdlineprocessor.h"
 
@@ -140,7 +141,7 @@ struct Args
     uint32_t iVersion = 0x000a0000u; // ex: elf2e32.exe --version
     std::string iHeader;
     uint32_t iTime[2] = {0};
-    std::string iFileCrc;
+    std::vector<std::string> iFileCrc;
     bool iForceE32Build = false;
 };
 

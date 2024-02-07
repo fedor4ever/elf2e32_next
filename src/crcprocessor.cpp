@@ -19,6 +19,7 @@
 #include <string>
 #include <fstream>
 #include <sstream>
+#include <algorithm>
 
 #include "common.hpp"
 #include "crcprocessor.h"
@@ -29,24 +30,27 @@ using std::fstream;
 using std::stringstream;
 
 
-CRCProcessor::CRCProcessor(const Args* arg): iArgs(arg) {}
+CRCProcessor::CRCProcessor(const Args* arg, string fileext): iArgs(arg), iFileExt(fileext) {}
 
 CRCProcessor::~CRCProcessor() {}
 
 void CRCProcessor::Run()
 {
-    DeduceCRCFiles();
+    if(!DeduceCRCFiles())
+        return;
     ParseFile();
     CRCFromFile();
     CRCToFile();
     PrintInvalidCRCs();
 }
 
-void CRCProcessor::DeduceCRCFiles()
+bool CRCProcessor::DeduceCRCFiles()
 {
-    iFileIn = iArgs->iFileCrc;
+    iFileIn = Arg2CRCFile();
+    if(iFileIn.empty())
+        return false;
     if(iFileIn != DefaultOptionalArg)
-        return;
+        return true;
     SetCRCFiles();
 #ifdef SET_COMPILETIME_LOAD_EXISTED_FILECRC
     if(IsFileExist(iFileOut))
@@ -55,6 +59,7 @@ void CRCProcessor::DeduceCRCFiles()
         iFileOut.clear();
     }
 #endif // SET_COMPILETIME_LOAD_EXISTED_FILECRC
+    return true;
 }
 
 void CRCProcessor::ParseFile()
@@ -62,7 +67,6 @@ void CRCProcessor::ParseFile()
     if(!IsFileExist(iFileIn))
         return;
 
-    ReportLog("Reading checksums from file: " + iFileIn + "\n\n");
     fstream file(iFileIn, fstream::in);
 
     string s;
@@ -101,6 +105,21 @@ void CRCProcessor::PrintInvalidCRCs()
         ReportLog("\n");
     else
         ReportError(ErrorCodes::ZEROBUFFER, "CRC32 validation failed!\n");
+}
+
+std::string CRCProcessor::Arg2CRCFile()
+{
+    bool otherCrc = false;
+    for(auto x: iArgs->iFileCrc)
+    {
+        if(std::equal(iFileExt.rbegin(), iFileExt.rend(), x.rbegin()))
+            return x;
+        if(!x.empty() && (x.compare(DefaultOptionalArg) != 0))
+            otherCrc = true;
+    }
+    if(otherCrc)
+        return std::string();
+    return DefaultOptionalArg;
 }
 
 void CRCProcessor::Tokenize(const string& line)

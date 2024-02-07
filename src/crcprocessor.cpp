@@ -67,6 +67,8 @@ void CRCProcessor::ParseFile()
     if(!IsFileExist(iFileIn))
         return;
 
+
+    ReportLog("Reading checksums from file: " + iFileIn + "\n\n");
     fstream file(iFileIn, fstream::in);
 
     string s;

@@ -1,5 +1,5 @@
 # encoding=utf-8
-import os, subprocess
+import os, subprocess, errno
 
 import test_common, test_dll_options, test_dso_options, test_exe_options
 

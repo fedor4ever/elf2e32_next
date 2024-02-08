@@ -25,6 +25,5 @@ DSOCrcFile::DSOCrcFile(const Args* args): iArgs(args) {}
 
 void DSOCrcFile::Run()
 {
-    ReportLog("DSOCrcFile::Run()\n");
     CheckDSOCrc(iArgs);
 }

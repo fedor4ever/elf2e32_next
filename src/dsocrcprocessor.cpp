@@ -23,7 +23,7 @@
 #include "common.hpp"
 #include "elfparser.h"
 #include "elf2e32_opt.hpp"
-#include "DSOCRCProcessor.h"
+#include "dsocrcprocessor.h"
 
 using std::string;
 using std::fstream;

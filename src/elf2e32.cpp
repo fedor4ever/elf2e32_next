@@ -16,11 +16,13 @@
 //
 
 #include <iostream>
+
 #include "logger.h"
 #include "elf2e32.h"
 #include "e32info.h"
 #include "e32common.h"
 #include "argparser.h"
+#include "dsocrcfile.h"
 #include "e32rebuilder.h"
 #include "elf2e32_opt.hpp"
 #include "artifactbuilder.h"
@@ -30,7 +32,7 @@ void SetCmdParamAtCompileTime(Args* param)
 {
     #ifdef SET_COMPILETIME_LOAD_EXISTED_FILECRC
     if(param->iFileCrc.empty())
-        param->iFileCrc = DefaultOptionalArg;
+        param->iFileCrc = DefaultCrcFiles();
     #endif //SET_COMPILETIME_LOAD_EXISTED_FILECRC
 }
 
@@ -60,6 +62,10 @@ void Elf2E32::Run()
 
     else if(!iCmdParam->iE32input.empty() && !iCmdParam->iOutput.empty())
         iTask = new E32Rebuilder(iCmdParam);
+
+    else if(!iCmdParam->iDso.empty() && !iCmdParam->iFileCrc.empty() &&
+            iCmdParam->iOutput.empty() && iCmdParam->iDefoutput.empty())
+        iTask = new DSOCrcFile(iCmdParam);
 
     else if(!iCmdParam->iElfinput.empty() || !iCmdParam->iDso.empty())
         iTask = new ArtifactBuilder(iCmdParam);

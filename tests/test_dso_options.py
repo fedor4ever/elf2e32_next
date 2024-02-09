@@ -11,7 +11,7 @@ tgttype=r" --targettype=implib"
 
 
 dsodefTests=(
-(elf2e32+defin+dsoout+linkas+tgttype, "Simple def2dso creation.\n Options are: %s\n"),
+(elf2e32+defin+dsoout+linkas+tgttype+""" --filecrc=libcrypto{000a0000}.dcrc """, "Simple def2dso creation.\n Options are: %s\n"),
 (elf2e32+""" --elfinput="tmp\libcrypto{000a0000}.def2dso.dso" """ + """ --defoutput="tmp\dso2def.(01).def" """,
 "dso2def creation with simplified syntax.\n Options are: %s\n"),
 (elf2e32+""" --definput="tmp\dso2def.(01).def" """ + """ --dso="tmp\dso2def2dso.(02).dso" """,

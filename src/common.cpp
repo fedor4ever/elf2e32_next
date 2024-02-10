@@ -149,7 +149,7 @@ bool IsFileExist(const std::string& s)
     return access(s.c_str(), 0) == 0;
 }
 
-string FileNameFromPath(string& s)
+string FileNameFromPath(const string& s)
 {
     std::size_t found = s.find_last_of("/\\");
     return s.substr(found+1);

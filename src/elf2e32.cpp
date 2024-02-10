@@ -64,7 +64,7 @@ void Elf2E32::Run()
         iTask = new E32Rebuilder(iCmdParam);
 
     else if(!iCmdParam->iDso.empty() && !iCmdParam->iFileCrc.empty() &&
-            iCmdParam->iOutput.empty() && iCmdParam->iDefoutput.empty())
+            iCmdParam->iOutput.empty() && iCmdParam->iDefoutput.empty() && iCmdParam->iDefinput.empty())
         iTask = new DSOCrcFile(iCmdParam);
 
     else if(!iCmdParam->iElfinput.empty() || !iCmdParam->iDso.empty())

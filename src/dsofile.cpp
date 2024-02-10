@@ -187,7 +187,7 @@ void DSOFile::CreateHashTable()
 
 void DSOFile::InitVersionTable(const Args* opts)
 {
-    string tmp = DSOName(opts->iLinkas);
+    string tmp = FileNameFromPath(opts->iDso);
     //Fill verdef table...
     iVersionDef[0].vd_ndx     = 1;
     iVersionDef[0].vd_cnt     = 1;
@@ -566,15 +566,4 @@ void InfoPrint(const char* hdr, uint32_t& pos, const uint32_t offset)
        " with size: %06x\n\n", hdr, pos, pos + offset, offset);
     pos += offset;
 #endif // EXPLORE_DSO_BUILD
-}
-
-string DSOName(const string& linkAs)
-{
-    string tmp = linkAs;
-    auto t = tmp.find_first_of("[");
-    if(t == std::string::npos)
-        t = tmp.find_first_of(".");
-    tmp.erase(t);
-    tmp += ".dso";
-    return tmp;
 }

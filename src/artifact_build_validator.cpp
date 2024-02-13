@@ -103,19 +103,7 @@ void ResolveLinkAsUID(Args* arg)
     arg->iLinkasUid = buf.str();
 }
 
-/** \brief Reset invalid option --linkas
- *
- * Valid option looks like: --linkas=foo{000a0000}[10011237].dll
- * It contain 4 parts:
- * 1) target name: "foo"
- * 2) target version(hex form): "{000a0000}"
- * 3) target UID3(hex form): "[10011237]"
- * 4) file extension
- *
- * If UID3 == 0 part 3 not present in builds in SDK
- * S60_5th_Edition_SDK_v1.0 for exe and dll, stdexe and stddll
- */
-void ResetInvalidLINKAS(Args* arg)
+void CheckIfValidLINKAS(const Args* arg)
 {
     if(arg->iLinkas.empty())
         return;
@@ -135,10 +123,8 @@ void ResetInvalidLINKAS(Args* arg)
 
     if(head || tail)
     {
-        ReportWarning(ErrorCodes::ZEROBUFFER, "Illformed option: " + arg->iLinkas + "\n");
-        ReportWarning(ErrorCodes::ZEROBUFFER, "Example: --linkas=foo{000a0000}[10011237].dll\n");
-        ReportWarning(ErrorCodes::ZEROBUFFER, "Ignoring --linkas option\n\n");
-        arg->iLinkas.clear();
+        ReportLog("Unusual arg for linkas option: " + arg->iLinkas + "\n");
+        ReportLog("Example: --linkas=foo{000a0000}[10011237].dll\n\n");
     }
 }
 
@@ -152,6 +138,18 @@ std::string ConstructLinkas(TargetType type, const std::string& s, const std::st
         return tmp + s2 + ".dll";
 }
 
+/** \brief If option --linkas omitted it's value deduced
+ *
+ * Valid option looks like: --linkas=foo{000a0000}[10011237].dll
+ * It contain 4 parts:
+ * 1) target name: "foo"
+ * 2) target version(hex form): "{000a0000}"
+ * 3) target UID3(hex form): "[10011237]"
+ * 4) file extension
+ *
+ * If UID3 == 0 part 3 not present in builds in SDK
+ * S60_5th_Edition_SDK_v1.0 for exe and dll, stdexe and stddll
+ */
 void DeduceLINKAS(Args* arg)
 {
     if(arg->iLinkas.empty() && (arg->iTargettype != TargetType::EInvalidTargetType))
@@ -287,36 +285,6 @@ void ValidateStackSize(Args* arg)
     arg->iStack = KDefaultStackSizeMax;
 }
 
-void ValidateDeducedLinkas(Args* arg)
-{
-#if SET_COMPILETIME_LOAD_EXISTED_FILECRC
-    if(arg->iLinkas.empty())
-        return;
-    if(IsRunnable(arg->iTargettype))
-        return;
-    Args tmp;
-    tmp.iUid3 = arg->iUid3;
-    tmp.iVersion = arg->iVersion;
-    tmp.iLinkasUid = arg->iLinkasUid;
-    tmp.iTargettype = arg->iTargettype;
-    tmp.iElfinput = arg->iElfinput;
-    tmp.iOutput = arg->iOutput;
-    tmp.iDefoutput = arg->iDefoutput;
-    tmp.iDso = arg->iDso;
-
-    ResolveLinkAsUID(&tmp);
-    ResetInvalidLINKAS(&tmp);
-    DeduceLINKAS(&tmp);
-    if(arg->iLinkas != tmp.iLinkas)
-        ReportWarning(ErrorCodes::ZEROBUFFER, "Deduced linkas invalid!\n"
-                    "Expected: " + arg->iLinkas + "\nGot: " + tmp.iLinkas + "\n"
-                    "Valid format: <filename>{<version>}{<UID3>}.<ext>\n");
-    else
-        ReportLog("Deduced linkas valid!\n");
-    ReportLog("\n");
-#endif // SET_COMPILETIME_LOAD_EXISTED_FILECRC
-}
-
 /** \brief Verifies and correct wrong input options
  * This function correct multiple conflict opions
  * like --datapaging with different params,
@@ -370,7 +338,7 @@ void ValidateOptions(Args* arg)
     if(targetType == TargetType::EInvalidTargetType || targetType == TargetType::ETargetTypeNotSet)
         ReportWarning(ErrorCodes::NOREQUIREDOPTION, "--targettype");
 
-    ValidateDeducedLinkas(arg);
+    CheckIfValidLINKAS(arg);
     ResolveLinkAsUID(arg);
     DeduceLINKAS(arg);
 

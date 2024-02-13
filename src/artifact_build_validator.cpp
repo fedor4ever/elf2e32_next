@@ -297,13 +297,6 @@ void ValidateOptions(Args* arg)
 
     ValidateCaps(arg);
 
-    if((arg->iDebuggable) && !IsRunnable(arg->iTargettype))
-    {
-        arg->iDebuggable = false;
-        if(VerboseOut())
-            ReportLog("--debuggable option allowed for EXE's only!\n");
-    }
-
     if(arg->iUnfrozen)
         arg->iDefinput.clear();
 

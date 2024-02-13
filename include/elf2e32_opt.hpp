@@ -114,7 +114,7 @@ struct Args
     uint32_t iFpu = TFloatingPointType::EFpTypeNone; //softfp
     Paging iCodePaging = Paging::DEFAULT;
     Paging iDataPaging = Paging::DEFAULT;
-    bool iDebuggable = false;
+    bool iDebuggable = false; // SDK says it on for debug EXEs only, but debug DLLs has on too
     bool iSmpsafe = false;
     TargetType iTargettype = TargetType::EInvalidTargetType;
     std::string iLinkas;

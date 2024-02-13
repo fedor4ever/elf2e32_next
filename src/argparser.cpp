@@ -387,7 +387,7 @@ bool ArgParser::Parse(Args* arg) const
 #if ELF2E32_PRINT_INPUT_ARGS
     if(1)
 #else
-    if(VerboseOutput)
+    if(VerboseOutput && !DisableLongVerbosePrint())
 #endif // ELF2E32_PRINT_INPUT_ARGS
     {
         printf("Args to parse: \n");
@@ -495,7 +495,7 @@ bool operator==(const Opts* left, const Opts& right)
 
 void ArgParser::ArgInfo(const Opts& opt) const
 {
-    if(!VerboseOutput)
+    if(!VerboseOutput ||  DisableLongVerbosePrint())
         return;
 
     ReportLog("Got arg: --" + opt.name);

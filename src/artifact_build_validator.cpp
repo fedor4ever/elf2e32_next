@@ -372,7 +372,6 @@ void ValidateOptions(Args* arg)
 
     ValidateDeducedLinkas(arg);
     ResolveLinkAsUID(arg);
-    ResetInvalidLINKAS(arg);
     DeduceLINKAS(arg);
 
     DeduceDSO(arg);

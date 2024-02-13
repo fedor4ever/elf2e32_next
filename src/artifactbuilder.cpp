@@ -83,7 +83,7 @@ void ArtifactBuilder::DsoImpLibName()
 
 void ArtifactBuilder::MakeDSO()
 {
-    if(iOpts->iDso.empty() || iOpts->iUnfrozen)
+    if(iOpts->iDso.empty())
         return;
 #if SET_COMPILETIME_LOAD_EXISTED_FILECRC
     CheckDSOCrc(iOpts); //builded with original tool =)

@@ -314,6 +314,8 @@ E32CRCProcessor::~E32CRCProcessor()
 
 void E32CRCProcessor::FixE32Hdr()
 {
+    if(iFileIn.empty())
+        return;
 // For example in manual E32Image builds comression maybe off for easy hex view.
 // This change header and even entire file checksums and test failed.
 #ifndef SET_COMPILETIME_LOAD_EXISTED_FILECRC

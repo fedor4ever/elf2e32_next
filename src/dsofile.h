@@ -92,7 +92,7 @@ public:
                       std::vector<std::string> dsoNames);
 private:
     void CreateSectionHeaders();
-    void CreateTablesFromSymbols(const Symbols& s);
+    void CreateTablesFromSymbols(const Symbols& s, bool unfrozen);
     void InitVersionTable(const Args* opts);
     void InitProgramHeaderTable();
     void InitDynamicEntries();

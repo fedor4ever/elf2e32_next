@@ -48,7 +48,7 @@ DSO and DEF files are same for all versions.
 
 In this example libcryptou_openssl.def outdated and libcrypto.dll has new symbols.
 **Build option**:
-` --capability=All-TCB --defoutput="tests/tmp/out.(0).def" --elfinput="tests/libcrypto.dll"  --output="tests/tmp/libcrypto-2.4.5.(0).dll" --libpath="/SDK_libs" --linkas="libcrypto{000a0000}.dll" --dso="tests/tmp/libcrypto{000a0000}.(0).dso" --fpu=softvfp --uid1=0x10000079 --uid2=0x20004c45 --uid3=0x00000000 --targettype=STDDLL --dlldata --ignorenoncallable --uncompressed --unfrozen --definput="tests/libcryptou_openssl.def" --smpsafe --debuggable --filecrc="tests/testing_CRCs/dll_outdated.crc;tests/testing_CRCs/dll_outdated.dcrc" --verbose=-1`
+` --capability=All-TCB --defoutput="tests/tmp/out.(0).def" --elfinput="tests/libcrypto.dll"  --output="tests/tmp/libcrypto-2.4.5.(0).dll" --libpath="tests/SDK_libs" --linkas="libcrypto{000a0000}.dll" --dso="tests/tmp/libcrypto{000a0000}.(0).dso" --fpu=softvfp --uid1=0x10000079 --uid2=0x20004c45 --uid3=0x00000000 --targettype=STDDLL --dlldata --ignorenoncallable --uncompressed --unfrozen --definput="tests/libcryptou_openssl.def" --smpsafe --debuggable --filecrc="tests/testing_CRCs/dll_outdated.crc;tests/testing_CRCs/dll_outdated.dcrc" --verbose=-1`
 
 ## Testing your app
 

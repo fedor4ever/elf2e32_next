@@ -67,7 +67,7 @@ void Elf2E32::Run()
             iCmdParam->iOutput.empty() && iCmdParam->iDefoutput.empty() && iCmdParam->iDefinput.empty())
         iTask = new DSOCrcFile(iCmdParam);
 
-    else if(!iCmdParam->iElfinput.empty() || !iCmdParam->iDso.empty())
+    else
         iTask = new ArtifactBuilder(iCmdParam);
 
     if(iTask)

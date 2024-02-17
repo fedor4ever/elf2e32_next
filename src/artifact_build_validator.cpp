@@ -297,9 +297,6 @@ void ValidateOptions(Args* arg)
 
     ValidateCaps(arg);
 
-    if(arg->iUnfrozen)
-        arg->iDefinput.clear();
-
     bool hasDefinput = !arg->iDefinput.empty();
     bool noDefOut = arg->iDefoutput.empty();
     bool noElfinput = arg->iElfinput.empty();

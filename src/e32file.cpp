@@ -266,7 +266,7 @@ void E32File::PrepareData()
         ExportBitmapSection* proc =
             new ExportBitmapSection(iSymbols.size(), tmp.section, iElfSrc->EntryPoint());
         tmp = proc->CreateExportBitmap();
-        if(tmp.type > E32Sections::EMPTY_SECTION)
+        if((tmp.type > E32Sections::EMPTY_SECTION) && !iE32Opts->iUnfrozen)
         {
             iHeader.pop_back(); // remove E32ImageHeaderV::iExportDesc[1]
             iE32image.push_back(tmp);

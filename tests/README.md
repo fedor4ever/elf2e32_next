@@ -62,8 +62,9 @@ Option to create DSO: --dso="<path><dsoname>". This one and from Nokia_Symbian_B
 ## Testing the elf2e32 build
 
 **Testing your build**:
- - run test_common.py, test_dll_options.py, test_dso_options.py, test_exe_options.py
- - if print "Unexpectable test failure:" - please open bug report.
+ - run test_all.py
+ - if print "Good Job! All test passed! =D" - all done.
+ - if print "Unexpectable test failure:" - run test_common.py, test_dll_options.py, test_dso_options.py, test_exe_options.py
 
 **Some old stuff, ignore**
  - Verify these files using [vbindiff](https://www.cjmweb.net/vbindiff/). Difference allowed for these ranges:

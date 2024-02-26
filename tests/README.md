@@ -37,6 +37,8 @@ Good and bad targets used in tests, broken - excluded.
 `--capability=All-TCB --definput="tests\libcryptou.def" --defoutput="tests\tmp\out.def" --elfinput="tests\libcrypto.dll" --output="tests\tmp\libcrypto-2.4.5.tst.dll" --libpath="tests\SDK_libs" --linkas="libcrypto{000a0000}.dll" --dso="tests\tmp\libcrypto{000a0000}.dso" --fpu=softvfp --uid1=0x10000079 --uid2=0x20004c45 --uid3=0x00000000 --targettype=STDDLL --dlldata --ignorenoncallable --uncompressed --debuggable --smpsafe --filecrc="tests\libcrypto-2.4.5.SDK.crc"`
 
 ## Compatibility
+Elf2e32 from different SDK may produce different DSO from this one.
+Option to create DSO: --dso="<path><dsoname>". This one and from Nokia_Symbian_Belle_SDK_v1.0 store dsoname only, from S60_3rd_FP2_SDK_v1.1 store full path. Store dsoname only easy to reproduce and compare.
 **Build option**:
 ` --capability=All-TCB --defoutput="tests/tmp/out.(0).def" --elfinput="tests/libcrypto.dll"  --output="tests/tmp/libcrypto-2.4.5.(0).dll" --libpath="tests/SDK_libs" --linkas="libcrypto{000a0000}.dll" --dso="tests/tmp/libcrypto{000a0000}.(0).dso" --fpu=softvfp --uid1=0x10000079 --uid2=0x20004c45 --uid3=0x00000000 --targettype=STDDLL --dlldata --ignorenoncallable --uncompressed --unfrozen --definput="tests/libcryptou_openssl.def" --smpsafe --debuggable --filecrc="tests/testing_CRCs/dll_outdated.crc;tests/testing_CRCs/dll_outdated.dcrc" --verbose=-1`
 

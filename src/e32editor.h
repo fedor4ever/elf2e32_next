@@ -35,6 +35,7 @@ class E32Editor
         void SetCaps(uint64_t caps);
         void SetFlags(uint32_t flags);
         void SetHeaderCrc(uint32_t headercrc);
+        void SetCompressionType(uint32_t type);
         void SetE32Time(uint32_t timeLo, uint32_t timeHi);
         void SetVersion(uint8_t major, uint8_t minor, uint16_t build);
         void ReGenerateCRCs();
@@ -45,6 +46,7 @@ class E32Editor
         uint32_t TimeLo() const;
         uint32_t TimeHi() const;
         uint32_t HeaderCrc() const;
+        uint32_t CompressionType() const;
         uint8_t Version_Major() const;
         uint8_t Version_Minor() const;
         uint16_t Version_Build() const;

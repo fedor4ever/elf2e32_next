@@ -87,6 +87,7 @@ namespace E32Crcs
     static constexpr char VERSION_MINOR[] = "version_minor";
     static constexpr char VERSION_BUILD[] = "version_build";
     static constexpr char HEADERCRC[] = "headercrc";
+    static constexpr char COMPRESSIONTYPE[] = "compressiontype";
     static constexpr char CAPS[] = "caps";
 }
 
@@ -98,6 +99,7 @@ struct CRCData
 //    data that changes between builds
 //    ordered by place in E32Image
     uint32_t iHeaderCrc = -1;
+    uint32_t iCompressionType = -1; // do not check! Used to compare compressed and uncompressed builds
     uint32_t iVersion_Major = -1;
     uint32_t iVersion_Minor = -1;
     uint32_t iVersion_Build = -1;
@@ -174,6 +176,7 @@ std::string E32CRCProcessor::CRCAsStr()
     buf << E32Crcs::VERSION_MINOR << " = 0x" << iCRCOut.iVersion_Minor << "\n";
     buf << E32Crcs::VERSION_BUILD << " = 0x" << iCRCOut.iVersion_Build << "\n";
     buf << E32Crcs::HEADERCRC << " = 0x" << iCRCOut.iHeaderCrc << "\n";
+    buf << E32Crcs::COMPRESSIONTYPE << " = 0x" << iCRCOut.iCompressionType << "\n";
     buf << E32Crcs::CAPS << " = 0x" << iCRCOut.iCaps;
     return buf.str();
 }
@@ -214,6 +217,8 @@ void E32CRCProcessor::ProcessTokens(const std::string& type, uint32_t crc)
         iCRCIn.iVersion_Build = crc;
     else if(type == E32Crcs::HEADERCRC)
         iCRCIn.iHeaderCrc = crc;
+    else if(type == E32Crcs::COMPRESSIONTYPE)
+        iCRCIn.iCompressionType = crc;
     else if(type == E32Crcs::CAPS)
         iCRCIn.iCaps = crc;
     else
@@ -263,6 +268,7 @@ void E32CRCProcessor::CRCFromFile()
     iCRCOut.iDataRelocs = iCrc->DataRelocs();
     iCRCOut.iFlags = iCrc->Flags();
     iCRCOut.iHeaderCrc = iCrc->HeaderCrc();
+    iCRCOut.iCompressionType = iCrc->CompressionType();
     iCRCOut.iVersion_Major = iCrc->Version_Major();
     iCRCOut.iVersion_Minor = iCrc->Version_Minor();
     iCRCOut.iVersion_Build = iCrc->Version_Build();
@@ -297,6 +303,7 @@ bool E32CRCProcessor::PrintInvalidTargetCRC()
     PrintIfNEQ(iCRCIn.iVersion_Minor, iCRCOut.iVersion_Minor, "Version_iMinor");
     PrintIfNEQ(iCRCIn.iVersion_Build, iCRCOut.iVersion_Build, "Version_iBuild");
     PrintIfNEQ(iCRCIn.iHeaderCrc, iCRCOut.iHeaderCrc, "HeaderCrc");
+//    PrintIfNEQ(iCRCIn.iCompressionType, iCRCOut.iCompressionType, "CompressionType"); // do not check!
     PrintIfNEQ(iCRCIn.iVersion_Build, iCRCOut.iVersion_Build, "HeaderCrc");
     return true;
 }
@@ -322,6 +329,7 @@ void E32CRCProcessor::FixE32Hdr()
     iCrc->SetCaps(iCRCIn.iCaps);
     iCrc->SetFlags(iCRCIn.iFlags);
 #endif // SET_COMPILETIME_LOAD_EXISTED_FILECRC
+    iCrc->SetCompressionType(iCRCIn.iCompressionType);
     iCrc->SetE32Time(iCRCIn.iTimeLo, iCRCIn.iTimeHi);
     iCrc->SetVersion(iCRCIn.iVersion_Major, iCRCIn.iVersion_Minor, iCRCIn.iVersion_Build);
     iCrc->ReGenerateCRCs();
@@ -368,6 +376,8 @@ bool CRCData::operator ==(const CRCData& right) const
         return false;
     if(this->iHeaderCrc != right.iHeaderCrc)
         return false;
+//    if(this->iCompressionType != right.iCompressionType)
+//        return false; // do not check!
     if(this->iCaps != right.iCaps)
         return false;
     return true;

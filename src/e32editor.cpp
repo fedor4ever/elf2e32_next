@@ -72,6 +72,12 @@ void E32Editor::SetHeaderCrc(uint32_t headercrc)
     iHeader->iHeaderCrc = headercrc;
 }
 
+void E32Editor::SetCompressionType(uint32_t type)
+{
+    if(type != (uint32_t)-1)
+        iHeader->iCompressionType = type;
+}
+
 void E32Editor::SetE32Time(uint32_t timeLo, uint32_t timeHi)
 {
     iHeader->iTimeLo = timeLo;
@@ -139,6 +145,7 @@ uint32_t E32Editor::Symlook() const
     if(!(iHeader->iFlags & KImageNmdExpData))
         return -1;
     const E32EpocExpSymInfoHdr* h = iFile->GetEpocExpSymInfoHdr();
+    ReportLog("ExpSymInfoHdr size: %x\n", h->iSize);
     return Crc32(h, h->iSize);
 }
 
@@ -187,6 +194,11 @@ uint32_t E32Editor::TimeHi() const
 uint32_t E32Editor::HeaderCrc() const
 {
     return iHeader->iHeaderCrc;
+}
+
+uint32_t E32Editor::CompressionType() const
+{
+    return iHeader->iCompressionType;
 }
 
 uint8_t E32Editor::Version_Major() const

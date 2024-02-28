@@ -85,7 +85,7 @@ DSOFile::~DSOFile()
 /**
 This function creates that tables: symbol, code, hash, version.
 */
-void DSOFile::CreateTablesFromSymbols(const Symbols& s, bool unfrozen)
+void DSOFile::CreateTablesFromSymbols(const Symbols& s)
 {
     iDSOSymNameStrTbl.push_back(0);
 
@@ -107,7 +107,7 @@ void DSOFile::CreateTablesFromSymbols(const Symbols& s, bool unfrozen)
         /* If a symbol is marked as Absent in the DEF file, replace the
          * symbol name with "_._.absent_export_<Ordinal Number>"
          */
-        if(x->Absent() && !unfrozen)
+        if(x->Absent())
         {
             char *symName = new char[length]();
             sprintf(symName, "_._.absent_export_%d", x->Ordinal());
@@ -138,7 +138,7 @@ void DSOFile::WriteDSOFile(const Args* arg, const Symbols& s,
 
     CreateSectionHeaders();
     CreateHashTable();
-    CreateTablesFromSymbols(s, arg->iUnfrozen);
+    CreateTablesFromSymbols(s);
 
     InitVersionTable(arg);
 

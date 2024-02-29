@@ -237,7 +237,16 @@ void SymbolProcessor::ProcessElfSymbols()
                 if((*it)->Absent())
                     break;
 
+// This code leads to different DEF file if used --definput="tests/libcryptou_openssl.def"
+// This file doesn't know about removed functions aka "missing symbols".
+#if 0
+// Creates the same DEF file output as SDK elf2e32. Should processed by SDK tools and result file stores in project folder
+                (*it)->SetSymbolStatus(SymbolStatus::Missing);
+#else
+// Creates DEF file as it already processed by SDK tools. Useful for other build systems
                 (*it)->SetAbsent(true);
+#endif // 0
+
                 ls.push_back((*it)->AliasName()); // new absent symbols
                 break;
             }

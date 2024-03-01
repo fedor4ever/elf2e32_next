@@ -98,9 +98,14 @@ from itertools import combinations
 
 
 
+# For BELLE version increased default value for heap max if not provided option --heap.
+# Raised max heap size up to 0x200000.
+# For compatibility with previous versions used option --heap=0x1000,0x100000
+common_opts=r""" --libpath="SDK_libs" --fpu=softvfp --heap=0x1000,0x100000 """
+
+
 elf2e32_SDK=r"elf2e32_belle.exe"
 elf2e32_test=r"..\bin\Release\elf2e32.exe"
-common_opts=r""" --libpath="SDK_libs" --fpu=softvfp """
 
 
 libcrypto_defin='--definput="libcryptou.def"'
@@ -193,69 +198,90 @@ def BuildE32(elf2e32):
                 print "\n"
                 idx+=1
 
-    # cmdline = elf2e32 + " " + areader_opts
-    # args = ['--unfrozen', '--ignorenoncallable', '--dlldata', '--excludeunwantedexports', '--namedlookup', areader_defin]
-    # for x in range(1, len(args)+1):
-        # for i in combinations(args, x):
-            # addend = ' '.join(i)
-            # tmp = cmdline.replace("%02d", str(idx))
-            # sfx = OptSuffix(addend)
-            # tmp=tmp.replace("TGT", sfx)
-            # print(str(idx) + ') ' + tmp + ' ' + addend)
+    cmdline = elf2e32 + " " + areader_opts
+    args = ['--unfrozen', '--ignorenoncallable', '--dlldata', '--excludeunwantedexports', '--namedlookup', areader_defin]
+    for x in range(1, len(args)+1):
+        for i in combinations(args, x):
+            addend = ' '.join(i)
+            tmp = cmdline.replace("%02d", str(idx))
+            sfx = OptSuffix(addend)
+            tmp=tmp.replace("TGT", sfx)
+            print(str(idx) + ') ' + tmp + ' ' + addend)
 
-            # old = os.path.join("tmp","AlternateReaderRecog{000a0000}.dso")
-            # new = os.path.join("tmp","AR_(%02d)_TGT.dso")
-            # new = new.replace("%02d", str(idx))
-            # new = new.replace("TGT", sfx)
-            # if SkipMe(sfx):
-               # continue
-            # try:
-                # subprocess.check_call(tmp + ' ' + addend)
-                # if os.path.isfile(new):
-                    # os.remove(new)
-                # os.rename(old, new)
-                # subprocess.check_call(elf2e32_test + ' --filecrc ' + " --dso=" + new)
-                # root, ext = os.path.splitext(new)
-                # subprocess.check_call(elf2e32_test + ' --filecrc ' + " --e32input=" + root + ".dll")
-            # except:
-                # print "Unexpectable test #%s failure:\n %s" %(idx, tmp + ' ' + addend)
-                # failed_tests+=1
-                # failed_sfx.append(sfx)
-                # if os.path.isfile(old):
-                    # os.remove(old)
-            # finally:
-                # print "\n"
-                # idx+=1
+            old = os.path.join("tmp","AlternateReaderRecog{000a0000}.dso")
+            new = os.path.join("tmp","AR_(%02d)_TGT.dso")
+            new = new.replace("%02d", str(idx))
+            new = new.replace("TGT", sfx)
+            if SkipMe(sfx):
+               continue
+            try:
+                subprocess.check_call(tmp + ' ' + addend)
+                if os.path.isfile(new):
+                    os.remove(new)
+                os.rename(old, new)
+                subprocess.check_call(elf2e32_test + ' --filecrc ' + " --dso=" + new)
+                root, ext = os.path.splitext(new)
+                subprocess.check_call(elf2e32_test + ' --filecrc ' + " --e32input=" + root + ".dll")
+            except:
+                print "Unexpectable test #%s failure:\n %s" %(idx, tmp + ' ' + addend)
+                failed_tests+=1
+                failed_sfx.append(sfx)
+                if os.path.isfile(old):
+                    os.remove(old)
+            finally:
+                print "\n"
+                idx+=1
 
+skipped_crc_sfx = []
+skipped_dcrc_sfx = []
 def AReaderSysdefDCRC(sfx):
-    if sfx in ['U', 'UID', 'UIE', 'UIN', 'UDE', 'UDN', 'UEN', 'UIDE', 'UIDN', 'UI', 'UIEN', 'UDEN', 'UD', 'UIDEN', 'UE', 'UN']:
+    if sfx in ('U', 'UID', 'UIE', 'UIN', 'UDE', 'UDN', 'UEN', 'UIDE', 'UIDN', 'UI', 'UIEN', 'UDEN', 'UD', 'UIDEN', 'UE', 'UN'):
         return os.path.join("testing_CRCs","ar_missing_sysdef.dcrc")
-    if sfx in ['EDi', 'NDi', 'UIDi', 'UDDi', 'Di', 'UEDi', 'UNDi', 'IDDi', 'IEDi', 'INDi', 'DEDi', 'DNDi', 'ENDi', 'UIDDi', 'UIEDi', 'UINDi', 'UDEDi', 'UDNDi', 'UENDi', 'IDEDi', 'IDNDi', 'IENDi', 'DENDi', 'UIDEDi', 'UIDNDi', 'UIENDi', 'UDENDi', 'IDENDi', 'UIDENDi', 'UDi', 'IDi', 'DDi']:
+    if sfx in ('EDi', 'NDi', 'UIDi', 'UDDi', 'Di', 'UEDi', 'UNDi', 'IDDi', 'IEDi', 'INDi', 'DEDi', 'DNDi', 'ENDi', 'UIDDi', 'UIEDi', 'UINDi', 'UDEDi', 'UDNDi', 'UENDi', 'IDEDi', 'IDNDi', 'IENDi', 'DENDi', 'UIDEDi', 'UIDNDi', 'UIENDi', 'UDENDi', 'IDENDi', 'UIDENDi', 'UDi', 'IDi', 'DDi'):
         return "AlternateReaderRecog.SDK.dcrc"
-    raise "Unknown DCRC' SFX: %s!" %sfx
+    skipped_dcrc_sfx.append("Unknown AReaderRecog DCRC: %s;" %sfx)
+    return ""
 
 def AReaderSysdefCRC(sfx):
-    if sfx in ['U', 'Di', 'UI', 'UD', 'EDi', 'UID', 'UIE', 'UIDi', 'UDE', 'UDDi', 'UEDi', 'IDDi', 'IEDi', 'DEDi', 'UE', 'UDi', 'IDi', 'DDi', 'UIDE', 'UIDDi', 'UIEDi', 'UDEDi', 'IDEDi', 'UIDEDi']:
+    if sfx in ('U', 'Di', 'UI', 'UD', 'EDi', 'UID', 'UIE', 'UIDi', 'UDE', 'UDDi', 'UEDi', 'IDDi', 'IEDi', 'DEDi', 'UE', 'UDi', 'IDi', 'DDi', 'UIDE', 'UIDDi', 'UIEDi', 'UDEDi', 'IDEDi', 'UIDEDi'):
         return "AlternateReaderRecog.SDK.crc"
-    if sfx in ['NDi', 'UIN', 'UDN', 'UEN', 'UNDi', 'INDi', 'UN', 'DNDi', 'ENDi', 'UIDN', 'UIEN', 'UINDi', 'UDEN', 'UDNDi', 'UENDi', 'IDNDi', 'IENDi', 'DENDi', 'UIDEN', 'UIDNDi', 'UIENDi', 'UDENDi', 'IDENDi', 'UIDENDi']:
+    if sfx in ('NDi', 'UIN', 'UDN', 'UEN', 'UNDi', 'INDi', 'UN', 'DNDi', 'ENDi', 'UIDN', 'UIEN', 'UINDi', 'UDEN', 'UDNDi', 'UENDi', 'IDNDi', 'IENDi', 'DENDi', 'UIDEN', 'UIDNDi', 'UIENDi', 'UDENDi', 'IDENDi', 'UIDENDi'):
         return os.path.join("testing_CRCs","ar_symlook.crc")
-    raise "Unknown CRC' SFX: %s!" %sfx
+    skipped_crc_sfx.append("Unknown AReaderRecog CRC: %s;" %sfx)
+    return ""
 
 def libcryptoDCRC(sfx):
-    if sfx in ['U', 'IE', 'IN', 'EN', 'UIE', 'UIN', 'UEN', 'I', 'IEN', 'UIEN', 'E', 'N', 'UI', 'UE', 'UN']:
+    if sfx in ('U', 'IE', 'IN', 'EN', 'UIE', 'UIN', 'UEN', 'I', 'IEN', 'UIEN', 'E', 'N', 'UI', 'UE', 'UN'):
         return os.path.join("testing_CRCs","libcrypto_unfrozen.dcrc")
-    if sfx in ['IDi', 'EDi', 'UIDi', 'UEDi', 'IEDi', 'UIEDi', 'Di', 'UDi']:
+    if sfx in ('IDi', 'EDi', 'UIDi', 'UEDi', 'IEDi', 'UIEDi', 'Di', 'UDi'):
         return "libcrypto{000a0000}.dcrc"
-    raise "Unknown DCRC' SFX: %s!" %sfx
+# NDi - Namedlookup + Definput - this combo kills original el2e32
+    if sfx in ("NDi", "UNDi", "INDi", "ENDi", "UINDi", "UENDi", "IENDi", "UIENDi"):
+        return "libcrypto{000a0000}.dcrc"
+    skipped_dcrc_sfx.append("Unknown libcrypto DCRC: %s;" %sfx)
+    return ""
 
 def libcryptoCRC(sfx):
-    if sfx in ['U', 'I', 'E', 'UI', 'UE', 'IE', 'UIE']:
+    if sfx in ('U', 'I', 'E', 'UI', 'UE', 'IE', 'UIE'):
         return os.path.join("testing_CRCs","libcrypto_unfrozen.crc")
-    if sfx in ['Di', 'UDi', 'IDi', 'EDi', 'UIDi', 'UEDi', 'IEDi', 'UIEDi']:
+    if sfx in ('Di', 'UDi', 'IDi', 'EDi', 'UIDi', 'UEDi', 'IEDi', 'UIEDi'):
         return "libcrypto-2.4.5.SDK.crc"
-    if sfx in ['N', 'UN', 'IN', 'EN', 'UIN', 'UEN', 'IEN', 'UIEN']:
+    if sfx in ('N', 'UN', 'IN', 'EN', 'UIN', 'UEN', 'IEN', 'UIEN'):
         return os.path.join("testing_CRCs","libcrypto_namedlookup.crc")
-    raise "Unknown CRC' SFX: %s!" %sfx
+# NDi - Namedlookup + Definput - this combo kills original el2e32
+    if sfx in ("NDi", "UNDi", "INDi", "ENDi", "UINDi", "UENDi", "IENDi", "UIENDi"):
+        return os.path.join("testing_CRCs","libcrypto_frozen_namedlookup.crc")
+    skipped_crc_sfx.append("Unknown libcrypto CRC: %s;" %sfx)
+    return ""
+
+def PackedCRC(sfx):
+    tmp = libcryptoDCRC(sfx)
+    tmp1 = libcryptoCRC(sfx)
+    if tmp != "" and tmp1 != "":
+        return tmp+';'+tmp1
+    if tmp == "":
+        return tmp1
+    return tmp
 
 def FindCRCDups(fname, dict):
     with open(fname, 'r') as f:
@@ -298,19 +324,74 @@ def DeduceCRCS():
     BuildE32(elf2e32_SDK)
     PrintCRCDups()
 
+def BuildAndValidateE32WithFrozenDEF():
+    global failed_tests
+    global failed_sfx
+    crypto_dcrc = os.path.join("tmp","libcrypto{000a0000}.dcrc")
+    crypto_crc = os.path.join("tmp","libcrypto{000a0000}.crc")
+
+    cmdline = elf2e32_test + " " + libcrypto_opts + "--filecrc="
+    idx = 1
+    args = ['--unfrozen', '--ignorenoncallable', '--excludeunwantedexports', '--namedlookup', libcrypto_defin]
+    for x in range(1, len(args)+1):
+        for i in combinations(args, x):
+            addend = ' '.join(i)
+            tmp = cmdline.replace("%02d", str(idx))
+            sfx = OptSuffix(addend)
+            tmp=tmp.replace("TGT", sfx)
+            tmp+=PackedCRC(sfx)
+            tmp+=" --force --uncompressed"
+
+            print(str(idx) + ') ' + tmp + ' ' + addend)
+
+            old = os.path.join("tmp","libcrypto{000a0000}.dso")
+            new = os.path.join("tmp","out_(%02d)_TGT.dso")
+            new = new.replace("%02d", str(idx))
+            new = new.replace("TGT", sfx)
+            try:
+                subprocess.check_call(tmp + ' ' + addend)
+                if os.path.isfile(new):
+                    os.remove(new)
+                os.rename(old, new)
+                if os.path.isfile(crypto_dcrc):
+                    new_dcrc = os.path.splitext(new)[0]
+                    new_dcrc += ".dcrc"
+                    if os.path.isfile(new_dcrc):
+                        os.remove(new_dcrc)
+                    os.rename(crypto_dcrc, new_dcrc)
+                if os.path.isfile(crypto_crc):
+                    new_crc = os.path.splitext(new)[0]
+                    new_crc += ".crc"
+                    if os.path.isfile(new_crc):
+                        os.remove(new_crc)
+                    os.rename(crypto_crc, new_crc)
+            except:
+                print "Unexpectable test #%s failure:\n %s" %(idx, tmp + ' ' + addend)
+                failed_tests+=1
+                failed_sfx.append(sfx)
+                try:
+                    os.remove(old)
+                except: pass
+                pass
+            finally:
+                print "\n"
+                idx+=1
+
+def Run():
+    # DeduceCRCS()
+    BuildAndValidateE32WithFrozenDEF()
+
+if __name__ == "__main__":
+    # execute only if run as a script
+    Run()
+    if len(skipped_crc_sfx) > 0:
+        print "skipped_crc_sfx:"
+        print skipped_crc_sfx
+    if len(skipped_dcrc_sfx) > 0:
+        print "skipped_dcrc_sfx:"
+        print skipped_dcrc_sfx
     if failed_tests > 0:
        print "Tests failed: %d\n" %failed_tests
        print failed_sfx
     else:
        print "Good Job! All DLL torture test passed! =D"
-    return failed_tests
-
-def BuildAndValidate(): pass
-
-def Run():
-    # DeduceCRCS()
-    BuildAndValidate()
-
-if __name__ == "__main__":
-    # execute only if run as a script
-    Run()

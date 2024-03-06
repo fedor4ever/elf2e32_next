@@ -110,17 +110,7 @@ void ArtifactBuilder::MakeE32()
 {
     if(iOpts->iOutput.empty())
         return;
-
-    if(iOpts->iUnfrozen)
-    {
-        Symbols iNonAbsent;
-        for(auto x: iSymbols)
-            if(!x->Absent())
-                iNonAbsent.push_back(x);
-        BuildE32Image(iOpts, iElfParser, iNonAbsent);
-    }
-    else
-        BuildE32Image(iOpts, iElfParser, iSymbols);
+    BuildE32Image(iOpts, iElfParser, iSymbols);
 }
 
 void MakeImportHeader(Symbols symbols, std::string dllName)

@@ -253,11 +253,13 @@ void E32Validator::ValidateHeader()
         ThrowIfTrue((exportsStart-codeStart) & iPointerAlignMask,
             "exports aligned within code section");
 
-        uint32_t* exports = iParser->GetExportTable();
-        if(exports[0] != iHdr->iExportDirCount)
-            ReportLog("Export's header: %u and iExportDirCount: %u size differs.\n", exports[0], iHdr->iExportDirCount);
-//        ThrowIfTrue(exports[0] != iHdr->iExportDirCount,
-//            "exports size consistency. Export's header and iExportDirOffset size differs.");
+// if --namedlookup export table header points to E32EpocExpSymInfoHdr, otherwise iHdr->iExportDirCount
+        if(!iHdr->iFlags&KImageNmdExpData)
+        {
+            uint32_t* exports = iParser->GetExportTable();
+            ThrowIfTrue(exports[0] != iHdr->iExportDirCount,
+                "exports size consistency. Export's header and iExportDirOffset size differs.");
+        }
     }
 
 	// check iTextSize...

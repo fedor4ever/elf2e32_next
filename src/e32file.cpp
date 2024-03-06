@@ -193,6 +193,7 @@ void E32File::WriteE32File()
 
 // Export Section consist of uint32_t array, first element contains section's size.
 // Absent symbols values set E32 image entry point, other set to their elf st_value.
+// If --namedlookup: export table header points to E32EpocExpSymInfoHdr, otherwise number of exports
 E32Section ExportSection(const Symbols& s, uintptr_t iExpSymInfoHdrAddress,
                              bool symlook, bool HasNoDefIn)
 {
@@ -266,7 +267,7 @@ void E32File::PrepareData()
         ExportBitmapSection* proc =
             new ExportBitmapSection(iSymbols.size(), tmp.section, iElfSrc->EntryPoint());
         tmp = proc->CreateExportBitmap();
-        if((tmp.type > E32Sections::EMPTY_SECTION) && !iE32Opts->iUnfrozen)
+        if(tmp.type > E32Sections::EMPTY_SECTION)
         {
             iHeader.pop_back(); // remove E32ImageHeaderV::iExportDesc[1]
             iE32image.push_back(tmp);

@@ -38,6 +38,7 @@
 
 E32Section CodeSection(const ElfParser* parser);
 E32Section DataSection(const ElfParser* parser);
+void PrintSymlookHdr(const E32Section& s);
 
 bool CmpSections(E32Section first, E32Section second)
 {
@@ -191,11 +192,31 @@ void E32File::WriteE32File()
 //    SaveFile(iE32Opts->iOutput.c_str(), iHeader.data(), iHeader.size());
 }
 
-// Export Section consist of uint32_t array, first element contains section's size.
+/// Return count of exported functions or 0th ordinal
+//	RLibrary library;
+//	E32EpocExpSymInfoHdr *readHdr;
+//	test(library.Load(_L("t_dll1.dll")) == KErrNone);
+//	readHdr = (E32EpocExpSymInfoHdr*)library.Lookup(0); !!!0th ordinal
+//	test(readHdr == NULL);
+uint32_t InitExportHeader(uint32_t symbols_num, bool symlook, Elf32_Addr* aPlace)
+{
+    uint32_t x = symbols_num;
+// !!!pain!!! =(
+// original code for symlook table:
+//    iTable[0] = ((uintptr_t)iElf->ExportTable()) - 4 + (symbols_num + 1) * sizeof(char*)
+// where sizeof(char*) == 4 on msvc and sizeof(char*) == 8 on mingw
+// so expand variables assuming msvc sizeof(char*) == 4
+// because SDK elfe32 builded when sizeof(char*) == 4
+//    iTable[0] = ((uintptr_t)iElf->ExportTable()) + symbols_num * 4
+    if(symlook)
+        x = ((uintptr_t)aPlace) + symbols_num * 4;
+    return x;
+}
+
+// Export Section consist of uint32_t array, first element is section's header.
 // Absent symbols values set E32 image entry point, other set to their elf st_value.
 // If --namedlookup: export table header points to E32EpocExpSymInfoHdr, otherwise number of exports
-E32Section ExportSection(const Symbols& s, uintptr_t iExpSymInfoHdrAddress,
-                             bool symlook, bool HasNoDefIn)
+E32Section ExportSection(const Symbols& s, bool symlook, Elf32_Addr* aPlace)
 {
     E32Section exports;
     if(s.empty())
@@ -209,13 +230,7 @@ E32Section ExportSection(const Symbols& s, uintptr_t iExpSymInfoHdrAddress,
     exports.section.insert(exports.section.begin(), sz, 0);
 
     uint32_t* iTable = (uint32_t*)exports.section.data();
-    iTable[0] = s.size();
-
-    /// TODO (Administrator#1#07/19/20): Check how OS loader handle export section if --namedlookup used
-    if(HasNoDefIn && symlook) // original algorithm works as no symbols provided
-        sz = 4;
-    if(symlook)
-        iTable[0] = sz + iExpSymInfoHdrAddress;
+    iTable[0] = InitExportHeader(s.size(), symlook, aPlace);
 
     uint32_t i = 1;
     for(auto x: s)
@@ -254,8 +269,7 @@ bool IsEXE(TargetType type)
 void E32File::PrepareData()
 {
     E32Section tmp;
-    tmp = ExportSection(iSymbols, iRelocs->EpocExpSymInfoHdrAddress(),
-                    iE32Opts->iNamedlookup, iE32Opts->iDefinput.empty());
+    tmp = ExportSection(iSymbols, iE32Opts->iNamedlookup, iElfSrc->ExportTable());
 
     if(IsEXE(iE32Opts->iTargettype))
         iExportDescType = KImageHdr_ExpD_FullBitmap;
@@ -296,6 +310,7 @@ void E32File::PrepareData()
         tmp = look->SymlookSection();
         if(tmp.type == E32Sections::EMPTY_SECTION)
             ReportError(ErrorCodes::BADEXPORTS);
+//        PrintSymlookHdr(tmp);
         iE32image.push_back(tmp);
         delete look;
     }
@@ -330,4 +345,20 @@ void E32File::Compress(uint32_t compression)
         iHeader = CompressBPE(iHeader);
     else
         ReportError(INVALIDARGUMENT, "--compressionmethod", std::to_string(compression));
+}
+
+void PrintSymlookHdr(const E32Section& s)
+{
+    if(s.type != E32Sections::SYMLOOK)
+        ReportError(ErrorCodes::ZEROBUFFER, "Expected symlook section. But got different one!\n");
+    E32EpocExpSymInfoHdr* h = (E32EpocExpSymInfoHdr*)&s.section[0];
+    ReportLog("E32EpocExpSymInfoHdr field values:\n");
+    ReportLog("iSize: 0x%x\n", h->iSize);
+    ReportLog("iFlags: 0x%x\n", h->iFlags);
+    ReportLog("iSymCount: 0x%x\n", h->iSymCount);
+    ReportLog("iSymbolTblOffset: 0x%x\n", h->iSymbolTblOffset);
+    ReportLog("iStringTableSz: 0x%x\n", h->iStringTableSz);
+    ReportLog("iStringTableOffset: 0x%x\n", h->iStringTableOffset);
+    ReportLog("iDllCount: 0x%x\n", h->iDllCount);
+    ReportLog("iDepDllZeroOrdTableOffset: 0x%x\n", h->iDepDllZeroOrdTableOffset);
 }

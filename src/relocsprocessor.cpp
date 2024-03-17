@@ -335,7 +335,7 @@ void RelocsProcessor::ValidateLocalReloc(const LocalReloc& r,
 //    ReportLog("\nentry type: %d E32 reloc: %d E32 reloc type: %d\n", entryType,
 //              r.iIntermediates.iE32Reloc, r.iIntermediates.iRelocType);
 
-    if(!r.iSymbol)
+    if(!r.iSymbol && (strcmp(r.iIntermediates.iType, "sym lookup\0") != 0) )
         ReportLog("Elf symbol not found for symbol: " + name + "!\n");
 //    else {
 //        ReportLog("Elf symbol ST_BIND: %d\n", ELF32_ST_BIND(r.iSymbol->st_info) );

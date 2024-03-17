@@ -68,7 +68,7 @@ void CRCProcessor::ParseFile()
         return;
 
 
-    ReportLog("Reading checksums from file: " + iFileIn + "\n\n");
+    ReportLog("\nReading checksums from file: " + iFileIn + "\n");
     fstream file(iFileIn, fstream::in);
 
     string s;

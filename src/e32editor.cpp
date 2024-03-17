@@ -145,7 +145,6 @@ uint32_t E32Editor::Symlook() const
     if(!(iHeader->iFlags & KImageNmdExpData))
         return -1;
     const E32EpocExpSymInfoHdr* h = iFile->GetEpocExpSymInfoHdr();
-    ReportLog("ExpSymInfoHdr size: %x\n", h->iSize);
     return Crc32(h, h->iSize);
 }
 

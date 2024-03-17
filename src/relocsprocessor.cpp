@@ -579,8 +579,3 @@ E32Section RelocsProcessor::DataRelocsSection()
     dataRel.info = "DATARELOCKS";
     return CreateRelocations(iDataRelocations, dataRel, this);
 }
-
-size_t RelocsProcessor::EpocExpSymInfoHdrAddress() const
-{
-    return iExportTableAddress;
-}

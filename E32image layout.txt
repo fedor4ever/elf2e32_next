@@ -81,3 +81,35 @@ DATARELOCKS
 || Ofset: E32ImageHeader::iDataRelocOffset
 || Size: E32Parser::GetFileSize() - iHdr->iDataRelocOffset
 || Optional
+
+
+For valid E32Image the following are true:
+ - File size is big enough to contain the entire header.
+ - Values #iUidChecksum, #iSignature and #iHeaderCrc are correct.
+ - CPU type (#iCpuIdentifier), ABI type (#iFlags&#KImageABIMask) and
+   entrypoint type (#iFlags&#KImageEptMask) are valid for this system.
+ - Code part of file as specified by #iCodeOffset and #iCodeSize is fully within the file.
+ - Text section size (#iTextSize) is within code part.
+ - Entrypoint value (#iEntryPoint) lies within the code part and is aligned correctly.
+ - Export directory as specified by #iExportDirCount and #iExportDirOffset is fully
+   within code part and is aligned correctly.
+ - Exception description (E32ImageHeaderV::iExceptionDescriptor), if present,
+   lies within the code part.
+ - Data part of file as specified by #iDataOffset and #iDataSize is fully within the file.
+   Or data is not present (#iDataOffset==#iDataSize==0).
+ - Import section (class E32ImportSection at #iImportOffset) is within 'rest of data'
+   and aligned correctly. Data following the E32ImportSection header is NOT validated or
+   checked if it is fully contained within the file.
+ - Code relocations (class E32RelocSection at #iCodeRelocOffset) is within 'rest of data'
+   and aligned correctly. Data following the E32RelocSection header is NOT validated or
+   checked if it is fully contained within the file.
+ - Data relocations (class E32RelocSection at #iDataRelocOffset) is within 'rest of data'
+   and aligned correctly. Data following the E32RelocSection header is NOT validated or
+   checked if it is fully contained within the file.
+ - Export description is validated by E32ImageHeaderV::ValidateExportDescription().
+ - #iUid1 is consistant with #iFlags&#KImageDll. I.e. if flaged as a DLL, #iUid1 is
+   KDynamicLibraryUidValue, otherwise it is KExecutableImageUidValue.
+ - Version number (#iModuleVersion) is valid. (Major and minor versions are <32768).
+ - File compression type (#iCompressionType) is supported.
+ - #iHeapSizeMax>=#iHeapSizeMin
+ - All signed values in header are not negative.

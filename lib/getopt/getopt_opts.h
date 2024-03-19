@@ -66,7 +66,7 @@ static struct option long_opts[] =
     {"defoutput", required_argument,  Flags::CASE_SENSITIVE, OptionsType::EDEFOUTPUT},
     {"elfinput",  required_argument,  Flags::CASE_SENSITIVE, OptionsType::EELFINPUT},
     {"output",    required_argument,  Flags::CASE_SENSITIVE, OptionsType::EOUTPUT},
-    {"dso",       required_argument,  Flags::CASE_SENSITIVE, OptionsType::EDSO},
+    {"dso",       optional_argument,  Flags::CASE_SENSITIVE, OptionsType::EDSO},
     {"libpath",   required_argument,  Flags::CASE_SENSITIVE, OptionsType::ELIBPATH},
     {"e32input",  required_argument,  Flags::CASE_SENSITIVE, OptionsType::EE32INPUT},
     {"header",    optional_argument,  Flags::CASE_SENSITIVE, OptionsType::EHEADER},

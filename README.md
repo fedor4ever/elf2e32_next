@@ -78,9 +78,9 @@ This version can used directly with other build systems. For that it deduce seve
 > elf2e32 --uid1=0x10000079 --uid2=0x20004c45 --uid3=0xe9e357a1 --sid=0xe9e357a1 --debuggable --version=10.0 --capability=none --fpu=softvfp --targettype=STDDLL --output=epoc_stddll_example.dll --definput=stddll_example.def --dso=\Symbian\S60_5th_Edition_SDK_v1.0\epoc32\release\armv5\LIB\stddll_example{000a0000}.dso --defoutput=stddll_example{000a0000}.def --elfinput=stddll_example.dll --linkas=stddll_example{000a0000}[e9e357a1].dll --namedlookup --libpath=\Symbian\S60_5th_Edition_SDK_v1.0\epoc32\release\armv5\LIB
 
 and reduced options:
-> elf2e32 --uid2=0x20004c45 --uid3=0xe9e357a1 --debuggable --capability=none --targettype=STDDLL --output=epoc_stddll_example.dll --definput=stddll_example.def --defoutput=stddll_example{000a0000}.def --elfinput=stddll_example.dll --namedlookup --libpath=\Symbian\S60_5th_Edition_SDK_v1.0\epoc32\release\armv5\LIB
+> elf2e32 --uid2=0x20004c45 --uid3=0xe9e357a1 --debuggable --capability=none --targettype=STDDLL --output=epoc_stddll_example.dll --definput=stddll_example.def --defoutput=stddll_example{000a0000}.def --elfinput=stddll_example.dll --namedlookup --dso --libpath=\Symbian\S60_5th_Edition_SDK_v1.0\epoc32\release\armv5\LIB
 
-As you see options for **uid1**, **sid**, **fpu**, **version**, **dso**, **linkas**, **stack** omitted. Also **sysdef** option maybe omitted too. If **uid2** and **uid3** are zero they can omitted too. Rules:
+As you see options for **uid1**, **sid**, **fpu**, **version**, **linkas**, **stack** omitted. Also **sysdef** option maybe omitted too for ECOM plugins. Option **dso** argument omitted. If **uid2** and **uid3** are zero they can omitted too. Rules:
  - uid1 - deduced from targettype
  - sid - sid=uid3
  - fpu - fpu=softvfp

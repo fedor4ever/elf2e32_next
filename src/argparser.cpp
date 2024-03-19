@@ -277,6 +277,11 @@ bool ArgParser::Parse(Args* arg) const
                 break;
             case OptionsType::EDSO:
                 arg->iDso = op.arg;
+                if(op.arg.empty())
+                {
+                    arg->iDso = DefaultOptionalArg;
+                    op.arg = arg->iDso;
+                }
                 break;
             case OptionsType::ELIBPATH:
                 arg->iLibpath = op.arg;

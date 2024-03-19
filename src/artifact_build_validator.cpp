@@ -244,7 +244,9 @@ void DeduceDSO(Args* arg)
 {
     if(IsRunnable(arg->iTargettype))
         return;
-    if(!arg->iDso.empty())
+    if(arg->iDso.empty())
+        return;
+    if(arg->iDso != DefaultOptionalArg)
         return;
 
     std::string path;
@@ -304,6 +306,10 @@ void ValidateOptions(Args* arg)
     TargetType targetType = arg->iTargettype;
 
     if(!arg->iHeader.empty() && !noElfinput)
+        return;
+
+// convert .def to .def
+    if(noElfinput && noE32Image && !noDefOut && hasDefinput)
         return;
 
 // convert .dso to .def

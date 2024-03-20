@@ -117,7 +117,7 @@ libcrypto_opts+=r""" --dlldata """
 
 areader_defin='--definput="AlternateReaderRecog{000a0000}.def"'
 
-areader_opts=r""" --capability=ProtServ --defoutput=tmp\AR_(%02d)_TGT.def  --elfinput="AlternateReaderRecog.dll" --output="tmp\AR_(%02d)_TGT.dll" --linkas=AlternateReaderRecog{000a0000}[101ff1ec].dll --dso=tmp\AlternateReaderRecog{000a0000}.dso --uid1=0x10000079 --uid2=0x10009d8d --uid3=0x101ff1ec --targettype=PLUGIN --sid=0x101ff1ec --version=10.0 --ignorenoncallable """
+areader_opts=r""" --capability=ProtServ --defoutput=tmp\AR_(%02d)_TGT.def  --elfinput="AlternateReaderRecog.dll" --output="tmp\AR_(%02d)_TGT.dll" --linkas=AlternateReaderRecog{000a0000}[101ff1ec].dll --dso=tmp\AlternateReaderRecog{000a0000}.dso --uid1=0x10000079 --uid2=0x10009d8d --uid3=0x101ff1ec --targettype=PLUGIN --sid=0x101ff1ec --version=10.0 """
 areader_normal_opts = areader_opts + common_opts + r"""  --sysdef=_Z24ImplementationGroupProxyRi,1;lala,2; """
 
 
@@ -538,15 +538,33 @@ def BuildAndValidateECOM():
                 idx+=1
     PrintCRCDups()
 
-def TortureECOMCRC(sfx):
-    if sfx in ('U', 'UI', 'UD', 'UE', 'UDi', 'UID', 'UIE', 'UIDi', 'UDE', 'UDDi', 'UEDi', 'UIDE', 'UIDDi', 'UIEDi', 'UDEDi', 'UIDEDi'):
-        return os.path.join("testing_CRCs", "AR_torture_ECOM.crc")
-    if sfx in ('UN', 'UIN', 'UDN', 'UEN', 'UNDi', 'UIDN', 'UIEN', 'UINDi', 'UDEN', 'UDNDi', 'UENDi', 'UIDEN', 'UIDNDi', 'UIENDi', 'UDENDi', 'UIDENDi'):
-        return os.path.join("testing_CRCs", "AR_torture_ECOM_N.crc")
+def TortureECOMDCRC(sfx):
+    if sfx in ('U', 'UD', 'UE', 'UN', 'UDi', 'UDE', 'UDN', 'UDDi', 'UEN', 'UEDi', 'UNDi', 'UDEN', 'UDEDi', 'UDNDi', 'UENDi', 'UDENDi'):
+        return os.path.join("testing_CRCs", "AR_torture_ECOM_I.dcrc")
+    if sfx in ('UI', 'UID', 'UIE', 'UIN', 'UIDi', 'UIDE', 'UIDN', 'UIDDi', 'UIEN', 'UIEDi', 'UINDi', 'UIDEN', 'UIDEDi', 'UIDNDi', 'UIENDi', 'UIDENDi'):
+        return os.path.join("testing_CRCs", "AR_torture_ECOM.dcrc")
     return ""
 
+def TortureECOMCRC(sfx):
+    if sfx in ('U', 'UD', 'UE', 'UDi', 'UDE', 'UDDi', 'UEDi', 'UDEDi'):
+        return os.path.join("testing_CRCs", "AR_torture_ECOM_U.crc")
+    if sfx in ('UI', 'UID', 'UIE', 'UIDi', 'UIDE', 'UIDDi', 'UIEDi', 'UIDEDi'):
+        return os.path.join("testing_CRCs", "AR_torture_ECOM_UI.crc")
+    if sfx in ('UN', 'UDN', 'UEN', 'UNDi', 'UDEN', 'UDNDi', 'UENDi', 'UDENDi'):
+        return os.path.join("testing_CRCs", "AR_torture_ECOM_UN.crc")
+    if sfx in ('UIN', 'UIDN', 'UIEN', 'UINDi', 'UIDEN', 'UIDNDi', 'UIENDi', 'UIDENDi'):
+        return os.path.join("testing_CRCs", "AR_torture_ECOM_UIN.crc")
+    return ""
+
+
+    # if sfx in ('U', 'UI', 'UD', 'UE', 'UDi', 'UID', 'UIE', 'UIDi', 'UDE', 'UDDi', 'UEDi', 'UIDE', 'UIDDi', 'UIEDi', 'UDEDi', 'UIDEDi'):
+        # return os.path.join("testing_CRCs", "AR_torture_ECOM.crc")
+    # if sfx in ('UN', 'UIN', 'UDN', 'UEN', 'UNDi', 'UIDN', 'UIEN', 'UINDi', 'UDEN', 'UDNDi', 'UENDi', 'UIDEN', 'UIDNDi', 'UIENDi', 'UDENDi', 'UIDENDi'):
+        # return os.path.join("testing_CRCs", "AR_torture_ECOM_N.crc")
+    # return ""
+
 def PackedTortureEcomCRC(sfx):
-    dcrc = os.path.join("testing_CRCs","AR_torture_ECOM.dcrc")
+    dcrc = TortureECOMDCRC(sfx)
     crc = TortureECOMCRC(sfx)
     if dcrc != "" and crc != "":
         return dcrc+';'+crc

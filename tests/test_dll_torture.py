@@ -117,7 +117,7 @@ libcrypto_opts+=r""" --dlldata """
 
 areader_defin='--definput="AlternateReaderRecog{000a0000}.def"'
 
-areader_opts=r""" --capability=ProtServ --defoutput=tmp\AR_(%02d)_TGT.def --elfinput="AlternateReaderRecog.dll" --output="tmp\AR_(%02d)_TGT.dll" --linkas=AlternateReaderRecog{000a0000}[101ff1ec].dll --dso=tmp\AlternateReaderRecog{000a0000}.dso --uid1=0x10000079 --uid2=0x10009d8d --uid3=0x101ff1ec --targettype=PLUGIN --sid=0x101ff1ec --version=10.0 --ignorenoncallable """
+areader_opts=r""" --capability=ProtServ --defoutput=tmp\AR_(%02d)_TGT.def  --elfinput="AlternateReaderRecog.dll" --output="tmp\AR_(%02d)_TGT.dll" --linkas=AlternateReaderRecog{000a0000}[101ff1ec].dll --dso=tmp\AlternateReaderRecog{000a0000}.dso --uid1=0x10000079 --uid2=0x10009d8d --uid3=0x101ff1ec --targettype=PLUGIN --sid=0x101ff1ec --version=10.0 --ignorenoncallable """
 areader_normal_opts = areader_opts + common_opts + r"""  --sysdef=_Z24ImplementationGroupProxyRi,1;lala,2; """
 
 
@@ -165,7 +165,8 @@ def CrashMe(sfx):
     return False
 
 #valid error: elf2e32 : Error: E1036: Symbol XXX Missing from ELF File
-def SkipMe(sfx):
+def SkipMe(addend):
+    sfx = OptSuffix(addend)
     if sfx in ('I', 'D', 'E', 'N', 'ID', 'IE', 'IN', 'DE', 'DN', 'EN', 'IDE', 'IDN', 'IEN', 'DEN', 'IDEN'):
         return True
     return False
@@ -180,8 +181,22 @@ def NewTgt(tmplate, idx, sfx):
     new = new.replace("TGT", sfx)
     return new
 
-def BuildE32(elf2e32):
+def InitTest(addend, cmdline, idx, old_dso, new_dso, callback = None):
     global started_tests
+    started_tests+=1
+    tmp = cmdline.replace("%02d", str(idx))
+    sfx = OptSuffix(addend)
+    tmp=tmp.replace("TGT", sfx)
+    if callback:
+        tmp+=callback(sfx)
+    tmp = tmp + ' ' + addend
+    print(str(idx) + ') ' + tmp + ' ' + addend)
+
+    old = os.path.join("tmp",old_dso)
+    new = NewTgt(new_dso, idx, sfx)
+    return tmp, sfx, old, new
+
+def E32WithFrozenDEF(elf2e32):
     global failed_tests
     global failed_sfx
     cmdline = elf2e32 + " --uncompressed " + libcrypto_opts
@@ -189,26 +204,19 @@ def BuildE32(elf2e32):
     args = ['--unfrozen', '--ignorenoncallable', '--excludeunwantedexports', '--namedlookup', libcrypto_defin]
     for x in range(1, len(args)+1):
         for i in combinations(args, x):
-            started_tests+=1
             addend = ' '.join(i)
-            tmp = cmdline.replace("%02d", str(idx))
-            sfx = OptSuffix(addend)
-            tmp=tmp.replace("TGT", sfx)
-            print(str(idx) + ') ' + tmp + ' ' + addend)
-
-            old = os.path.join("tmp","libcrypto{000a0000}.dso")
-            new = NewTgt("out_(%02d)_TGT.dso", idx, sfx)
+            tmp, sfx, old, new = InitTest(addend, cmdline, idx, "libcrypto{000a0000}.dso", "out_(%02d)_TGT.dso")
             if CrashMe(sfx):
                idx+=1
                continue
             try:
-                subprocess.check_call(tmp + ' ' + addend)
+                subprocess.check_call(tmp)
                 os.rename(old, new)
                 subprocess.check_call(elf2e32_test + ' --filecrc ' + " --dso=" + new)
                 root, ext = os.path.splitext(new)
                 subprocess.check_call(elf2e32_test + ' --filecrc ' + " --e32input=" + root + ".dll")
             except:
-                print "Unexpectable test #%s failure:\n %s" %(idx, tmp + ' ' + addend)
+                print "Unexpectable test #%s failure:\n %s" %(idx, tmp)
                 failed_tests+=1                
                 try:
                     os.remove(old)
@@ -217,7 +225,44 @@ def BuildE32(elf2e32):
                 print "\n"
                 idx+=1
 
-    cmdline = elf2e32 + " " + areader_opts
+def TortureECOM(elf2e32):
+    global failed_tests
+    global failed_sfx
+    cmdline = elf2e32 + " " + areader_opts + common_opts
+    idx = 1
+    args = ['--unfrozen', '--ignorenoncallable', '--dlldata', '--excludeunwantedexports', '--namedlookup', areader_defin]
+    for x in range(1, len(args)+1):
+        for i in combinations(args, x):
+            addend = ' '.join(i)
+            if SkipMe(addend):
+               continue
+            tmp, sfx, old, new = InitTest(addend, cmdline, idx, "AlternateReaderRecog{000a0000}.dso", "AR_(%02d)_TGT.dso")
+            # tmp += " --uncompressed"
+
+            try:
+                subprocess.check_call(tmp)
+                if os.path.isfile(new):
+                    os.remove(new)
+                os.rename(old, new)
+                subprocess.check_call(elf2e32_test + ' --filecrc ' + " --dso=" + new)
+                root, ext = os.path.splitext(new)
+                subprocess.check_call(elf2e32_test + ' --filecrc ' + " --e32input=" + root + ".dll")
+            except:
+                print "Unexpectable test #%s failure:\n %s" %(idx, tmp)
+                failed_tests+=1
+                failed_sfx.append(sfx)
+                if os.path.isfile(old):
+                    os.remove(old)
+            finally:
+                print "\n"
+                idx+=1
+
+def ValidateECOM(elf2e32):
+    global started_tests
+    global failed_tests
+    global failed_sfx
+    cmdline = elf2e32 + " " + areader_opts + common_opts
+    idx = 1
     args = ['--unfrozen', '--ignorenoncallable', '--dlldata', '--excludeunwantedexports', '--namedlookup', areader_defin]
     for x in range(1, len(args)+1):
         for i in combinations(args, x):
@@ -228,7 +273,7 @@ def BuildE32(elf2e32):
                continue
             tmp = cmdline.replace("%02d", str(idx))
             tmp = tmp.replace("TGT", sfx)
-            tmp += " --uncompressed"
+            # tmp += " --uncompressed"
             print(str(idx) + ') ' + tmp + ' ' + addend)
 
             old = os.path.join("tmp","AlternateReaderRecog{000a0000}.dso")
@@ -349,11 +394,13 @@ def PrintCRCDups():
     print crcs
 
 def DeduceCRCS():
-    BuildE32(elf2e32_SDK)
+    TortureECOM(elf2e32_SDK)
+    # ValidateECOM(elf2e32_SDK)
+    E32WithFrozenDEF(elf2e32_SDK)
+    # E32WithOutdatedDEF(elf2e32_SDK)
     PrintCRCDups()
 
 def BuildAndValidateE32WithFrozenDEF():
-    global started_tests
     global failed_tests
     global failed_sfx
     crypto_dcrc = os.path.join("tmp","libcrypto{000a0000}.dcrc")
@@ -364,20 +411,11 @@ def BuildAndValidateE32WithFrozenDEF():
     args = ['--unfrozen', '--ignorenoncallable', '--excludeunwantedexports', '--namedlookup', libcrypto_defin]
     for x in range(1, len(args)+1):
         for i in combinations(args, x):
-            started_tests+=1
             addend = ' '.join(i)
-            tmp = cmdline.replace("%02d", str(idx))
-            sfx = OptSuffix(addend)
-            tmp=tmp.replace("TGT", sfx)
-            tmp+=PackedCRC(sfx)
+            tmp, sfx, old, new = InitTest(addend, cmdline, idx, "libcrypto{000a0000}.dso", "frzn_(%02d)_TGT.dso", PackedCRC)
             # tmp+=" --force --uncompressed"
-
-            print(str(idx) + ') ' + tmp + ' ' + addend)
-
-            old = os.path.join("tmp","libcrypto{000a0000}.dso")
-            new = NewTgt("out_(%02d)_TGT.dso", idx, sfx)
             try:
-                subprocess.check_call(tmp + ' ' + addend)
+                subprocess.check_call(tmp)
                 if os.path.isfile(new):
                     os.remove(new)
                 os.rename(old, new)
@@ -394,7 +432,7 @@ def BuildAndValidateE32WithFrozenDEF():
                         os.remove(new_crc)
                     os.rename(crypto_crc, new_crc)
             except:
-                print "Unexpectable test #%s failure:\n %s" %(idx, tmp + ' ' + addend)
+                print "Unexpectable test #%s failure:\n %s" %(idx, tmp)
                 failed_tests+=1
                 failed_sfx.append(sfx)
                 try:
@@ -406,7 +444,6 @@ def BuildAndValidateE32WithFrozenDEF():
                 idx+=1
 
 def BuildAndValidateE32WithOutdatedDEF():
-    global started_tests
     global failed_tests
     global failed_sfx
     crypto_dcrc = os.path.join("tmp","libcrypto{000a0000}.dcrc")
@@ -417,22 +454,10 @@ def BuildAndValidateE32WithOutdatedDEF():
     args = ('--unfrozen', '--ignorenoncallable', '--excludeunwantedexports', '--namedlookup', ' --definput="libcryptou_openssl.def"')
     for x in range(1, len(args)+1):
         for i in combinations(args, x):
-            started_tests+=1
             addend = ' '.join(i)
-            tmp = cmdline.replace("%02d", str(idx))
-            sfx = OptSuffix(addend)
-            tmp=tmp.replace("TGT", sfx)
-            tmp+=PackedCRC(sfx)
-            tmp+=" --force --uncompressed"
-
-            print(str(idx) + ') ' + tmp + ' ' + addend)
-
-            old = os.path.join("tmp","libcrypto{000a0000}.dso")
-            new = os.path.join("tmp","out_(%02d)_TGT.dso")
-            new = new.replace("%02d", str(idx))
-            new = new.replace("TGT", sfx)
+            tmp, sfx, old, new = InitTest(addend, cmdline, idx, "libcrypto{000a0000}.dso", "out_(%02d)_TGT.dso", PackedCRC)
             try:
-                subprocess.check_call(tmp + ' ' + addend)
+                subprocess.check_call(tmp)
                 if os.path.isfile(new):
                     os.remove(new)
                 os.rename(old, new)
@@ -449,7 +474,7 @@ def BuildAndValidateE32WithOutdatedDEF():
                         os.remove(new_crc)
                     os.rename(crypto_crc, new_crc)
             except:
-                print "Unexpectable test #%s failure:\n %s" %(idx, tmp + ' ' + addend)
+                print "Unexpectable test #%s failure:\n %s" %(idx, tmp)
                 failed_tests+=1
                 failed_sfx.append(sfx)
                 try:
@@ -479,23 +504,10 @@ def BuildAndValidateECOM():
     args = ('--unfrozen', '--ignorenoncallable', '--dlldata', '--excludeunwantedexports', '--namedlookup', areader_defin)
     for x in range(1, len(args)+1):
         for i in combinations(args, x):
-            started_tests+=1
             addend = ' '.join(i)
-            sfx = OptSuffix(addend)
-            if SkipMe(sfx):
-               continue
-            tmp = cmdline.replace("%02d", str(idx))
-            tmp = tmp.replace("TGT", sfx)
-            # tmp += PackedEcomCRC(sfx)
-            tmp = tmp + ' ' + addend + " --force --uncompressed"
-
-            print(str(idx) + ') ' + tmp)
-
-            old = os.path.join("tmp","AlternateReaderRecog{000a0000}.dso")
-            new = NewTgt("AR_(%02d)_TGT.dso", idx, sfx)
-            out_log = []
-            out = ""
-            err = ""
+            # if SkipMe(addend):
+               # continue
+            tmp, sfx, old, new = InitTest(addend, cmdline, idx, "AlternateReaderRecog{000a0000}.dso", "ECOM_(%02d)_TGT.dso", PackedEcomCRC)
             try:
                 subprocess.check_call(tmp)
                 if os.path.isfile(new):
@@ -543,7 +555,8 @@ def PackedTortureEcomCRC(sfx):
     return dcrc
 
 #valid error: elf2e32 : Error: E1036: Symbol XXX Missing from ELF File
-def FrozenExports(sfx):
+def FrozenExports(addend):
+    sfx = OptSuffix(addend)
     if sfx in ('Di', 'IDi', 'DDi', 'EDi', 'NDi', 'IDDi', 'IEDi', 'INDi', 'DEDi', 'DNDi', 'ENDi', 'IDEDi', 'IDNDi', 'IENDi', 'DENDi', 'IDENDi', 'I', 'D', 'E', 'N', 'ID', 'IE', 'IN', 'DE', 'DN', 'EN', 'IDE', 'IDN', 'IEN', 'DEN', 'IDEN'):
         return True
     return False
@@ -567,7 +580,6 @@ def FrozenExports(sfx):
 # Resume: many *U* builds give combo DSO with 2 exports and E32 with 1 export. This is critical error.
 # In this case, the test is regression. It is not a reference for the original version.
 def BuildAndTortureECOM():
-    global started_tests
     global failed_tests
     global failed_sfx
     crypto_dcrc = os.path.join("tmp", "AlternateReaderRecog{000a0000}.dcrc")
@@ -578,24 +590,11 @@ def BuildAndTortureECOM():
     args = ('--unfrozen', '--ignorenoncallable', '--dlldata', '--excludeunwantedexports', '--namedlookup', areader_defin)
     for x in range(1, len(args)+1):
         for i in combinations(args, x):
-            started_tests+=1
             addend = ' '.join(i)
-            sfx = OptSuffix(addend)
-            if FrozenExports(sfx):
+            if FrozenExports(addend):
                continue
-            tmp = cmdline.replace("%02d", str(idx))
-            tmp = tmp.replace("TGT", sfx)
-            tmp += PackedTortureEcomCRC(sfx)
-            tmp = tmp + ' ' + addend
+            tmp, sfx, old, new = InitTest(addend, cmdline, idx, "AlternateReaderRecog{000a0000}.dso", "AR_(%02d)_TGT.dso", PackedTortureEcomCRC)
             # tmp += " --uncompressed --force"
-
-            print(str(idx) + ') ' + tmp)
-
-            old = os.path.join("tmp","AlternateReaderRecog{000a0000}.dso")
-            new = NewTgt("AR_(%02d)_TGT.dso", idx, sfx)
-            out_log = []
-            out = ""
-            err = ""
             try:
                 subprocess.check_call(tmp)
                 if os.path.isfile(new):
@@ -627,8 +626,13 @@ def BuildAndTortureECOM():
     # PrintCRCDups()
 
 def RenameFile(name):
+    if(".SDK." in name):
+        os.remove(name)
+        return
     tmp = os.path.splitext(name)
     new = tmp[0] + ".SDK" + tmp[1]
+    if os.path.isfile(new):
+        os.remove(new)
     os.rename(name, new)
 
 def RenameOutput():

@@ -528,15 +528,13 @@ def BuildAndValidateECOM():
 
 def TortureECOMCRC(sfx):
     if sfx in ('U', 'UI', 'UD', 'UE', 'UDi', 'UID', 'UIE', 'UIDi', 'UDE', 'UDDi', 'UEDi', 'UIDE', 'UIDDi', 'UIEDi', 'UDEDi', 'UIDEDi'):
-        return os.path.join("testing_CRCs", "ar_missing_unfrozen_sysdef.crc")
-    if sfx in ('UN', 'UIN', 'UDN', 'UEN', 'UIDN', 'UIEN', 'UDEN', 'UIDEN'):
-        return os.path.join("testing_CRCs", "AR_(5)_UN.crc")
-    if sfx in ('UNDi', 'UINDi', 'UDNDi', 'UENDi', 'UIDNDi', 'UIENDi', 'UDENDi', 'UIDENDi'):
-        return os.path.join("testing_CRCs", "AR_(16)_UNDi.crc")
+        return os.path.join("testing_CRCs", "AR_torture_ECOM.crc")
+    if sfx in ('UN', 'UIN', 'UDN', 'UEN', 'UNDi', 'UIDN', 'UIEN', 'UINDi', 'UDEN', 'UDNDi', 'UENDi', 'UIDEN', 'UIDNDi', 'UIENDi', 'UDENDi', 'UIDENDi'):
+        return os.path.join("testing_CRCs", "AR_torture_ECOM_N.crc")
     return ""
 
 def PackedTortureEcomCRC(sfx):
-    dcrc = os.path.join("testing_CRCs","ar_missing_unfrozen_sysdef.dcrc")
+    dcrc = os.path.join("testing_CRCs","AR_torture_ECOM.dcrc")
     crc = TortureECOMCRC(sfx)
     if dcrc != "" and crc != "":
         return dcrc+';'+crc
@@ -552,11 +550,22 @@ def FrozenExports(sfx):
 
 
 # --sysdef has argument to non-existed or "missed" function lala with ordinal 2
-# Expected result: all tests failed except unfrozen ones.
-# Issues:
-# - From Belle SDK build succesfully 48/63.
-# - Found combo when DLL has one export and its DSO 2 exports, absent symbol present as real(AR_(1)_U.dso).
-# Last one is critical logic error in vanilla elf2e32. No more research in build artifacts. Use as stability test.
+# --sysdef=_Z24ImplementationGroupProxyRi,1;lala,2;
+# Expected result: all builds failed except unfrozen ones.
+# Builded: 48/63.
+# Expected: 32/63.
+#
+# SDK build:
+# - DSO and DEF has 2 groups:
+#   - U, UI, UD, UE, UN, UID, UIE, UIN, UDE, UDN, UEN, UIDE, UIDN, UIEN, UDEN, UIDEN - "missed" export added.
+#   - Di, UDi, IDi, DDi, EDi, NDi, UIDi,  UDDi, UEDi, UNDi, IDDi, IEDi, INDi, DEDi, DNDi, ENDi, UIDDi, UIEDi, UINDi, UDEDi, UDNDi, UENDi, IDEDi, IDNDi, IENDi, DENDi, UIDEDi, UIDNDi, UIENDi, UDENDi, IDENDi, UIDENDi - "missed" export not added.
+# - E32 has 2 groups:
+#   - U, Di, UI, UD, UE, UDi, IDi, DDi, EDi, UID, UIE, UIDi, UDE, UDDi, UEDi, IDDi, IEDi, DEDi, UIDE, UDDi, UIEDi, UDEDi, IDEDi, UIDEDi, UIDNDi, UIENDi, UDENDi, IDENDi, UIDENDi
+#   - UN, NDi, UIN, UDN, UEN, UNDi, INDi, DNDi, ENDi, UIDN, UIEN, UINDi, UDEN, UDNDi, UENDi, IDNDi, IENDi, DENDi, UIDEN
+# First E32 group: "missed" function ignored, same as AlternateReaderRecog.SDK.dll
+# Second E32 group:  "missed" function ignored, namedlookup section added.
+# Resume: many *U* builds give combo DSO with 2 exports and E32 with 1 export. This is critical error.
+# In this case, the test is regression. It is not a reference for the original version.
 def BuildAndTortureECOM():
     global started_tests
     global failed_tests
@@ -576,8 +585,9 @@ def BuildAndTortureECOM():
                continue
             tmp = cmdline.replace("%02d", str(idx))
             tmp = tmp.replace("TGT", sfx)
-            # tmp += PackedTortureEcomCRC(sfx)
-            tmp = tmp + ' ' + addend + " --uncompressed" # --force
+            tmp += PackedTortureEcomCRC(sfx)
+            tmp = tmp + ' ' + addend
+            # tmp += " --uncompressed --force"
 
             print(str(idx) + ') ' + tmp)
 
@@ -614,6 +624,7 @@ def BuildAndTortureECOM():
             finally:
                 print "\n"
                 idx+=1
+    # PrintCRCDups()
 
 def RenameFile(name):
     tmp = os.path.splitext(name)
@@ -629,7 +640,7 @@ def RenameOutput():
 def Run():
     # DeduceCRCS()
     # RenameOutput()
-    # BuildAndTortureECOM()
+    BuildAndTortureECOM()
     # BuildAndValidateECOM()
     BuildAndValidateE32WithFrozenDEF()
     # BuildAndValidateE32WithOutdatedDEF()

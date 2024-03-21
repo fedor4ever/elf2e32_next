@@ -118,7 +118,6 @@ libcrypto_opts+=r""" --dlldata """
 areader_defin='--definput="AlternateReaderRecog{000a0000}.def"'
 
 areader_opts=r""" --capability=ProtServ --defoutput=tmp\AR_(%02d)_TGT.def  --elfinput="AlternateReaderRecog.dll" --output="tmp\AR_(%02d)_TGT.dll" --linkas=AlternateReaderRecog{000a0000}[101ff1ec].dll --dso=tmp\AlternateReaderRecog{000a0000}.dso --uid1=0x10000079 --uid2=0x10009d8d --uid3=0x101ff1ec --targettype=PLUGIN --sid=0x101ff1ec --version=10.0 """
-areader_normal_opts = areader_opts + common_opts + r"""  --sysdef=_Z24ImplementationGroupProxyRi,1;lala,2; """
 
 
 
@@ -480,14 +479,6 @@ def BuildAndValidateE32WithOutdatedDEF():
                 print "\n"
                 idx+=1
 
-
-#valid error: elf2e32 : Error: E1036: Symbol XXX Missing from ELF File
-def SkipMe2(sfx):
-    # if sfx in ('Di', 'E', 'N', 'ID', 'IE', 'IN', 'DE', 'DN', 'EN', 'IDE', 'IDN', 'IEN', 'DEN', 'IDEN'):
-    if sfx in ():
-        return True
-    return False
-
 def BuildAndValidateECOM():
     global failed_tests
     global failed_sfx
@@ -548,13 +539,6 @@ def TortureECOMCRC(sfx):
     if sfx in ('UIN', 'UIDN', 'UIEN', 'UINDi', 'UIDEN', 'UIDNDi', 'UIENDi', 'UIDENDi'):
         return os.path.join("testing_CRCs", "AR_torture_ECOM_UIN.crc")
     return ""
-
-
-    # if sfx in ('U', 'UI', 'UD', 'UE', 'UDi', 'UID', 'UIE', 'UIDi', 'UDE', 'UDDi', 'UEDi', 'UIDE', 'UIDDi', 'UIEDi', 'UDEDi', 'UIDEDi'):
-        # return os.path.join("testing_CRCs", "AR_torture_ECOM.crc")
-    # if sfx in ('UN', 'UIN', 'UDN', 'UEN', 'UNDi', 'UIDN', 'UIEN', 'UINDi', 'UDEN', 'UDNDi', 'UENDi', 'UIDEN', 'UIDNDi', 'UIENDi', 'UDENDi', 'UIDENDi'):
-        # return os.path.join("testing_CRCs", "AR_torture_ECOM_N.crc")
-    # return ""
 
 def PackedTortureEcomCRC(sfx):
     dcrc = TortureECOMDCRC(sfx)

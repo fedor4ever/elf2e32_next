@@ -15,4 +15,5 @@ version_major = 0x2
 version_minor = 0x0
 version_build = 0x1f9
 headercrc = 0x159d444f
+compressiontype = 0x0
 caps = 0x100

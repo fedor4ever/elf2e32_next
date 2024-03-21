@@ -258,7 +258,6 @@ def TortureECOM(elf2e32):
                 idx+=1
 
 def ValidateECOM(elf2e32):
-    global started_tests
     global failed_tests
     global failed_sfx
     cmdline = elf2e32 + " " + areader_opts + common_opts
@@ -266,20 +265,11 @@ def ValidateECOM(elf2e32):
     args = ['--unfrozen', '--ignorenoncallable', '--dlldata', '--excludeunwantedexports', '--namedlookup', areader_defin]
     for x in range(1, len(args)+1):
         for i in combinations(args, x):
-            started_tests+=1
             addend = ' '.join(i)
-            sfx = OptSuffix(addend)
-            if SkipMe(sfx):
-               continue
-            tmp = cmdline.replace("%02d", str(idx))
-            tmp = tmp.replace("TGT", sfx)
-            # tmp += " --uncompressed"
-            print(str(idx) + ') ' + tmp + ' ' + addend)
-
-            old = os.path.join("tmp","AlternateReaderRecog{000a0000}.dso")
-            new = NewTgt("AR_(%02d)_TGT.dso", idx, sfx)
+            tmp, sfx, old, new = InitTest(addend, cmdline, idx, "AlternateReaderRecog{000a0000}.dso", "AR_(%02d)_TGT.dso")
+            tmp += " --uncompressed"
             try:
-                subprocess.check_call(tmp + ' ' + addend)
+                subprocess.check_call(tmp)
                 if os.path.isfile(new):
                     os.remove(new)
                 os.rename(old, new)
@@ -287,7 +277,7 @@ def ValidateECOM(elf2e32):
                 root, ext = os.path.splitext(new)
                 subprocess.check_call(elf2e32_test + ' --filecrc ' + " --e32input=" + root + ".dll")
             except:
-                print "Unexpectable test #%s failure:\n %s" %(idx, tmp + ' ' + addend)
+                print "Unexpectable test #%s failure:\n %s" %(idx, tmp)
                 failed_tests+=1
                 failed_sfx.append(sfx)
                 if os.path.isfile(old):
@@ -299,18 +289,23 @@ def ValidateECOM(elf2e32):
 skipped_crc_sfx = []
 skipped_dcrc_sfx = []
 def AReaderSysdefDCRC(sfx):
-    if sfx in ('U', 'UID', 'UIE', 'UIN', 'UDE', 'UDN', 'UEN', 'UIDE', 'UIDN', 'UI', 'UIEN', 'UDEN', 'UD', 'UIDEN', 'UE', 'UN'):
-        return os.path.join("testing_CRCs","ar_missing_sysdef.dcrc")
-    if sfx in ('EDi', 'NDi', 'UIDi', 'UDDi', 'Di', 'UEDi', 'UNDi', 'IDDi', 'IEDi', 'INDi', 'DEDi', 'DNDi', 'ENDi', 'UIDDi', 'UIEDi', 'UINDi', 'UDEDi', 'UDNDi', 'UENDi', 'IDEDi', 'IDNDi', 'IENDi', 'DENDi', 'UIDEDi', 'UIDNDi', 'UIENDi', 'UDENDi', 'IDENDi', 'UIDENDi', 'UDi', 'IDi', 'DDi'):
+    global skipped_dcrc_sfx
+    if sfx in ('I', 'ID', 'IE', 'IN', 'IDi', 'UI', 'UID', 'UIE', 'UIN', 'UIDi', 'IDE', 'IDN', 'IDDi', 'IEN', 'IEDi', 'INDi', 'UIDE', 'UIDN', 'UIDDi', 'UIEN', 'UIEDi', 'UINDi', 'IDEN', 'IDEDi', 'IDNDi', 'IENDi', 'UIDEN', 'UIDEDi', 'UIDNDi', 'UIENDi', 'IDENDi', 'UIDENDi'):
         return "AlternateReaderRecog.SDK.dcrc"
+    if sfx in ('U', 'D', 'E', 'N', 'Di', 'UD', 'UE', 'UN', 'UDi', 'DE', 'DN', 'DDi', 'EN', 'EDi', 'NDi', 'UDE', 'UDN', 'UDDi', 'UEN', 'UEDi', 'UNDi', 'DEN', 'DEDi', 'DNDi', 'ENDi', 'UDEN', 'UDEDi', 'UDNDi', 'UENDi', 'DENDi', 'UDENDi'):
+        return os.path.join("testing_CRCs","ECOM.dcrc")
     skipped_dcrc_sfx.append("Unknown AReaderRecog DCRC: %s;" %sfx)
     return ""
 
 def AReaderSysdefCRC(sfx):
-    if sfx in ('U', 'Di', 'UI', 'UD', 'EDi', 'UID', 'UIE', 'UIDi', 'UDE', 'UDDi', 'UEDi', 'IDDi', 'IEDi', 'DEDi', 'UE', 'UDi', 'IDi', 'DDi', 'UIDE', 'UIDDi', 'UIEDi', 'UDEDi', 'IDEDi', 'UIDEDi'):
+    if sfx in ('I', 'ID', 'IE', 'UI', 'IDi', 'UID', 'UIE', 'UIDi', 'IDE', 'IDDi', 'IEDi', 'UIDE', 'UIDDi', 'UIEDi', 'IDEDi', 'UIDEDi'):
         return "AlternateReaderRecog.SDK.crc"
-    if sfx in ('NDi', 'UIN', 'UDN', 'UEN', 'UNDi', 'INDi', 'UN', 'DNDi', 'ENDi', 'UIDN', 'UIEN', 'UINDi', 'UDEN', 'UDNDi', 'UENDi', 'IDNDi', 'IENDi', 'DENDi', 'UIDEN', 'UIDNDi', 'UIENDi', 'UDENDi', 'IDENDi', 'UIDENDi'):
-        return os.path.join("testing_CRCs","ar_symlook.crc")
+    if sfx in ('IN', 'UIN', 'IDN', 'IEN', 'INDi', 'UIDN', 'UIEN', 'UINDi', 'IDEN', 'IDNDi', 'IENDi', 'UIDEN', 'UIDNDi', 'UIENDi', 'IDENDi', 'UIDENDi'):
+        return os.path.join("testing_CRCs","ECOM_IN.crc") 
+    if sfx in ('D', 'E', 'U', 'Di', 'UD', 'UE', 'DE', 'DDi', 'EDi', 'UDE', 'UDi', 'UDDi', 'UEDi', 'DEDi', 'UDEDi'):
+        return os.path.join("testing_CRCs","ECOM.crc")
+    if sfx in ('N', 'DN', 'EN', 'UN', 'NDi', 'UDN', 'UEN', 'UNDi', 'DEN', 'DNDi', 'ENDi', 'UDEN', 'UDNDi', 'UENDi', 'DENDi', 'UDENDi'):
+        return os.path.join("testing_CRCs","ECOM_N.crc")
     skipped_crc_sfx.append("Unknown AReaderRecog CRC: %s;" %sfx)
     return ""
 
@@ -395,7 +390,7 @@ def PrintCRCDups():
 
 def DeduceCRCS():
     TortureECOM(elf2e32_SDK)
-    # ValidateECOM(elf2e32_SDK)
+    ValidateECOM(elf2e32_SDK)
     E32WithFrozenDEF(elf2e32_SDK)
     # E32WithOutdatedDEF(elf2e32_SDK)
     PrintCRCDups()
@@ -505,9 +500,8 @@ def BuildAndValidateECOM():
     for x in range(1, len(args)+1):
         for i in combinations(args, x):
             addend = ' '.join(i)
-            # if SkipMe(addend):
-               # continue
             tmp, sfx, old, new = InitTest(addend, cmdline, idx, "AlternateReaderRecog{000a0000}.dso", "ECOM_(%02d)_TGT.dso", PackedEcomCRC)
+            # tmp += " --uncompressed --force"
             try:
                 subprocess.check_call(tmp)
                 if os.path.isfile(new):
@@ -536,7 +530,6 @@ def BuildAndValidateECOM():
             finally:
                 print "\n"
                 idx+=1
-    PrintCRCDups()
 
 def TortureECOMDCRC(sfx):
     if sfx in ('U', 'UD', 'UE', 'UN', 'UDi', 'UDE', 'UDN', 'UDDi', 'UEN', 'UEDi', 'UNDi', 'UDEN', 'UDEDi', 'UDNDi', 'UENDi', 'UDENDi'):
@@ -663,7 +656,7 @@ def Run():
     # DeduceCRCS()
     # RenameOutput()
     BuildAndTortureECOM()
-    # BuildAndValidateECOM()
+    BuildAndValidateECOM()
     BuildAndValidateE32WithFrozenDEF()
     # BuildAndValidateE32WithOutdatedDEF()
 

@@ -68,6 +68,15 @@ void E32File::SetFixedAddress(E32ImageHeader* hdr)
 
 void E32File::WriteE32File()
 {
+// old behaviour for NDi targets
+//    Symbols tmp;
+//    for(auto x: iSymbols)
+//    {
+//        if(!x->Absent())
+//            tmp.push_back(x);
+//    }
+//    iSymbols = tmp;
+
     iRelocs = new RelocsProcessor(iElfSrc, iSymbols, iE32Opts->iNamedlookup);
     iRelocs->Process();
 

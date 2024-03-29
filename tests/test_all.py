@@ -1,7 +1,7 @@
 # encoding=utf-8
 import os, subprocess, errno
 
-import test_common, test_dll_options, test_dso_options, test_exe_options
+import test_common, test_dll_options, test_dso_options, test_exe_options, test_dll_torture
 
 if __name__ == "__main__":
    try:
@@ -17,6 +17,7 @@ if __name__ == "__main__":
    failed_tests += test_dll_options.Run()
    failed_tests += test_dso_options.Run()
    failed_tests += test_exe_options.Run()
+   failed_tests += test_dll_torture.Run()
 
    if failed_tests > 0:
       print "Tests failed: %d" %failed_tests

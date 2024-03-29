@@ -740,10 +740,6 @@ def Run():
     BuildAndValidateECOM()
     BuildAndValidateE32WithFrozenDEF()
     BuildAndValidateE32WithOutdatedDEF()
-
-if __name__ == "__main__":
-    # execute only if run as a script
-    Run()
     if len(skipped_crc_sfx) > 0:
         print "skipped_crc_sfx:"
         print skipped_crc_sfx
@@ -755,3 +751,8 @@ if __name__ == "__main__":
        print failed_sfx
     else:
        print "Good Job! All DLL torture test passed! =D"
+    return failed_tests
+
+if __name__ == "__main__":
+    # execute only if run as a script
+    Run()

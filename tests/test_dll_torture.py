@@ -2,6 +2,26 @@
 import os, subprocess, hashlib
 from itertools import combinations
 
+# There 4 fuzzing tests for DLLs.
+
+# Every test has 2 steps:
+ # - build with SDK version and create CRC files
+ # - build with that version and validate with CRC from previous step.
+# For perfomance reason CRC for tests alredy cached in testing_CRCs.
+
+# Therefore we have 4 pairs:
+ # - TortureECOM + BuildAndTortureECOM
+ # - ValidateECOM + BuildAndValidateECOM
+ # - E32WithFrozenDEF + BuildAndValidateE32WithFrozenDEF
+ # - E32WithOutdatedDEF + BuildAndValidateE32WithOutdatedDEF
+
+# TortureECOM create ECOM plugin with "MISSING" function via --sysdef option. Produce: critical error, ignored. See comments in BuildAndTortureECOM().
+# ValidateECOM create ECOM plugin. Produce: expected output.
+# E32WithFrozenDEF create DLL, DEF, DSO. This test build DLLs with huge option combination. Produce: expected output, except NDi target: critical failure. Reason: bug in elf2e32. NDi target repsent 2nd step in biuld DLL with frozen interface.
+# E32WithOutdatedDEF create DLL, DEF, DSO. This is subtest of E32WithFrozenDEF, NDi target repsent 1st step in biuld DLL with frozen interface. Produce: critical error in E32 and DSO, DEF - expected, ignored. See comments in BuildAndValidateE32WithOutdatedDEF().
+
+# -----------------------------------------------------------------------------
+
 # These options chande Export bitmap, Exports, Relocations sections in E32image output:
 # --unfrozen
 # --ignorenoncallable
@@ -189,7 +209,7 @@ def InitTest(addend, cmdline, idx, old_dso, new_dso, callback = None):
     if callback:
         tmp+=callback(sfx)
     tmp = tmp + ' ' + addend
-    print(str(idx) + ') ' + tmp + ' ' + addend)
+    print(str(idx) + ') ' + tmp)
 
     old = os.path.join("tmp",old_dso)
     new = NewTgt(new_dso, idx, sfx)
@@ -217,6 +237,43 @@ def E32WithFrozenDEF(elf2e32):
             except:
                 print "Unexpectable test #%s failure:\n %s" %(idx, tmp)
                 failed_tests+=1                
+                try:
+                    os.remove(old)
+                except: pass
+            finally:
+                print "\n"
+                idx+=1
+
+#valid error: elf2e32 : Error: E1036: Symbol XXX Missing from ELF File
+def SkipMe2(addend):
+    sfx = OptSuffix(addend)
+    if sfx in ('Di', 'NDi'):
+        return True
+    return False
+
+def E32WithOutdatedDEF(elf2e32):
+    global failed_tests
+    global failed_sfx
+    cmdline = elf2e32 + " --uncompressed " + libcrypto_opts
+    idx = 1
+    args = ('--unfrozen', '--namedlookup', ' --definput="libcryptou_openssl.def"')
+    for x in range(1, len(args)+1):
+        for i in combinations(args, x):
+            addend = ' '.join(i)
+            if SkipMe2(addend):
+               continue
+            tmp, sfx, old, new = InitTest(addend, cmdline, idx, "libcrypto{000a0000}.dso", "out_(%02d)_TGT.dso")
+            try:
+                print "addend: %s" %addend
+                subprocess.check_call(tmp)
+                os.rename(old, new)
+                subprocess.check_call(elf2e32_test + ' --filecrc ' + " --dso=" + new)
+                root, ext = os.path.splitext(new)
+                subprocess.check_call(elf2e32_test + ' --filecrc ' + " --e32input=" + root + ".dll")
+            except:
+                print "Unexpectable test #%s failure:\n %s" %(idx, tmp)
+                failed_tests+=1
+                failed_sfx.append(sfx)
                 try:
                     os.remove(old)
                 except: pass
@@ -309,7 +366,7 @@ def AReaderSysdefCRC(sfx):
     return ""
 
 def libcryptoDCRC(sfx):
-    if sfx in ('U', 'IE', 'IN', 'EN', 'UIE', 'UIN', 'UEN', 'I', 'IEN', 'UIEN', 'E', 'N', 'UI', 'UE', 'UN'):
+    if sfx in ('E', 'I', 'N', 'U', 'IE', 'IN', 'EN', 'UI', 'UE', 'UN', 'IEN', 'UIE', 'UIN', 'UEN', 'UIEN'):
         return os.path.join("testing_CRCs","libcrypto_unfrozen.dcrc")
     if sfx in ('IDi', 'EDi', 'UIDi', 'UEDi', 'IEDi', 'UIEDi', 'Di', 'UDi'):
         return "libcrypto{000a0000}.dcrc"
@@ -325,7 +382,7 @@ def libcryptoCRC(sfx):
     if sfx in ('Di', 'UDi', 'IDi', 'EDi', 'UIDi', 'UEDi', 'IEDi', 'UIEDi'):
         return "libcrypto-2.4.5.SDK.crc"
     if sfx in ('N', 'UN', 'IN', 'EN', 'UIN', 'UEN', 'IEN', 'UIEN'):
-        return os.path.join("testing_CRCs","libcrypto_namedlookup.crc")
+        return "libcrypto-2.4.5.sym.crc"
 # NDi - Namedlookup + Definput - this combo kills original el2e32
     if sfx in ("NDi", "UNDi", "INDi", "ENDi", "UINDi", "UENDi", "IENDi", "UIENDi"):
         return os.path.join("testing_CRCs","libcrypto_frozen_namedlookup.crc")
@@ -391,7 +448,7 @@ def DeduceCRCS():
     TortureECOM(elf2e32_SDK)
     ValidateECOM(elf2e32_SDK)
     E32WithFrozenDEF(elf2e32_SDK)
-    # E32WithOutdatedDEF(elf2e32_SDK)
+    E32WithOutdatedDEF(elf2e32_SDK)
     PrintCRCDups()
 
 def BuildAndValidateE32WithFrozenDEF():
@@ -437,6 +494,43 @@ def BuildAndValidateE32WithFrozenDEF():
                 print "\n"
                 idx+=1
 
+def E32OutdatedDCRC(sfx):
+    if sfx in ('U', 'N', 'UN'):
+        return os.path.join("testing_CRCs","libcrypto_unfrozen.dcrc")
+    if sfx in ('UDi', 'UNDi'):
+        return "libcrypto{000a0000}.dcrc"
+    skipped_dcrc_sfx.append("Unknown libcrypto DCRC: %s;" %sfx)
+    return ""
+
+def E32OutdatedCRC(sfx):
+    if sfx in ('N', 'UN'):
+        return "libcrypto-2.4.5.sym.crc"
+    if sfx in ('U'):
+        return os.path.join("testing_CRCs", "libcrypto_unfrozen.crc")
+    if sfx in ('UDi'):
+        return "libcrypto-2.4.5.SDK.crc"
+    if sfx in ('UNDi'):
+        return os.path.join("testing_CRCs", "libcrypto_frozen_namedlookup.crc")
+    skipped_dcrc_sfx.append("Unknown libcrypto DCRC: %s;" %sfx)
+    return ""
+
+def PackedE32OutdatedDEF(sfx):
+    tmp = E32OutdatedDCRC(sfx)
+    tmp1 = E32OutdatedCRC(sfx)
+    if tmp != "" and tmp1 != "":
+        return tmp+';'+tmp1
+    if tmp == "":
+        return tmp1
+    return tmp
+
+# Here we made update for outdated STDDLL with old DEF file.
+# Option '--ignorenoncallable' doesn't affect pure C target like that. Ignored.
+# Option '--excludeunwantedexports' doesn't affect this target. Ignored.
+# UNDi target has unexpected output:
+# - E32: all missed symbols ignored
+# - DSO: all missed symbols included as normal
+# - DEF: all missed symbols marked "MISSING"
+# For that target, the test is regression. It is a reference for the other cases.
 def BuildAndValidateE32WithOutdatedDEF():
     global failed_tests
     global failed_sfx
@@ -445,11 +539,14 @@ def BuildAndValidateE32WithOutdatedDEF():
 
     cmdline = elf2e32_test + " " + libcrypto_opts + "--filecrc="
     idx = 1
-    args = ('--unfrozen', '--ignorenoncallable', '--excludeunwantedexports', '--namedlookup', ' --definput="libcryptou_openssl.def"')
+    args = ('--unfrozen', '--namedlookup', ' --definput="libcryptou_openssl.def"')
     for x in range(1, len(args)+1):
         for i in combinations(args, x):
             addend = ' '.join(i)
-            tmp, sfx, old, new = InitTest(addend, cmdline, idx, "libcrypto{000a0000}.dso", "out_(%02d)_TGT.dso", PackedCRC)
+            if SkipMe2(addend):
+               continue
+            tmp, sfx, old, new = InitTest(addend, cmdline, idx, "libcrypto{000a0000}.dso", "out_(%02d)_TGT.dso", PackedE32OutdatedDEF)
+            # tmp += " --uncompressed --force"
             try:
                 subprocess.check_call(tmp)
                 if os.path.isfile(new):
@@ -642,7 +739,7 @@ def Run():
     BuildAndTortureECOM()
     BuildAndValidateECOM()
     BuildAndValidateE32WithFrozenDEF()
-    # BuildAndValidateE32WithOutdatedDEF()
+    BuildAndValidateE32WithOutdatedDEF()
 
 if __name__ == "__main__":
     # execute only if run as a script

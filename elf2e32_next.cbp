@@ -11,7 +11,6 @@
 				<Option object_output="obj/Debug/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
-				<Option parameters="--e32input=tests\libcrypto-2.4.5.SDK.dll  --filecrc=tests\tmp\a.SDK.crc" />
 				<Compiler>
 					<Add option="-Wshadow" />
 					<Add option="-Winit-self" />
@@ -22,7 +21,6 @@
 					<Add option="-g" />
 					<Add option="-fno-omit-frame-pointer -ggdb -femit-class-debug-always -D_FORTIFY_SOURCE=2" />
 					<Add option="-D_DEBUG" />
-					<Add option="-DSET_COMPILETIME_LOAD_EXISTED_FILECRC" />
 					<Add directory="src" />
 				</Compiler>
 				<Linker>
@@ -36,11 +34,8 @@
 				<Option object_output="obj/Release/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
-				<Option parameters="--dso=tests\libcrypto{000a0000}.dso --filecrc=tests\libcrypto-2.4.5.SDK.dcrc" />
 				<Compiler>
 					<Add option="-O2" />
-					<Add option="-DELF2E32_PRINT_INPUT_ARGS" />
-					<Add option="-DSET_COMPILETIME_LOAD_EXISTED_FILECRC" />
 					<Add directory="src" />
 				</Compiler>
 				<Linker>

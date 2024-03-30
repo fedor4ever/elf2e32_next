@@ -32,7 +32,7 @@ using std::fstream;
 Elf32_Ehdr* CreateElfHeader();
 void AlignString(std::string& aStr);
 void InfoPrint(const char* hdr, uint32_t& pos, const uint32_t offset);
-void SetElfSymbols(Symbol* symbol, Elf32_Sym* elfSymbol, uint32_t index);
+void SetElfSymbols(const Symbol* symbol, Elf32_Sym* elfSymbol, uint32_t index);
 
 string DSOName(const string& linkAs);
 string Linkas(const Args* arg);
@@ -220,7 +220,7 @@ void DSOFile::InitVersionTable(const Args* opts)
     iDSOSymNameStrTbl.push_back(0);
 }
 
-void SetElfSymbols(Symbol *src, Elf32_Sym* dst, uint32_t aCodeIndex)
+void SetElfSymbols(const Symbol *src, Elf32_Sym* dst, uint32_t aCodeIndex)
 {
     dst->st_other = STV_DEFAULT;
 

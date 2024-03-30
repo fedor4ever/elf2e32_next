@@ -30,7 +30,7 @@ using std::fstream;
 using std::stringstream;
 
 
-CRCProcessor::CRCProcessor(const Args* arg, string fileext): iArgs(arg), iFileExt(fileext) {}
+CRCProcessor::CRCProcessor(const Args* arg, const string& fileext): iArgs(arg), iFileExt(fileext) {}
 
 CRCProcessor::~CRCProcessor() {}
 

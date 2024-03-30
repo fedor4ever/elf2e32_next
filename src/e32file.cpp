@@ -40,7 +40,7 @@ E32Section CodeSection(const ElfParser* parser);
 E32Section DataSection(const ElfParser* parser);
 void PrintSymlookHdr(const E32Section& s);
 
-bool CmpSections(E32Section first, E32Section second)
+bool CmpSections(const E32Section& first, const E32Section& second)
 {
     return first.type < second.type;
 }

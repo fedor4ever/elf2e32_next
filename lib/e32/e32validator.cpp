@@ -254,7 +254,7 @@ void E32Validator::ValidateHeader()
             "exports aligned within code section");
 
 // if --namedlookup export table header points to E32EpocExpSymInfoHdr, otherwise iHdr->iExportDirCount
-        if(!iHdr->iFlags&KImageNmdExpData)
+        if(!(iHdr->iFlags&KImageNmdExpData))
         {
             uint32_t* exports = iParser->GetExportTable();
             ThrowIfTrue(exports[0] != iHdr->iExportDirCount,

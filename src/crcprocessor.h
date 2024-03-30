@@ -28,7 +28,7 @@ void PrintIfNEQ(uint32_t in, uint32_t out, const std::string& msg);
 class CRCProcessor
 {
     public:
-        CRCProcessor(const Args* arg, std::string fileext);
+        CRCProcessor(const Args* arg, const std::string& fileext);
         virtual ~CRCProcessor();
         virtual void Run();
     private:

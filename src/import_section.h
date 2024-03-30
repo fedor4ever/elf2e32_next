@@ -58,7 +58,7 @@ class ImportsSection
         std::vector<int32_t> ImportTabLocations();
     private:
         void AllocStringTable();
-        std::string FindDSO(std::string aName);
+        std::string FindDSO(const std::string& aName);
     private:
         const ElfParser* iElf = nullptr;
         const RelocsProcessor* iRelocs = nullptr;

@@ -64,7 +64,7 @@ void ImportsSection::AllocStringTable()
         iStrTab.push_back(0);
 }
 
-string ImportsSection::FindDSO(std::string name)
+string ImportsSection::FindDSO(const string& name)
 {
 	if(IsFileExist(name))
 		return name;
@@ -123,7 +123,7 @@ E32Section ImportsSection::Imports()
         string aDSO = FindDSO(imports[0].iSOName);
 		ElfParser parser(aDSO);
 		parser.GetElfFileLayout();
-		for(auto aReloc: imports)
+		for(const auto& aReloc: imports)
         {
             const char* aSymName = iElf->GetSymbolNameFromStringTable(aReloc.iSymNdx);
             uint32_t aOrdinal = parser.GetSymbolOrdinal(aSymName);

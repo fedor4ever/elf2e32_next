@@ -37,7 +37,7 @@ void ReportError(const ErrorCodes err, const std::string& str,
     throw err;
 }
 
-void ReportError(const ErrorCodes err, const int x, const int y)
+void ReportError(const ErrorCodes err, int x, int y)
 {
     ReportLog(e32Error);
     if(y)
@@ -47,8 +47,8 @@ void ReportError(const ErrorCodes err, const int x, const int y)
     throw err;
 }
 
-void ReportError(const ErrorCodes err, std::list<string> ls,
-                const std::string& str, const int i)
+void ReportError(const ErrorCodes err, const std::list<string>& ls,
+                const std::string& str, int i)
 {
     std::string missedSymbols;
     for(auto x: ls)
@@ -66,7 +66,7 @@ void ReportError(const ErrorCodes err, std::list<string> ls,
 }
 
 void ReportError(const ErrorCodes err, const std::string& str,
-                 const std::string& s, const int x)
+                 const std::string& s, int x)
 {
     ReportLog(e32Error);
     if(s.empty())
@@ -78,13 +78,13 @@ void ReportError(const ErrorCodes err, const std::string& str,
     throw err;
 }
 
-void ReportWarning(const ErrorCodes err, const int x)
+void ReportWarning(const ErrorCodes err, int x)
 {
     ReportLog(e32Warning);
     Logger::Instance()->Log(err, x);
 }
 
-void ReportWarning(const ErrorCodes err, const std::string& s, const int x)
+void ReportWarning(const ErrorCodes err, const std::string& s, int x)
 {
     ReportLog(e32Warning);
     if(s.empty())

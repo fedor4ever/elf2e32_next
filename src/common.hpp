@@ -102,15 +102,15 @@ const std::string empty = std::string();
 
 void ReportError(const ErrorCodes err, const std::string& str,
             void (*f)());
-void ReportError(const ErrorCodes err, const int x, const int = 0);
+void ReportError(const ErrorCodes err, int x, int = 0);
 
-void ReportError(const ErrorCodes err, std::list<std::string> ls,
-            const std::string& str = empty, const int = 0);
+void ReportError(const ErrorCodes err, const std::list<std::string>& ls,
+            const std::string& str = empty, int = 0);
 void ReportError(const ErrorCodes err, const std::string& str = empty,
-            const std::string& s = empty, const int = 0);
+            const std::string& s = empty, int = 0);
 
-void ReportWarning(const ErrorCodes err, const int x);
-void ReportWarning(const ErrorCodes err, const std::string& str = empty, const int = 0);
+void ReportWarning(const ErrorCodes err, int x);
+void ReportWarning(const ErrorCodes err, const std::string& str = empty, int = 0);
 void ReportWarning(const ErrorCodes err, const std::string& s1, const std::string& s2);
 
 void ReportLog(const std::string& str, int x = -1, int y = -1, int z = -1);

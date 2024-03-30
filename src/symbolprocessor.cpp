@@ -46,8 +46,8 @@ SymbolProcessor::~SymbolProcessor()
     //dtor
 }
 
-bool SortSymbolsByName(Symbol* first, Symbol* second){ return first->AliasName() < second->AliasName();}
-bool SortSymbolsByOrdinal(Symbol* first, Symbol* second){ return first->Ordinal() < second->Ordinal();}
+bool SortSymbolsByName(const Symbol* first, const Symbol* second){ return first->AliasName() < second->AliasName();}
+bool SortSymbolsByOrdinal(const Symbol* first, const Symbol* second){ return first->Ordinal() < second->Ordinal();}
 
 typedef Symbols::iterator Iterator;
 void SymbolProcessor::ProcessPredefinedSymbols()

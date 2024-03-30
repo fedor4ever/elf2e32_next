@@ -48,7 +48,7 @@ inline T Align(T v)
 	return (T)res;
 }
 
-bool Cmp(LocalReloc x, LocalReloc y)
+bool Cmp(const LocalReloc& x, const LocalReloc& y)
 {
 	return x.iRela.r_offset < y.iRela.r_offset;
 }
@@ -67,7 +67,7 @@ void RelocsProcessor::Process()
     ProcessVerInfo();
     iVersionTbl = iElf->VersionTbl();
     std::vector<RelocBlock> r = iElf->GetRelocs();
-    for(auto x: r)
+    for(const auto& x: r)
     {
         if(x.rel)
             ProcessRelocations(x.rel, x);
@@ -101,7 +101,7 @@ size_t RelocationsSize(const std::vector<LocalReloc>& relocs)
 {
     size_t bytecount = 0;
     int page = -1;
-    for(auto x: relocs)
+    for(const auto& x: relocs)
     {
         int p = x.iRela.r_offset & 0xfffff000;
         if (page != p)
@@ -192,7 +192,7 @@ void RelocsProcessor::ProcessVeneers()
             Elf32_Word	aInstruction = iElf->GetRelocationValue(r_offset);
             bool aRelocEntryFound = false;
 
-            for(auto x: iCodeRelocations)
+            for(const auto& x: iCodeRelocations)
             {
                 // Check if there is a relocation entry for the veneer symbol
                 if (x.iRela.r_offset == aOffset)
@@ -231,7 +231,7 @@ void RelocsProcessor::ProcessVeneers()
 This function creates Code and Data relocations from the corresponding
 ELF form to E32 form.
 */
-E32Section CreateRelocations(std::vector<LocalReloc>& aRelocations, E32Section& aRelocs, RelocsProcessor* rp)
+E32Section CreateRelocations(const std::vector<LocalReloc>& aRelocations, E32Section& aRelocs, RelocsProcessor* rp)
 {
 	size_t rsize = RelocationsSize(aRelocations);
 	if(!rsize)

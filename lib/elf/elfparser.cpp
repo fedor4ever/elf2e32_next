@@ -43,12 +43,12 @@ Elf32_Word VirtualAddress(const Elf32_Phdr* p)
 	return 0;
 }
 
-bool GlobalSymbol(Elf32_Sym* aSym)
+bool GlobalSymbol(const Elf32_Sym* aSym)
 {
 	return (ELF32_ST_BIND(aSym->st_info) == STB_GLOBAL);
 }
 
-ElfParser::ElfParser(string elf): iFile(elf)
+ElfParser::ElfParser(const string& elf): iFile(elf)
 {
 #if EXPLORE_RELOCS_PROCESSING
     iRel.type = "rel";
@@ -199,7 +199,7 @@ void ElfParser::ProcessSectionHeaders()
         }
         else if (iSections[i].sh_type == SHT_STRTAB)
         {
-            char* secName = iSectionHdrStrTbl + iSections[i].sh_name;
+            const char* secName = iSectionHdrStrTbl + iSections[i].sh_name;
             if (!strcmp(secName, ".strtab"))
             {
                 iStrTab = ELF_ENTRY_PTR(char, iElfHeader, iSections[i].sh_offset);
@@ -210,7 +210,7 @@ void ElfParser::ProcessSectionHeaders()
         {
             const char commentSection[] = ".comment";
             size_t length = strlen(commentSection);
-            char* aSectionName = iSectionHdrStrTbl + iSections[i].sh_name;
+            const char* aSectionName = iSectionHdrStrTbl + iSections[i].sh_name;
 
             if(!strncmp(aSectionName, commentSection, length))
                 iCommentSection = ELF_ENTRY_PTR(char, iElfHeader, iSections[i].sh_offset);
@@ -561,7 +561,7 @@ uint32_t ElfParser::GetSymbolOrdinal(const char* aSymName) const
     return GetSymbolOrdinal(s);
 }
 
-uint32_t ElfParser::GetSymbolOrdinal(Elf32_Sym* aSym) const
+uint32_t ElfParser::GetSymbolOrdinal(const Elf32_Sym* aSym) const
 {
     uint32_t ord = (uint32_t)-1;
     if( aSym->st_shndx == ESegmentRO)

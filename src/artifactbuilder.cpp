@@ -35,7 +35,7 @@
 #include "symbolprocessor.h"
 #include "elf2e32_version.hpp"
 
-void MakeImportHeader(Symbols symbols, std::string dllName);
+void MakeImportHeader(const Symbols& symbols, std::string dllName);
 void ValidateOptions(Args* arg);
 
 ArtifactBuilder::ArtifactBuilder(Args* param): iOpts(param)
@@ -97,7 +97,7 @@ void ArtifactBuilder::MakeE32()
     BuildE32Image(iOpts, iElfParser, iSymbols);
 }
 
-void MakeImportHeader(Symbols symbols, std::string dllName)
+void MakeImportHeader(const Symbols& symbols, std::string dllName)
 {
     if(dllName.empty())
         return;

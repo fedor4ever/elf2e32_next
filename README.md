@@ -33,14 +33,16 @@ SDK help telling about this:
  - generate header file with exported functions from DSO file or in post-linker part
  - gets exported functions from DSO and store in DEF file
  - looking for new bad ELF files for testing
- - list global variables if --dlldata not specified for DLL target
+ - list global variables if `--dlldata` not specified for DLL target
  - repacking existing E32 image
- - list global variables if --dlldata not specified for any targets except STDDLL and STDEXE
+ - list global variables if `--dlldata` not specified for any targets except STDDLL and STDEXE
 
 ## Changes:
- - option --e32input=<file> works as --e32input=<file> --dump=h, was --e32input=<file> --dump=hscdeit
- - option --unfrozen and supplied a .def file with the frozen exports produce ready to use DSO, DEF, E32Image. One or more exports declared in supplied a .def missing in supplied ELF file.
+ - option `--e32input=<file>` works as `--e32input=<file> --dump=h`, was `--e32input=<file> --dump=hscdeit`
+ - option `--unfrozen` and supplied a .def file with the frozen exports produce ready to use DSO, DEF, E32Image. One or more exports declared in supplied a .def missing in supplied ELF file.
+
 Was: E32 has only real symbols, absent symbols missing; DEF has all symbols - from .def file with the frozen exports and ELF, absent symbols present as normal; output DEF has all symbols, absent symbols present as absent. Therefore second step required to obtain proper DSO and E32Image. At this point supplied a .def updated and used to produce ready to use DSO, DEF, E32Image.
+
 Now: simple produce ready to use DSO, DEF, E32Image, supplied a .def untouched.
 
 ## You wish to add new enhansements.
@@ -64,7 +66,7 @@ If you wish add some new tricks for E32 Image target use new modules:
  - if you forget to mark function(s) with EXPORT_C/IMPORT_C original version in worst case it creates something unverified in E32Image format. Symptom - DEF file without exported functions. Without crash! Example: tests/kf__speedups.pyd
 Fix - stop job with error message
 
-> elf2e32 --capability=AllFiles+TCB --defoutput="tmp\kf__speedups.def" --elfinput="kf__speedups.pyd" --output="tmp\kf__speedups.tst.pyd" --libpath="SDK_libs" --linkas="kf__speedups{000a0000}.dll" --fpu=softvfp --uid1=0x10000079 --uid2=0x00000000  --uid3=0x00000000 --dso="tmp\libcrypto{000a0000}.dso" --targettype=DLL
+> elf2e32 --capability=AllFiles+TCB --defoutput="tmp\kf__speedups.def" --elfinput="kf__speedups.pyd" --output="tmp\kf__speedups.tst.pyd" --libpath="SDK_libs" --linkas="kf__speedups{000a0000}.dll" --fpu=softvfp --uid1=0x10000079 --uid2=0x00000000  --uid3=0x00000000 --dso="tmp\kf__speedups{000a0000}.dso" --targettype=DLL
 
 ### Crash instead E32Image output
  - if you forget to mark function(s) with EXPORT_C/IMPORT_C original version in early SDKs stop working from unknown error, later versions crashes at runtime. It's same as EXPORT_C/IMPORT_C case technically.
@@ -74,7 +76,7 @@ Fix - stop job with error message
 Fix - warning message and create something unverified in E32Image format. Use at your own risk
 
 ### Resume
-STDDLL target broken in many ways. There one way it safe - library with fixed and constant interface. Do not use with big libraries with evolving interface. Build DLL target instead with GCC option -fvisibility=default if you don't mark function(s) with EXPORT_C/IMPORT_C.
+STDDLL target broken in many ways. There one way it safe - library with fixed and constant interface. Do not use with big libraries with evolving interface. Build DLL target instead with GCC option `-fvisibility=default` if you don't mark function(s) with EXPORT_C/IMPORT_C.
 
 ## Stand alone mode
 This version can used directly with other build systems. For that it deduce several cmdline option created by build scripts in SDK. As example SDK passes that build options:
@@ -103,4 +105,4 @@ SDK lacks documentation for elf2e32 syntax. Also new options added to elf2e32 an
 Elf2e32 stores own version in output E32Image.
 It has particular format: major, minor and build. Major and minor stored as uint8_t, build as uint16_t.
 
-Option version value should come in <Major>.<Minor> form. Their parts should fit in uint16_t range.
+Option version value should come in [Major].[Minor] form. Their parts should fit in uint16_t range.

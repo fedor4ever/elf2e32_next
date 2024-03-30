@@ -280,6 +280,7 @@ void SymbolProcessor::CheckForErrors(bool unfrozen, list<string> missedSymbols, 
         {
             if(!iArgs->iDefoutput.empty())
             {
+                iSymbols.sort(SortSymbolsByOrdinal);
                 DefFile def;
                 def.WriteDefFile(iArgs->iDefoutput.c_str(), iSymbols);
             }

@@ -645,11 +645,6 @@ bool ElfParser::ImageIsDll() const
     return (LookupStaticSymbol("_E32Dll") != nullptr);
 }
 
-vector<string> ElfParser::DsoImpLibName()
-{
-    return iDsoImpLibName;
-}
-
 const char* ElfParser::ElfWithFixedHashTable()
 {
 //in origin:

@@ -67,18 +67,6 @@ void ArtifactBuilder::PrepareBuild()
     }
     SymbolProcessor processor(iOpts, iElfParser);
     iSymbols = processor.GetExports();
-    DsoImpLibName();
-}
-
-void ArtifactBuilder::DsoImpLibName()
-{
-    if(iOpts->iDefinput.empty())
-        return;
-    DefFile d;
-    d.GetSymbols(iOpts->iDefinput.c_str());
-    iDsoImpLibName = d.GetDsoImpLibName();
-    if(iOpts->iDSODump)
-        iDsoImpLibName = iElfParser->DsoImpLibName();
 }
 
 void ArtifactBuilder::MakeDSO()
@@ -89,7 +77,7 @@ void ArtifactBuilder::MakeDSO()
     CheckDSOCrc(iOpts); //builded with original tool =)
 #endif // SET_COMPILETIME_LOAD_EXISTED_FILECRC
     DSOFile* dso = new DSOFile();
-    dso->WriteDSOFile(iOpts, iSymbols, iDsoImpLibName);
+    dso->WriteDSOFile(iOpts, iSymbols);
     delete dso;
     CheckDSOCrc(iOpts);
 }
@@ -99,10 +87,6 @@ void ArtifactBuilder::MakeDef()
     if(iOpts->iDefoutput.empty())
         return;
     DefFile deffile;
-
-    std::vector<std::string> tmp;
-    if(iOpts->iDSODump)
-        deffile.SetDsoImpLibName(iDsoImpLibName);
     deffile.WriteDefFile(iOpts->iDefoutput.c_str(), iSymbols);
 }
 

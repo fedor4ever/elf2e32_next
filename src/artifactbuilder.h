@@ -39,12 +39,10 @@ class ArtifactBuilder: public Task
         void MakeDSO();
         void MakeDef();
         void MakeE32();
-        void DsoImpLibName();
     private:
         Args* iOpts = nullptr;
         ElfParser* iElfParser = nullptr;
         Symbols iSymbols;
-        std::vector<std::string> iDsoImpLibName;
 };
 
 #endif // ARTIFACTBUILDER_H

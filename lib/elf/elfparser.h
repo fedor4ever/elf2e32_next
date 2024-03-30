@@ -90,13 +90,9 @@ class ElfParser
         Elf32_Sym* Lim() const;
         Elf32_Sym* SymTab() const;
         const char* StrTab() const;
-    public: // needed by ArtifactBuilder
-        std::vector<std::string> DsoImpLibName();
     public: // only for DSO CRC32 checksum, see DSOFile::CreateSectionHeaders()
         const char* ElfWithFixedHashTable();
         std::streamsize FileSize();
-    private:
-        std::vector<std::string> iDsoImpLibName;
     private:
         void ValidateElfImage();
         void ProcessSectionHeaders();

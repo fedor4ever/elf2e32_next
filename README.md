@@ -38,7 +38,10 @@ SDK help telling about this:
  - list global variables if --dlldata not specified for any targets except STDDLL and STDEXE
 
 ## Changes:
-- option --e32input=<file> works as --e32input=<file> --dump=h, was --e32input=<file> --dump=hscdeit
+ - option --e32input=<file> works as --e32input=<file> --dump=h, was --e32input=<file> --dump=hscdeit
+ - option --unfrozen and supplied a .def file with the frozen exports produce ready to use DSO, DEF, E32Image. One or more exports declared in supplied a .def missing in supplied ELF file.
+Was: E32 has only real symbols, absent symbols missing; DEF has all symbols - from .def file with the frozen exports and ELF, absent symbols present as normal; output DEF has all symbols, absent symbols present as absent. Therefore second step required to obtain proper DSO and E32Image. At this point supplied a .def updated and used to produce ready to use DSO, DEF, E32Image.
+Now: simple produce ready to use DSO, DEF, E32Image, supplied a .def untouched.
 
 ## You wish to add new enhansements.
 If you wish add some new tricks for E32 Image target use new modules:

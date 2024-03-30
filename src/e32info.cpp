@@ -694,8 +694,6 @@ void DumpRelocs(const E32RelocSection *reloc)
 
 void GenerateAsmFile(const Args *param)
 {
-    const char *output = param->iOutput.c_str();
-
     if(param->iDefoutput.empty())
         ReportError(NOREQUIREDOPTION, "--definput");
 
@@ -703,8 +701,8 @@ void GenerateAsmFile(const Args *param)
 	Symbols syms = SymbolsFromDef(defin);
 
 	FILE *fptr = nullptr;
-	if(output)
-        fptr = freopen(output, "w", stdout);
+	if(!param->iOutput.empty())
+        fptr = freopen(param->iOutput.c_str(), "w", stdout);
 	if(!fptr)
         printf("Can't store ASM in file! Print to screen.\n");
 

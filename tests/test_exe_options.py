@@ -3,6 +3,7 @@ import os, subprocess
 
 elf2e32=r"..\bin\Release\elf2e32.exe"
 implibs=r""" --libpath="SDK_libs" """
+failed_tests_data = []
 
 counter=0
 failed_tests = 0
@@ -28,10 +29,12 @@ args=(
 ("Test #%d: Simple exe creation.",
 elf2e32+caps+elfin+longtail,
 "Simple exe creation failed!",
+("tmp\kf_Python_launcher.exe",),
 ),
 ("Test #%d: exe creation with implicit export _ZdlPvj.",
 elf2e32+implibs+fpu+implibs+r""" --sid=0xe8181dba --version=10.0 --uid1=0x1000007a --uid2=0x00000000 --uid3=0xe8181dba --capability=none --targettype=EXE --output=tmp\cmd_teste32.exe --elfinput=cmd_test.exe.elf --linkas=cmd_test{000a0000}[e8181dba].exe --verbose --uncompressed --filecrc=cmd_test.crc """,
 "exe creation with implicit export _ZdlPvj failed!",
+("tmp/cmd_teste32.exe",),
 ) )
 
 def SuceededTests(*args):
@@ -43,12 +46,21 @@ def SuceededTests(*args):
       print tmp[0] %counter
       print tmp[1]
       subprocess.check_call(tmp[1])
+      ReportIfMissingOutput(tmp[3], tmp[0] %counter)
    except:
       print "Unexpectable test elf->exe failure:\n %s" %tmp[2]
       failed_tests+=1
    finally:
       print "\n"
       counter+=1
+
+def ReportIfMissingOutput(artifacts, msg):
+   global failed_tests_data
+   tmp = [x for x in artifacts if not os.path.isfile(x)]
+   if len(tmp) == 0:
+      return
+   tmp = "Test %s doesn't produce build artifacts: %s" %(msg, str(tmp))
+   failed_tests_data.append(tmp)
 
 def Run():
    print "exe tests running"
@@ -59,7 +71,10 @@ def Run():
       print "Tests failed: %d" %failed_tests
    else:
       print "Good Job! All test passed! =D"
-   return failed_tests
+   if len(failed_tests_data) > 0:
+      print "But something goes wrong"
+      print failed_tests_data
+   return failed_tests, failed_tests_data
 
 if __name__ == "__main__":
    Run()

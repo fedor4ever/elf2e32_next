@@ -140,6 +140,9 @@ areader_defin='--definput="AlternateReaderRecog{000a0000}.def"'
 areader_opts=r""" --capability=ProtServ --defoutput=tmp\AR_(%02d)_TGT.def  --elfinput="AlternateReaderRecog.dll" --output="tmp\AR_(%02d)_TGT.dll" --linkas=AlternateReaderRecog{000a0000}[101ff1ec].dll --dso=tmp\AlternateReaderRecog{000a0000}.dso --uid1=0x10000079 --uid2=0x10009d8d --uid3=0x101ff1ec --targettype=PLUGIN --sid=0x101ff1ec --version=10.0 """
 
 
+ECOM_Output = ["tmp\AR_(%02d)_TGT.def", "tmp\AR_(%02d)_TGT.dll"]
+DLL_Output = ["tmp\out_(%02d)_TGT.def", "tmp\out_(%02d)_TGT.dll"]
+
 
 # Torture opts
 unfrozen=r""" --unfrozen """
@@ -190,8 +193,9 @@ def SkipMe(addend):
         return True
     return False
 
-failed_tests = 0
 started_tests = 0
+failed_tests = 0
+failed_tests_data = []
 failed_sfx = []
 
 def NewTgt(tmplate, idx, sfx):
@@ -482,6 +486,7 @@ def BuildAndValidateE32WithFrozenDEF():
                     if os.path.isfile(new_crc):
                         os.remove(new_crc)
                     os.rename(crypto_crc, new_crc)
+                PrepareReportIfMissingTestData(idx, sfx, DLL_Output, new, "BuildAndValidateE32WithFrozenDEF: %d" %idx)
             except:
                 print "Unexpectable test #%s failure:\n %s" %(idx, tmp)
                 failed_tests+=1
@@ -564,6 +569,7 @@ def BuildAndValidateE32WithOutdatedDEF():
                     if os.path.isfile(new_crc):
                         os.remove(new_crc)
                     os.rename(crypto_crc, new_crc)
+                PrepareReportIfMissingTestData(idx, sfx, DLL_Output, new, "BuildAndValidateE32WithOutdatedDEF: %d" %idx)
             except:
                 print "Unexpectable test #%s failure:\n %s" %(idx, tmp)
                 failed_tests+=1
@@ -607,6 +613,7 @@ def BuildAndValidateECOM():
                     if os.path.isfile(new_crc):
                         os.remove(new_crc)
                     os.rename(crypto_crc, new_crc)
+                PrepareReportIfMissingTestData(idx, sfx, ECOM_Output, new, "BuildAndValidateECOM: %d" %idx)
             except:
                 print "Unexpectable test #%s failure:\n %s" %(idx, tmp)
                 failed_tests+=1
@@ -704,6 +711,7 @@ def BuildAndTortureECOM():
                     if os.path.isfile(new_crc):
                         os.remove(new_crc)
                     os.rename(crypto_crc, new_crc)
+                PrepareReportIfMissingTestData(idx, sfx, ECOM_Output, new, "BuildAndTortureECOM: %d" %idx)
             except:
                 print "Unexpectable test #%s failure:\n %s" %(idx, tmp)
                 failed_tests+=1
@@ -733,6 +741,20 @@ def RenameOutput():
     t = [x for x in t if os.path.isfile(x)]
     [RenameFile(x) for x in t]
 
+def PrepareReportIfMissingTestData(idx, sfx, output, dso, msg):
+    artifacts = map(lambda x: x.replace("%02d", str(idx)), output)
+    artifacts = map(lambda x: x.replace("TGT", sfx), artifacts)
+    artifacts.append(dso)
+    ReportIfMissingTestData(artifacts, msg)
+
+def ReportIfMissingTestData(artifacts, msg):
+   global failed_tests_data
+   tmp = [x for x in artifacts if not os.path.isfile(x)]
+   if len(tmp) == 0:
+      return
+   tmp = "Test %s doesn't produce build artifacts: %s" %(msg, str(tmp))
+   failed_tests_data.append(tmp)
+
 def Run():
     # DeduceCRCS()
     # RenameOutput()
@@ -751,7 +773,10 @@ def Run():
        print failed_sfx
     else:
        print "Good Job! All DLL torture test passed! =D"
-    return failed_tests
+    if len(failed_tests_data) > 0:
+      print "But something goes wrong"
+      print failed_tests_data
+    return failed_tests, failed_tests_data
 
 if __name__ == "__main__":
     # execute only if run as a script

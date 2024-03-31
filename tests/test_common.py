@@ -6,12 +6,13 @@ implibs=r""" --libpath="SDK_libs" """
 
 counter=0
 failed_tests = 0
+failed_tests_data = []
 
 caps=" --capability=All-TCB"
 # defin=r""" --definput="libcryptou.def" """
 # defout=r""" --defoutput="tmp\out.(%02d).def" """
 elfin=r""" --elfinput="kf_Python_launcher.exe" --filecrc="kf_Python_launcher.crc" """
-e32bin=r""" --output="tmp\kf_Python_launcher.exe" """
+e32bin=r""" --output="tmp\kf_Python_launcher_c.exe" """
 # dsoout=r""" --dso="tmp\libcrypto{000a0000}.(%02d).dso" """
 fpu=r" --fpu=softvfp"
 uid1=r" --uid1=0x10000079"
@@ -25,12 +26,14 @@ longtail=e32bin+uid1+uid2+uid3+tgttype+append
 
 args1=(
 ("Test #%d: full binary creation for ECOM plugin",
-elf2e32+append+""" --capability=ProtServ --defoutput=tmp\AlternateReaderRecog{000a0000}.def --elfinput="AlternateReaderRecog.dll" --output="tmp\AlternateReaderRecogE32.dll" --linkas=AlternateReaderRecog{000a0000}[101ff1ec].dll --dso=tmp\AlternateReaderRecog{000a0000}.dso --uid1=0x10000079 --uid2=0x10009d8d --uid3=0x101ff1ec --targettype=PLUGIN --sid=0x101ff1ec --version=10.0 --ignorenoncallable --debuggable --sysdef=_Z24ImplementationGroupProxyRi,1; --filecrc=AlternateReaderRecog.SDK.crc;AlternateReaderRecog.SDK.dcrc """,
+elf2e32+append+""" --capability=ProtServ --defoutput=tmp\AlternateReaderRecog{000a0000}.def --elfinput="AlternateReaderRecog.dll" --output="tmp\AlternateReaderRecogE32_c.dll" --linkas=AlternateReaderRecog{000a0000}[101ff1ec].dll --dso=tmp\AlternateReaderRecog{000a0000}.dso --uid1=0x10000079 --uid2=0x10009d8d --uid3=0x101ff1ec --targettype=PLUGIN --sid=0x101ff1ec --version=10.0 --ignorenoncallable --debuggable --sysdef=_Z24ImplementationGroupProxyRi,1; --filecrc=AlternateReaderRecog.SDK.crc;AlternateReaderRecog.SDK.dcrc """,
 "creation ECOM plugin failed!",
+("tmp\AlternateReaderRecog{000a0000}.def", "tmp\AlternateReaderRecogE32_c.dll", "tmp\AlternateReaderRecog{000a0000}.dso", ),
 ),
 ("Test #%d: simple exe creation.\n",
 elf2e32+caps+elfin+longtail+" --debuggable",
 elf2e32+caps+elfin+longtail+" --debuggable",
+("tmp\kf_Python_launcher_c.exe", ),
 ) )
 
 
@@ -42,11 +45,20 @@ def SuceededTests(*args):
       print tmp[0] %counter
       print tmp[1]
       subprocess.check_call(tmp[1])
+      ReportIfMissingOutput(tmp[3], tmp[0] %counter)
    except:
       print "Unexpectable test failure:\n %s" %tmp[2]
    finally:
       print "\n"
       counter+=1
+
+def ReportIfMissingOutput(artifacts, msg):
+   global failed_tests_data
+   tmp = [x for x in artifacts if not os.path.isfile(x)]
+   if len(tmp) == 0:
+      return
+   tmp = "Test %s doesn't produce build artifacts: %s" %(msg, str(tmp))
+   failed_tests_data.append(tmp)
 
 def Run():
    print "Tests running"
@@ -57,7 +69,10 @@ def Run():
       print "Tests failed: %d" %failed_tests
    else:
       print "Good Job! All test passed! =D"
-   return failed_tests
+   if len(failed_tests_data) > 0:
+      print "But something goes wrong"
+      print failed_tests_data
+   return failed_tests, failed_tests_data
 
 if __name__ == "__main__":
     # execute only if run as a script

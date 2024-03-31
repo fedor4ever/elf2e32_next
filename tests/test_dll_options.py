@@ -7,6 +7,7 @@ implibs=r""" --libpath="SDK_libs" """
 
 counter=0
 failed_tests = 0
+failed_tests_data = []
 
 elf2e=elf2e32+r" --verbose=-1"
 elf2e32+=r" --debuggable --smpsafe --verbose=-1"
@@ -32,7 +33,7 @@ tail=r" --dlldata --ignorenoncallable --uncompressed"
 longtail=e32bin+implibs+linkas+dsoout+fpu+uid1+uid2+uid3+tgttype+tail
 
 # Build options
-areader_cmd = elf2e+implibs+fpu+""" --capability=ProtServ --defoutput=tmp\AlternateReaderRecog{000a0000}.def --elfinput="AlternateReaderRecog.dll" --output="tmp\AlternateReaderRecogE32.dll" --linkas=AlternateReaderRecog{000a0000}[101ff1ec].dll --dso=tmp\AlternateReaderRecog{000a0000}.dso --uid1=0x10000079 --uid2=0x10009d8d --uid3=0x101ff1ec --targettype=PLUGIN --sid=0x101ff1ec --version=10.0 --ignorenoncallable --sysdef=_Z24ImplementationGroupProxyRi,1; --uncompressed   --filecrc=AlternateReaderRecog.SDK.crc;AlternateReaderRecog.SDK.dcrc """
+areader_cmd = elf2e+implibs+fpu+""" --capability=ProtServ --defoutput=tmp\AR.def --elfinput="AlternateReaderRecog.dll" --output="tmp\AlternateReaderRecogE32.dll" --linkas=AlternateReaderRecog{000a0000}[101ff1ec].dll --dso=tmp\AlternateReaderRecog{000a0000}.dso --uid1=0x10000079 --uid2=0x10009d8d --uid3=0x101ff1ec --targettype=PLUGIN --sid=0x101ff1ec --version=10.0 --ignorenoncallable --sysdef=_Z24ImplementationGroupProxyRi,1; --uncompressed   --filecrc=AlternateReaderRecog.SDK.crc;AlternateReaderRecog.SDK.dcrc """
 
 outdated_def_file = elf2e32+caps+defout+elfin+longtail+r" --unfrozen"+r""" --definput="libcryptou_openssl.def" """ + """ --filecrc="libcrypto-2.4.5.SDK.crc;testing_CRCs/dll_outdated.dcrc" """
 dso2def = elf2e32+""" --elfinput="libcrypto{000a0000}.dso" """+defout
@@ -44,26 +45,32 @@ args1=(
 ("Test #%d: binary creation with outdated def file",
 outdated_def_file,
 outdated_def_file,
+("tmp\out.(%02d).def", "tmp\libcrypto-2.4.5.(%02d).dll", "tmp\libcrypto{000a0000}.(%02d).dso"),
 ),
 ("Test #%d: full options list",
 elf2e+caps+defin+defout+elfin+longtail,
 "Full options list!",
+("tmp\out.(%02d).def", "tmp\libcrypto-2.4.5.(%02d).dll", "tmp\libcrypto{000a0000}.(%02d).dso"),
 ),
 ("Test #%d: dso2def conversion",
 dso2def,
 "dso2def conversion!",
+("tmp\out.(%02d).def", ),
 ),
 ("Test #%d: def2def conversion",
 def2def,
 "def2def conversion!",
+("tmp\def2def.def", ),
 ),
 ("Test #%d: simple binary creation",
 elf2baree32,
 "Simple binary creation!",
+("tmp\elf2baree32.dll", ),
 ),
 ("Test #%d: full binary creation for ECOM plugin",
 areader_cmd,
 "Full binary creation for ECOM plugin!",
+("tmp\AR.def", "tmp\AlternateReaderRecogE32.dll", "tmp\AlternateReaderRecog{000a0000}.dso", ),
 ) )
 
 def SuceededTests(*args):
@@ -78,12 +85,22 @@ def SuceededTests(*args):
       print tmp1
       print "\n"
       subprocess.check_call(tmp1)
+      t = map(lambda x: x.replace("%02d", str(counter)), tmp[3])
+      ReportIfMissingOutput(t, tmp[0] %counter)
    except:
       print "Unexpectable test #%s failure:\n %s" %(counter, tmp[2])
       failed_tests+=1
    finally:
       print "\n"
       counter+=1
+
+def ReportIfMissingOutput(artifacts, msg):
+   global failed_tests_data
+   tmp = [x for x in artifacts if not os.path.isfile(x)]
+   if len(tmp) == 0:
+      return
+   tmp = "Test %s doesn't produce build artifacts: %s" %(msg, str(tmp))
+   failed_tests_data.append(tmp)
 
 
 args=(
@@ -151,7 +168,10 @@ def Run():
       print "Tests failed: %d" %failed_tests
    else:
       print "Good Job! All test passed! =D"
-   return failed_tests
+   if len(failed_tests_data) > 0:
+      print "But something goes wrong"
+      print failed_tests_data
+   return failed_tests, failed_tests_data
 
 if __name__ == "__main__":
     # execute only if run as a script

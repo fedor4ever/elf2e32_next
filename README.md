@@ -44,6 +44,7 @@ SDK help telling about this:
 Was: E32 has only real symbols, absent symbols missing; DEF has all symbols - from .def file with the frozen exports and ELF, absent symbols present as normal; output DEF has all symbols, absent symbols present as absent. Therefore second step required to obtain proper DSO and E32Image. At this point supplied a .def updated and used to produce ready to use DSO, DEF, E32Image.
 
 Now: simple produce ready to use DSO, DEF, E32Image, supplied a .def untouched.
+ - uniform storage of absent symbol(s) in a DEF output. There 2 forms exist: raw output and after processing SDK tools. Both support as input. As output used "processed" form.
 
 ## You wish to add new enhansements.
 If you wish add some new tricks for E32 Image target use new modules:
@@ -105,4 +106,4 @@ SDK lacks documentation for elf2e32 syntax. Also new options added to elf2e32 an
 Elf2e32 stores own version in output E32Image.
 It has particular format: major, minor and build. Major and minor stored as uint8_t, build as uint16_t.
 
-Option version value should come in [Major].[Minor] form. Their parts should fit in uint16_t range.
+Option version value should come in [Major].[Minor] form. Their values should fit in uint16_t range.

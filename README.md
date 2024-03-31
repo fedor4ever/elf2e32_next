@@ -55,7 +55,7 @@ If you wish add some new tricks for E32 Image target use new modules:
 
 ## Build instruction
  - Code block users can import and build
- - Other - need C++14 compiler
+ - Other - need C++14 compiler and pass -D__EABI__
  - Run tests
 
 ## Strict validation

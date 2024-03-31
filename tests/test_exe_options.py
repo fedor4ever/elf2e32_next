@@ -1,7 +1,7 @@
 # encoding=utf-8
 import os, subprocess
 
-elf2e32=r"..\bin\Release\elf2e32.exe"
+elf2e32 = os.path.join("..", "bin", "Release", "elf2e32")
 implibs=r""" --libpath="SDK_libs" """
 failed_tests_data = []
 
@@ -27,25 +27,26 @@ longtail=e32bin+implibs+linkas+fpu+uid1+uid2+uid3+tgttype+tail
 
 args=(
 ("Test #%d: Simple exe creation.",
-elf2e32+caps+elfin+longtail,
+caps+elfin+longtail,
 "Simple exe creation failed!",
 ("tmp\kf_Python_launcher.exe",),
 ),
 ("Test #%d: exe creation with implicit export _ZdlPvj.",
-elf2e32+implibs+fpu+implibs+r""" --sid=0xe8181dba --version=10.0 --uid1=0x1000007a --uid2=0x00000000 --uid3=0xe8181dba --capability=none --targettype=EXE --output=tmp\cmd_teste32.exe --elfinput=cmd_test.exe.elf --linkas=cmd_test{000a0000}[e8181dba].exe --verbose --uncompressed --filecrc=cmd_test.crc """,
+implibs+fpu+implibs+r""" --sid=0xe8181dba --version=10.0 --uid1=0x1000007a --uid2=0x00000000 --uid3=0xe8181dba --capability=none --targettype=EXE --output=tmp\cmd_teste32.exe --elfinput=cmd_test.exe.elf --linkas=cmd_test{000a0000}[e8181dba].exe --verbose --uncompressed --filecrc=cmd_test.crc """,
 "exe creation with implicit export _ZdlPvj failed!",
 ("tmp/cmd_teste32.exe",),
 ) )
 
-def SuceededTests(*args):
+def SuceededTests(runner, *args):
    """These tests must alwais pass!"""
    global counter
    global failed_tests
    tmp=args[0]
+   cmd=runner+tmp[1]
    try:
       print tmp[0] %counter
-      print tmp[1]
-      subprocess.check_call(tmp[1])
+      print cmd
+      subprocess.check_call(cmd)
       ReportIfMissingOutput(tmp[3], tmp[0] %counter)
    except:
       print "Unexpectable test elf->exe failure:\n %s" %tmp[2]
@@ -62,10 +63,10 @@ def ReportIfMissingOutput(artifacts, msg):
    tmp = "Test %s doesn't produce build artifacts: %s" %(msg, str(tmp))
    failed_tests_data.append(tmp)
 
-def Run():
+def Run(runner = elf2e32):
    print "exe tests running"
    for x in args:
-      SuceededTests(x)
+      SuceededTests(runner, x)
 
    if failed_tests > 0:
       print "Tests failed: %d" %failed_tests

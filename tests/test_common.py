@@ -1,7 +1,7 @@
 # encoding=utf-8
 import os, subprocess
 
-elf2e32=r"..\bin\Release\elf2e32.exe"
+elf2e32 = os.path.join("..", "bin", "Release", "elf2e32")
 implibs=r""" --libpath="SDK_libs" """
 
 counter=0
@@ -26,25 +26,26 @@ longtail=e32bin+uid1+uid2+uid3+tgttype+append
 
 args1=(
 ("Test #%d: full binary creation for ECOM plugin",
-elf2e32+append+""" --capability=ProtServ --defoutput=tmp\AlternateReaderRecog{000a0000}.def --elfinput="AlternateReaderRecog.dll" --output="tmp\AlternateReaderRecogE32_c.dll" --linkas=AlternateReaderRecog{000a0000}[101ff1ec].dll --dso=tmp\AlternateReaderRecog{000a0000}.dso --uid1=0x10000079 --uid2=0x10009d8d --uid3=0x101ff1ec --targettype=PLUGIN --sid=0x101ff1ec --version=10.0 --ignorenoncallable --debuggable --sysdef=_Z24ImplementationGroupProxyRi,1; --filecrc=AlternateReaderRecog.SDK.crc;AlternateReaderRecog.SDK.dcrc """,
+append+""" --capability=ProtServ --defoutput=tmp\AlternateReaderRecog{000a0000}.def --elfinput="AlternateReaderRecog.dll" --output="tmp\AlternateReaderRecogE32_c.dll" --linkas=AlternateReaderRecog{000a0000}[101ff1ec].dll --dso=tmp\AlternateReaderRecog{000a0000}.dso --uid1=0x10000079 --uid2=0x10009d8d --uid3=0x101ff1ec --targettype=PLUGIN --sid=0x101ff1ec --version=10.0 --ignorenoncallable --debuggable --sysdef=_Z24ImplementationGroupProxyRi,1; --filecrc=AlternateReaderRecog.SDK.crc;AlternateReaderRecog.SDK.dcrc """,
 "creation ECOM plugin failed!",
 ("tmp\AlternateReaderRecog{000a0000}.def", "tmp\AlternateReaderRecogE32_c.dll", "tmp\AlternateReaderRecog{000a0000}.dso", ),
 ),
 ("Test #%d: simple exe creation.\n",
-elf2e32+caps+elfin+longtail+" --debuggable",
-elf2e32+caps+elfin+longtail+" --debuggable",
+caps+elfin+longtail+" --debuggable",
+"simple exe creation failed!",
 ("tmp\kf_Python_launcher_c.exe", ),
 ) )
 
 
-def SuceededTests(*args):
+def SuceededTests(runner, *args):
    """These tests must alwais pass!"""
    global counter
    tmp=args[0]
+   cmd=runner+tmp[1]
    try:
       print tmp[0] %counter
-      print tmp[1]
-      subprocess.check_call(tmp[1])
+      print cmd
+      subprocess.check_call(cmd)
       ReportIfMissingOutput(tmp[3], tmp[0] %counter)
    except:
       print "Unexpectable test failure:\n %s" %tmp[2]
@@ -60,10 +61,10 @@ def ReportIfMissingOutput(artifacts, msg):
    tmp = "Test %s doesn't produce build artifacts: %s" %(msg, str(tmp))
    failed_tests_data.append(tmp)
 
-def Run():
+def Run(runner = elf2e32):
    print "Tests running"
    for x in args1:
-      SuceededTests(x)
+      SuceededTests(runner, x)
 
    if failed_tests > 0:
       print "Tests failed: %d" %failed_tests

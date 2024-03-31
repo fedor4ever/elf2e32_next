@@ -125,7 +125,7 @@ common_opts=r""" --libpath="SDK_libs" --fpu=softvfp --heap=0x1000,0x100000 """
 
 
 elf2e32_SDK=r"elf2e32_belle.exe"
-elf2e32_test=r"..\bin\Release\elf2e32.exe"
+elf2e32_test = os.path.join("..", "bin", "Release", "elf2e32")
 
 
 libcrypto_defin='--definput="libcryptou.def"'
@@ -455,13 +455,13 @@ def DeduceCRCS():
     E32WithOutdatedDEF(elf2e32_SDK)
     PrintCRCDups()
 
-def BuildAndValidateE32WithFrozenDEF():
+def BuildAndValidateE32WithFrozenDEF(runner):
     global failed_tests
     global failed_sfx
     crypto_dcrc = os.path.join("tmp","libcrypto{000a0000}.dcrc")
     crypto_crc = os.path.join("tmp","libcrypto{000a0000}.crc")
 
-    cmdline = elf2e32_test + " " + libcrypto_opts + "--filecrc="
+    cmdline = runner + " " + libcrypto_opts + "--filecrc="
     idx = 1
     args = ['--unfrozen', '--ignorenoncallable', '--excludeunwantedexports', '--namedlookup', libcrypto_defin]
     for x in range(1, len(args)+1):
@@ -536,13 +536,13 @@ def PackedE32OutdatedDEF(sfx):
 # - DSO: all missed symbols included as normal
 # - DEF: all missed symbols marked "MISSING"
 # For that target, the test is regression. It is a reference for the other cases.
-def BuildAndValidateE32WithOutdatedDEF():
+def BuildAndValidateE32WithOutdatedDEF(runner):
     global failed_tests
     global failed_sfx
     crypto_dcrc = os.path.join("tmp","libcrypto{000a0000}.dcrc")
     crypto_crc = os.path.join("tmp","libcrypto{000a0000}.crc")
 
-    cmdline = elf2e32_test + " " + libcrypto_opts + "--filecrc="
+    cmdline = runner + " " + libcrypto_opts + "--filecrc="
     idx = 1
     args = ('--unfrozen', '--namedlookup', ' --definput="libcryptou_openssl.def"')
     for x in range(1, len(args)+1):
@@ -582,13 +582,13 @@ def BuildAndValidateE32WithOutdatedDEF():
                 print "\n"
                 idx+=1
 
-def BuildAndValidateECOM():
+def BuildAndValidateECOM(runner):
     global failed_tests
     global failed_sfx
     crypto_dcrc = os.path.join("tmp", "AlternateReaderRecog{000a0000}.dcrc")
     crypto_crc = os.path.join("tmp", "AlternateReaderRecog{000a0000}.crc")
 
-    cmdline = elf2e32_test + " " + areader_opts + common_opts + " --sysdef=_Z24ImplementationGroupProxyRi,1; --filecrc="
+    cmdline = runner + " " + areader_opts + common_opts + " --sysdef=_Z24ImplementationGroupProxyRi,1; --filecrc="
     idx = 1
     args = ('--unfrozen', '--ignorenoncallable', '--dlldata', '--excludeunwantedexports', '--namedlookup', areader_defin)
     for x in range(1, len(args)+1):
@@ -678,13 +678,13 @@ def FrozenExports(addend):
 # Second E32 group:  "missed" function ignored, namedlookup section added.
 # Resume: many *U* builds give combo DSO with 2 exports and E32 with 1 export. This is critical error.
 # In this case, the test is regression. It is not a reference for the original version.
-def BuildAndTortureECOM():
+def BuildAndTortureECOM(runner):
     global failed_tests
     global failed_sfx
     crypto_dcrc = os.path.join("tmp", "AlternateReaderRecog{000a0000}.dcrc")
     crypto_crc = os.path.join("tmp", "AlternateReaderRecog{000a0000}.crc")
 
-    cmdline = elf2e32_test + " " + areader_opts + common_opts + " --sysdef=_Z24ImplementationGroupProxyRi,1;lala,2; --filecrc="
+    cmdline = runner + " " + areader_opts + common_opts + " --sysdef=_Z24ImplementationGroupProxyRi,1;lala,2; --filecrc="
     idx = 1
     args = ('--unfrozen', '--ignorenoncallable', '--dlldata', '--excludeunwantedexports', '--namedlookup', areader_defin)
     for x in range(1, len(args)+1):
@@ -755,13 +755,13 @@ def ReportIfMissingTestData(artifacts, msg):
    tmp = "Test %s doesn't produce build artifacts: %s" %(msg, str(tmp))
    failed_tests_data.append(tmp)
 
-def Run():
+def Run(runner = elf2e32_test):
     # DeduceCRCS()
     # RenameOutput()
-    BuildAndTortureECOM()
-    BuildAndValidateECOM()
-    BuildAndValidateE32WithFrozenDEF()
-    BuildAndValidateE32WithOutdatedDEF()
+    BuildAndTortureECOM(runner)
+    BuildAndValidateECOM(runner)
+    BuildAndValidateE32WithFrozenDEF(runner)
+    BuildAndValidateE32WithOutdatedDEF(runner)
     if len(skipped_crc_sfx) > 0:
         print "skipped_crc_sfx:"
         print skipped_crc_sfx

@@ -1,7 +1,7 @@
 # encoding=utf-8
 import os, subprocess
 
-elf2e32=r"..\bin\Release\elf2e32.exe"
+elf2e32 = os.path.join("..", "bin", "Release", "elf2e32")
 failed_tests = 0
 failed_tests_data = []
 
@@ -12,25 +12,26 @@ tgttype=r" --targettype=implib"
 
 
 dsodefTests=(
-(elf2e32+defin+dsoout+linkas+tgttype, "Simple def2dso creation.\n Options are: %s\n", ("tmp\libcrypto{000a0000}.def2dso.dso", )),
-(elf2e32+""" --elfinput="tmp\libcrypto{000a0000}.def2dso.dso" """ + """ --defoutput="tmp\dso2def.(01).def" """,
+(defin+dsoout+linkas+tgttype, "Simple def2dso creation.\n Options are: %s\n", ("tmp\libcrypto{000a0000}.def2dso.dso", )),
+(""" --elfinput="tmp\libcrypto{000a0000}.def2dso.dso" """ + """ --defoutput="tmp\dso2def.(01).def" """,
 "dso2def creation with simplified syntax.\n Options are: %s\n", ("tmp\dso2def.(01).def", )),
-(elf2e32+""" --definput="tmp\dso2def.(01).def" """ + """ --dso="tmp\dso2def2dso.(02).dso" """,
+(""" --definput="tmp\dso2def.(01).def" """ + """ --dso="tmp\dso2def2dso.(02).dso" """,
 "Make dso from def generated from dso.\n Options are: %s\n", ("tmp\dso2def2dso.(02).dso", )),
-(elf2e32+defin+ """--dso="tmp\def2dso.(03).dso" """ + """  --linkas="def2dso2def.(03).dll" """ + """ --filecrc=testing_CRCs/def2dso.(03).dcrc """,
+(defin+ """--dso="tmp\def2dso.(03).dso" """ + """  --linkas="def2dso2def.(03).dll" """ + """ --filecrc=testing_CRCs/def2dso.(03).dcrc """,
 "Make dso from def which made from dso with custom --linkas... Options are: %s\n", ("tmp\def2dso.(03).dso", )),
-(elf2e32+""" --elfinput="tmp\def2dso.(03).dso" """ + """ --defoutput="tmp\def2dso2def.(04).def" """,
+(""" --elfinput="tmp\def2dso.(03).dso" """ + """ --defoutput="tmp\def2dso2def.(04).def" """,
 "Make def from dso which made from def...\n Options are: %s\n", ("tmp\def2dso2def.(04).def", )),
 )
 
-def SuceededTests(*args):
+def SuceededTests(runner, *args):
    """These tests must alwais pass!"""
    global failed_tests
    tmp=args[0]
-   str=tmp[1] %tmp[0]
+   cmd=runner+tmp[0]
+   str=tmp[1] %cmd
    try:
-      print "\n"+tmp[0]
-      subprocess.check_call(tmp[0])
+      print "\n"+cmd
+      subprocess.check_call(cmd)
       ReportIfMissingOutput(tmp[2], str)
    except:
       print "Unexpectable test failure:\n %s\n" %str
@@ -46,9 +47,9 @@ def ReportIfMissingOutput(artifacts, msg):
    tmp = "Test %s doesn't produce build artifacts: %s" %(msg, str(tmp))
    failed_tests_data.append(tmp)
 
-def Run():
+def Run(runner = elf2e32):
    for x in dsodefTests:
-      SuceededTests(x)
+      SuceededTests(runner, x)
 
    if failed_tests > 0:
       print "Tests failed: %d" %failed_tests

@@ -93,6 +93,9 @@ void E32File::WriteE32File()
     hdr->iExportDirCount = iSymbols.size();
     hdr->iCompressionType = 0;
 
+    if(iElfSrc->ImageIsDll())
+        hdr->iFlags |= KImageDll;
+
     if((hdr->iFlags & KImageDll) && iE32Opts->iNoDlldata)
     {
         if(hdr->iDataSize)
@@ -102,9 +105,6 @@ void E32File::WriteE32File()
     }
 
     SetFixedAddress(hdr);
-
-    if(iElfSrc->ImageIsDll())
-        hdr->iFlags |= KImageDll;
 
     const uint32_t offset = sizeof(E32ImageHeader) + sizeof(E32ImageHeaderJ);
     E32ImageHeaderV* hdrv = (E32ImageHeaderV*)&iHeader[offset];

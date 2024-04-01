@@ -26,11 +26,17 @@ reload(sys)
 sys.setdefaultencoding('utf-8')
 
 path2sdk = "G:/Symbian/S60_5th_Edition_SDK_v1.0/epoc32"
+
+elf2e32_x86 = os.path.join("D:\\", "codeblock", "elf2e32_next", "bin", "Release"  , "elf2e32.exe")
+elf2e32_x64 = os.path.join("D:\\", "codeblock", "elf2e32_next", "bin", "Release64", "elf2e32.exe")
+elf2e32_x86 += " --filecrc --e32input="
+elf2e32_x64 += " --filecrc --e32input="
+
 elf2e32_rel = "D:\\codeblock\\elf2e32_next\\bin\\Release\\elf2e32.exe --filecrc --e32input="
 
 app_builder_err_log = "app_builder_err.log"
 app_builder_out_log = "app_builder_out.log"
-app_builder_time_log = "app_builder_time_log"
+app_builder_time_log = "app_builder_time.log"
 
 # Workaround for "threading bug in strptime"
 # See - https://stackoverflow.com/questions/32245560/module-object-has-no-attribute-strptime-with-several-threads-python/46401422
@@ -241,15 +247,15 @@ def build_sdk_elf2e32(sdk_prj):
     threads_runner(sdk_prj, thread_func)
 
 
-def build_new_elf2e32(sdk_prj):
+def build_new_elf2e32(sdk_prj, runner):
     t = os.path.join(path2sdk, "tools")
     
     tgt = os.path.join(t, "elf2e32.exe")
     dst = os.path.join(t, "elf2e32_old.exe")
     os.rename(tgt, dst)
 
-    print elf2e32_rel
-    rel = elf2e32_rel.split()[0]
+    print runner
+    rel = runner.split()[0]
     print rel
     shutil.copy(rel, t)
     if check_elf2e32() == 2:
@@ -307,9 +313,7 @@ def generate_crc():
 
 
 def print_failures():
-    path = os.path.join(path2sdk, "release")
-    path = os.path.join(path, "gcce")
-    path = os.path.join(path, "urel")
+    path = os.path.join(path2sdk, "release", "gcce", "urel")
 
     tmp = [os.path.join(path, file) for file in os.listdir(path)]
     dll = [os.path.split(file)[1] for file in tmp if file.endswith(".dll")]
@@ -329,26 +333,44 @@ def print_failures():
     print sorted(set(crc) - set(tgt))
 
 
-def sdk_all_app_builder():
+def log_start_of_build(msg):
+    start = time.strftime("%H:%M:%S")
+    append2file(app_builder_time_log, msg %start)
+    return start
+
+def log_end_of_build(start, msg):
+    end = time.strftime("%H:%M:%S" )
+    start_dt = datetime.strptime(start, '%H:%M:%S')
+    end_dt = datetime.strptime(end, '%H:%M:%S')
+    diff = (end_dt - start_dt)
+    append2file(app_builder_time_log, "testing time: %s.\n" %str(diff) )
+    append2file(app_builder_time_log, msg %end)
+    
+
+def sdk_all_app_builder(runner86, runner64):
     start = time.strftime("%H:%M:%S")
     save2file(app_builder_err_log, "")
     save2file(app_builder_out_log, "")
     save2file(app_builder_time_log, "elf2e32 testing started: %s.\n" %start)
 
+    start = log_start_of_build("build_sdk_elf2e32 started: %s.\n")
     sdk_prj = find_projects()
     build_sdk_elf2e32(sdk_prj)
     generate_crc()
-    build_new_elf2e32(sdk_prj)
-    print_failures()
+    log_end_of_build(start, "build_sdk_elf2e32 ended: %s.\n")
 
-    end = time.strftime("%H:%M:%S" )
-    save2file(app_builder_time_log, "elf2e32 testing ended: %s.\n" %end)
-    
-    start_dt = datetime.strptime(start, '%H:%M:%S')
-    end_dt = datetime.strptime(end, '%H:%M:%S')
-    diff = (end_dt - start_dt)
-    append2file(app_builder_time_log, "elf2e32 testing time: %s.\n" %str(diff) )
+    start = log_start_of_build("build_new_elf2e32 x86 started: %s.\n")
+    build_new_elf2e32(sdk_prj, runner86)
+    print_failures()
+    log_end_of_build(start, "build_new_elf2e32 x86 ended: %s.\n")
+
+    start = log_start_of_build("build_new_elf2e32 x64 started: %s.\n")
+    build_new_elf2e32(sdk_prj, runner64)
+    print_failures()
+    log_end_of_build(start, "build_new_elf2e32 x64 ended: %s.\n")
+
+    log_end_of_build(start, "Full testing time: %s.\n")
 
 
 if __name__ == "__main__":
-    sdk_all_app_builder()
+    sdk_all_app_builder(elf2e32_x86, elf2e32_x64)

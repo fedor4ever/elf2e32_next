@@ -35,7 +35,7 @@ SDK help telling about this:
  - gets exported functions from DSO and store in DEF file
  - looking for new bad ELF files for testing
  - repacking existing E32 image
- - list global variables if `--dlldata` not specified for any targets except STDDLL and STDEXE
+ - list global variables if `--dlldata` not specified for any DLL target
 
 ## How fast:
 Running 3 times tests\sdk_all_app_builder.py:

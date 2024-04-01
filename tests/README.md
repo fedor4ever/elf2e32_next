@@ -1,5 +1,5 @@
 ## Intro
-Good and bad targets used in tests, broken - excluded.
+Good targets used in tests to compare with original elf2e32, broken and bad - excluded.
 
 **Good targets:**
  - AlternateReaderRecog.dll
@@ -54,6 +54,8 @@ Option to create DSO: --dso="<path><dsoname>". This one and from Nokia_Symbian_B
 `elf2e32 --filecrc=<crcfile> --e32input=<file>`
  - if doesn't print "All CRC matches!" - please open bug report.
 
+In case if you want to dig yourself - [vbindiff](https://www.cjmweb.net/vbindiff/) can help. WinXP version in tests folder. Don't forget to unpack compressed E32Image =)
+
 **How open bug report**:
  - pack in zip exe\dll, .dso(if any), .def(if any) from project folder in *epoc32/build*, .mmp file
  - open issue request and attach that zip
@@ -62,18 +64,19 @@ Option to create DSO: --dso="<path><dsoname>". This one and from Nokia_Symbian_B
 ## Testing the elf2e32 build
 
 **Testing your build**:
- - run test_all.py
- - if print "Good Job! All test passed! =D" - all done.
- - if print "Unexpectable test failure:" - run test_common.py, test_dll_options.py, test_dso_options.py, test_exe_options.py
+ - test_all.py - fast, python 2 needed
+ - sdk_all_app_builder.py - slow despite multithreading, Symbian SDK needed
 
-**Some old stuff, ignore**
- - Verify these files using [vbindiff](https://www.cjmweb.net/vbindiff/). Difference allowed for these ranges:
-1. For E32Image
-* ***0x0058 - 0x0059***(E32ImageHeader::iExportDirOffset) - Should be zero for EXE without exports
-* ***0x0015 - 0x0018***(E32ImageHeader::iHeaderCrc)
-* ***0x0021 - 0x0024***(ToolVersion E32ImageHeader::iVersion)
-* ***0x0025 - 0x002A***(E32ImageHeader::iTimeLo and E32ImageHeader::iTimeHi)
-* ***0x002B - 0x0020***(E32ImageHeader::iFlags)
-If there are differences in another ranges, please report the error.
-2. For DSO:
-First two bytes in .version section with type VERSYM. For check use command arm-none-symbianelf-readelf.exe -S <you_dsofile.dso> or enable macro EXPLORE_DSO_BUILD for detailed output about sections in generated DSO.
+If prints "Good Job! All test passed! =D" - all done.
+If prints "Unexpectable test failure:" or "But something goes wrong" - oops...
+
+In case test_all.py: run test_common.py, test_dll_options.py, test_dso_options.py, test_exe_options.py and check output.
+
+**Set up sdk_all_app_builder.py**
+This test required fully configured Symbian SDK and python 2. Before run 3 variables needed to set: path2sdk, elf2e32_x86, elf2e32_x64. Also elf2e32 should builded with param `-DSET_COMPILETIME_LOAD_EXISTED_FILECRC`. This force to load CRC files for DSO and E32. If load fails - create CRC near DSO and E32.
+
+Thus at first step this script does normal build near 200 examples from SDK. At second step - create CRC near DSO and E32. After that replace elf2e32 and start bulid for x86 and x64 versions.
+
+Sometimes this script crashes and does't restore original elf2e32. In that case in [SDK folder]/epoc32/tools and rename elf2e32_old.exe to elf2e32.exe.
+
+There script `fix_s60v5_sdk.py` - fix build errors with modern compilers in examples from S60_5th_Edition_SDK_v1.0.

@@ -99,7 +99,13 @@ void E32File::WriteE32File()
     if((hdr->iFlags & KImageDll) && iE32Opts->iNoDlldata)
     {
         if(hdr->iDataSize)
+        {
+            ReportLog("Found DLL data:\n");
+            for(auto x: iSymbols)
+                if(x->CodeDataType()==SymbolTypeData)
+                    ReportLog(x->AliasName() + "\n");
             ReportError(ErrorCodes::ZEROBUFFER, "ELF File: " + iE32Opts->iDso + " contains initialized writable data.");
+        }
         if(hdr->iBssSize)
             ReportError(ErrorCodes::ZEROBUFFER, "ELF File: " + iE32Opts->iDso + " contains uninitialized writable data.");
     }

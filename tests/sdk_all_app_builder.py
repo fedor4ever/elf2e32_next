@@ -32,7 +32,7 @@ elf2e32_x64 = os.path.join("D:\\", "codeblock", "elf2e32_next", "bin", "Release6
 elf2e32_x86 += " --filecrc --e32input="
 elf2e32_x64 += " --filecrc --e32input="
 
-elf2e32_rel = "D:\\codeblock\\elf2e32_next\\bin\\Release\\elf2e32.exe --filecrc --e32input="
+elf2e32_rel = elf2e32_x86
 
 app_builder_err_log = "app_builder_err.log"
 app_builder_out_log = "app_builder_out.log"

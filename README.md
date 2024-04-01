@@ -21,9 +21,10 @@ SDK help telling about this:
 > used for freezing the exports of libraries.
 
 ## Features:
+ - several times faster than Belle SDK version
  - strict validation for E32Image consistency(builded and existed too!)
- - meaningfull report if validation failed
- - easy build for different OS
+ - meaningfull report if E32Image validation failed
+ - easy build for different OS: x86 and x64
  - fixed bad E32Image output
  - fixed crash for specific option combination
  - all public cmdline options supported and their arguments from versions prior Belle SDK
@@ -33,13 +34,21 @@ SDK help telling about this:
  - generate header file with exported functions from DSO file or in post-linker part
  - gets exported functions from DSO and store in DEF file
  - looking for new bad ELF files for testing
- - list global variables if `--dlldata` not specified for DLL target
  - repacking existing E32 image
  - list global variables if `--dlldata` not specified for any targets except STDDLL and STDEXE
+
+## How fast:
+Running 3 times tests\sdk_all_app_builder.py:
+|                  |    1    |    2    |    3    |
+| ---------------- | ------- | ------- | ------- |
+| SDK testing time | 0:07:49 | 0:07:55 | 0:08:04 |
+| x86 testing time | 0:02:21 | 0:02:14 | 0:02:21 |
+| x64 testing time | 0:01:48 | 0:01:49 | 0:01:56 |
 
 ## Changes:
  - option `--e32input=<file>` works as `--e32input=<file> --dump=h`, was `--e32input=<file> --dump=hscdeit`
  - option `--unfrozen` and supplied a .def file with the frozen exports produce ready to use DSO, DEF, E32Image. One or more exports declared in supplied a .def missing in supplied ELF file.
+ - option `--sysdef`: removed limits up 10 pre defined symbols.
 
 Was: E32 has only real symbols, absent symbols missing; DEF has all symbols - from .def file with the frozen exports and ELF, absent symbols present as normal; output DEF has all symbols, absent symbols present as absent. Therefore second step required to obtain proper DSO and E32Image. At this point supplied a .def updated and used to produce ready to use DSO, DEF, E32Image.
 

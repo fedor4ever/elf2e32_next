@@ -331,9 +331,7 @@ void SymbolProcessor::MapAbsentWithElfSymbols(const Symbols& fromElf)
 
 bool IsNoExportEXE(TargetType type)
 {
-    if( (type == TargetType::EExe) || (type == TargetType::EStdExe) )
-        return true;
-    return false;
+    return type == TargetType::EExe;
 }
 
 Symbols SymbolProcessor::GetExports()
@@ -405,7 +403,7 @@ Symbols SymbolProcessor::GetElfExports()
     }
     elf.sort(SortSymbolsByName);
 
-    if(elf.empty())
+    if(elf.empty() && (iArgs->iTargettype != TargetType::EStdExe))
         ReportError(ErrorCodes::ZEROBUFFER, "DLL Elf file has no exports! Check symbol(s) visibility!");
     return elf;
 }

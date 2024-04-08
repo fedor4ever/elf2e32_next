@@ -50,6 +50,8 @@ elf2e32 --capability=All-TCB --definput="libcryptou.def" --defoutput="tmp\out.de
 --capability=AllFiles+TCB --defoutput="tests\tmp\kf__speedups.def" --elfinput="tests\kf__speedups.pyd" --output="tests\tmp\kf__speedups.tst.pyd" --libpath="tests\SDK_libs" --linkas="kf__speedups{000a0000}.dll" --fpu=softvfp --uid1=0x10000079 --uid2=0x00000000  --uid3=0x00000000 --dso="tests\tmp\libcrypto{000a0000}.dso" --targettype=DLL --filecrc="tests\kf__speedups.crc"
  --definput="tests\kf__speedups.def" --dlldata --ignorenoncallable --debuggable
 
+Hex view:
+E32ImageHeader
 00    uint32_t iUid1; uint32_t iUid2; uint32_t iUid3; uint32_t iUidChecksum;
 10    char iSignature[4]; uint32_t iHeaderCrc; uint32_t iModuleVersion; uint32_t iCompressionType;
 20    uint32_t iVersion; uint32_t iTimeLo; uint32_t iTimeHi; uint32_t iFlags;
@@ -58,3 +60,10 @@ elf2e32 --capability=All-TCB --definput="libcryptou.def" --defoutput="tmp\out.de
 50    uint32_t iDataBase; int32_t iDllRefTableCount; uint32_t iExportDirOffset; uint32_t iExportDirCount;
 60    uint32_t iTextSize; uint32_t iCodeOffset; uint32_t iDataOffset; uint32_t iImportOffset;
 70    uint32_t iCodeRelocOffset; uint32_t iDataRelocOffset; uint16_t iProcessPriority; uint16_t iCpuIdentifier;
+
+E32ImageHeaderJ
+7c    uint32_t iUncompressedSize;
+
+E32ImageHeaderV
+80    uint32_t iSecureId; uint32_t iVendorId; uint64_t iCaps;
+90    uint32_t iExceptionDescriptor; uint32_t iSpare2; uint16_t iExportDescSize; uint8_t  iExportDescType; uint8_t  iExportDesc[];

@@ -82,8 +82,8 @@ Fix - stop job with error message
  - if you forget to mark function(s) with EXPORT_C/IMPORT_C original version in early SDKs stop working from unknown error, later versions crashes at runtime. It's same as EXPORT_C/IMPORT_C case technically.
 Fix - stop job with error message
 
- - crash at runtime for STDDLL target if exports in DEF frozen and any functions removed in library. Example: examples/stddll_crashes_elf2e32.zip
-Fix - warning message and create something unverified in E32Image format. Use at your own risk
+ - crash at runtime for STDDLL target if exports in DEF frozen and any functions removed in library and option `--namedlookup` used(implicitly apply to STDDLL). Example: examples/stddll_crashes_elf2e32.zip
+Fix - create STDDLL in valid E32Image format. Tests(prebuilt with sources): examples/named_lookup_tests.zip. Run from fileman directly. Tested: Nokia C6-01, Nokia 5800
 
 ### Resume
 STDDLL target broken in many ways. There one way it safe - library with fixed and constant interface. Do not use with big libraries with evolving interface. Build DLL target instead with GCC option `-fvisibility=default` if you don't mark function(s) with EXPORT_C/IMPORT_C.

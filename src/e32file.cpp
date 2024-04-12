@@ -286,7 +286,14 @@ void E32File::PrepareData()
     E32Section tmp;
     tmp = ExportSection(iSymbols, iE32Opts->iNamedlookup, iElfSrc->ExportTable());
 
-    if(IsEXE(iE32Opts->iTargettype))
+// TODO: Remove error prone code
+// See "Selfcheck failure for STDEXE target"
+// I have no idea why it done in original elf2e32. And I don't found any code in elf2e32 sources which does so.
+// This is error because it means there is a bitmap section in the file. So set this flag on only if no exports.
+// With that code all tests succeeded.
+// But remove break many tests, especially sdk_all_app_builder.py.
+// Build and run sucessfully SDK example app AddressBook without that code.
+    if(IsEXE(iE32Opts->iTargettype) && iSymbols.empty())
         iExportDescType = KImageHdr_ExpD_FullBitmap;
 
     if(tmp.type > E32Sections::EMPTY_SECTION)

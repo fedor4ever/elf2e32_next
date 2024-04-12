@@ -27,6 +27,7 @@ SDK help telling about this:
  - easy build for different OS: x86 and x64
  - fixed bad E32Image output
  - fixed crash for specific option combination
+ - fixed selfcheck failure for STDEXE target
  - all public cmdline options supported and their arguments from versions prior Belle SDK
  - very strict against illformend cmdline options
  - stand alone mode
@@ -104,6 +105,9 @@ As you see options for **uid1**, **sid**, **fpu**, **version**, **linkas**, **st
  - linkas - deduced from elfinput and version and uid3
  - sysdef - deduced for Ecom plugins
  - stack - exe only, default value 8kb
+
+## Selfcheck failure for STDEXE target
+For EXE, EXEEXP and STDEXE targets E32ImageHeaderV::iExportDescType has value KImageHdr_ExpD_FullBitmap which means presence of special section for symbols missed in export table. Test is simple: got number of exports, calculate size of BITMAP section and compare with real value in E32ImageHeaderV::iExportDescSize. Usually they doesn't have such section, EXE not supposed to have at all. If no exports - test succeeded because they both equal to zero. But what happens if export present? Test failed! Affected SDKs - S60_5th_Edition_SDK_v1.0, Nokia_Symbian_Belle_SDK_v1.0. Not affected - S60_3rd_FP2_SDK_v1.1. Example: tests\kf_Python_launcher.exe
 
 ## Repacking existing E32 image
 Syntax: `elf2e32 --e32input=<input> --output=<output> --compressionmethod=<compression>`

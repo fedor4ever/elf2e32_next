@@ -311,19 +311,19 @@ bool ArgParser::Parse(Args* arg) const
                 break;
             case OptionsType::EMAN:
                 ReportLog(man);
-                break;
+                return false;
             case OptionsType::EMANEDIT:
                 ReportLog(manEdit);
-                break;
+                return false;
             case OptionsType::EMANBUILD:
                 ReportLog(manBuild);
-                break;
+                return false;
             case OptionsType::EMANDSODUMP:
                 ReportLog(manDsoDump);
-                break;
+                return false;
             case OptionsType::EMANARTIFACTS:
                 ReportLog(manArtifacts);
-                break;
+                return false;
         // dev options
             case OptionsType::TIME: // --time=hi,low
             {

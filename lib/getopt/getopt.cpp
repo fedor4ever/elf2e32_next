@@ -18,6 +18,8 @@
 #include "getopt_opts.h"
 #include "elf2e32_opt.hpp"
 
+static bool wait_arg_val = false;
+static Opts full_opt;
 bool NeedRawArg(Flags::Flags flag)
 {
     if(flag == Flags::CASE_SENSITIVE)
@@ -27,6 +29,17 @@ bool NeedRawArg(Flags::Flags flag)
 
 struct Opts getopt(const std::string& argc)
 {
+    if(wait_arg_val)
+    {
+        wait_arg_val = false;
+        auto argpos = argc.find_first_of("=");
+        if((argc[0] != '-') && (argc[1] != '-') && (argpos != std::string::npos))
+            full_opt.arg = argc;
+        else
+            full_opt.val = OptionsType::EMISSEDARG;
+        return full_opt;
+    }
+
     Opts opt;
     if(argc[0] != '-')
     {
@@ -84,6 +97,17 @@ struct Opts getopt(const std::string& argc)
 	case required_argument:
 	    if(opt.arg.empty())
         {
+            if(!wait_arg_val)
+            {
+                wait_arg_val = true;
+                full_opt.arg = opt.arg;
+                full_opt.binary_arg1 = opt.binary_arg1;
+                full_opt.binary_arg2 = opt.binary_arg2;
+                full_opt.name = opt.name;
+                full_opt.val = opt.val;
+                opt.val = OptionsType::EARGWAITING;
+                return opt;
+            }
             opt.arg = "missed required arg";
             opt.val = OptionsType::EMISSEDARG;
         }

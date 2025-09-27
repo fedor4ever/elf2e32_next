@@ -80,6 +80,8 @@ struct OptionsType
         EMANDSODUMP,
         EMANARTIFACTS,
         EHELP,
+        // internal
+        EARGWAITING,
         // dev options
         FILECRC,
         TIME,

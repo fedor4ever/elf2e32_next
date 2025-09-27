@@ -131,6 +131,9 @@ bool ArgParser::Parse(Args* arg) const
 
         switch(op.val)
         {
+            case OptionsType::EARGWAITING:
+                continue;
+                break;
             case OptionsType::EUID1:
                 arg->iUid1 = strtoul(op.arg.c_str(), nullptr, 16);
                 op.binary_arg1 = arg->iUid1;
@@ -354,7 +357,7 @@ bool ArgParser::Parse(Args* arg) const
                 op.binary_arg1 = true;
                 break;
             case OptionsType::EMISSEDARG:
-                ReportError(MISSEDARGUMENT, iArgv[i], Help);
+                ReportError(MISSEDARGUMENT, op.name, Help);
                 return false;
             case OptionsType::ENOTRECOGNIZEDARG:
                 ReportError(UNKNOWNOPTION, iArgv[i], Help);

@@ -132,6 +132,11 @@ bool ArgParser::Parse(Args* arg) const
         switch(op.val)
         {
             case OptionsType::EARGWAITING:
+                if(i == (iArgc -1))
+                {
+                    ReportError(MISSEDARGUMENT, op.name, Help);
+                    return false;
+                }
                 continue;
                 break;
             case OptionsType::EUID1:

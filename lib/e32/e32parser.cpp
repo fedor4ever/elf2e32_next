@@ -98,38 +98,12 @@ void E32Parser::DecompressImage()
     if(!IsCompressed())
         return;
 
-    const uint32_t offset = iHdr->iCodeOffset;
-    const uint32_t extracted = iHdrJ->iUncompressedSize;
-    size_t e32Size = Adjust(extracted + offset);
-
-    if(e32Size != (extracted + offset))
-        ReportError(ErrorCodes::WRONGFILESIZEFORDECOMPRESSION,
-            extracted + offset, e32Size);
-
-    const uint32_t compr = iHdr->iCompressionType;
-    if((compr != KUidCompressionDeflate) && (compr != KUidCompressionBytePair))
-        ReportError(ErrorCodes::UNKNOWNCOMPRESSION);
-
-// allocate slightly more memory to minimize memory overrun
-    char* uncompressed = new char[extracted + offset]();
-    memcpy(uncompressed, iBufferedFile, offset);
-
-    if(compr == KUidCompressionBytePair)
-    {
-        uint32_t uncompressedCodeSize = DecompressBPE(iBufferedFile + offset, uncompressed + offset);
-        uint32_t uncompressedDataSize = DecompressBPE(nullptr, uncompressed + offset + uncompressedCodeSize);
-        if((uncompressedCodeSize + uncompressedDataSize) != iHdrJ->iUncompressedSize)
-            ReportWarning(ErrorCodes::BYTEPAIRINCONSISTENTSIZE);
-    }else if(compr == KUidCompressionDeflate)
-    {
-        DeCompressInflate((unsigned char*)iBufferedFile + offset, iE32Size - offset, (unsigned char*)uncompressed + offset, extracted);
-    }else
-        ReportError(ErrorCodes::UNKNOWNCOMPRESSION);
-
-    iE32Size = e32Size;
+    std::vector<char> buf = DeCompressE32Image( std::vector<char>(iBufferedFile, iBufferedFile + iE32Size) );
+    iE32Size = buf.size();
     delete[] iBufferedFile;
     iBufferedFile = nullptr;
-    iBufferedFile = uncompressed;
+    iBufferedFile = new char[iE32Size]();
+    std::copy(buf.begin(), buf.end(), iBufferedFile);
 
     iHdr = (E32ImageHeader*)iBufferedFile;
     iHdrJ = (E32ImageHeaderJ*)(iBufferedFile + sizeof(E32ImageHeader));
@@ -348,9 +322,4 @@ uint32_t E32Parser::EntryPoint() const
 bool E32Parser::IsCompressed() const
 {
     return isCompessed != KFormatNotCompressed;
-}
-
-int32_t Adjust(int32_t size)
-{
-    return ((size+0x3)&0xfffffffc);
 }

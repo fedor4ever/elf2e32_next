@@ -16,16 +16,58 @@
 //
 
 #include <ios>
+#include "common.hpp"
 #include "e32common.h"
 #include "e32compressor.h"
 
+typedef std::vector<char> E32Buf;
+int32_t Adjust(int32_t size);
+
+E32Buf DeCompressE32Image(E32Buf source)
+{
+    E32ImageHeader* h = (E32ImageHeader*)&source[0];
+    if(h->iCompressionType == KFormatNotCompressed)
+        return source;
+
+    E32Buf buf;
+    size_t pos = sizeof(E32ImageHeader);
+    E32ImageHeaderJ* iHdrJ = (E32ImageHeaderJ*)&source[pos];
+
+    const uint32_t offset = h->iCodeOffset;
+    const uint32_t extracted = iHdrJ->iUncompressedSize;
+    size_t e32Size = Adjust(extracted + offset);
+
+    if(e32Size != (extracted + offset))
+        ReportError(ErrorCodes::WRONGFILESIZEFORDECOMPRESSION,
+            extracted + offset, e32Size);
+    buf.reserve(e32Size);
+    buf.insert(buf.begin(), source.begin(), source.begin() + offset);
+    buf.insert(buf.begin() + offset, '0', e32Size - offset);
+
+    const uint32_t compr = h->iCompressionType;
+
+
+    if(h->iCompressionType == KUidCompressionBytePair)
+    {
+        uint32_t uncompressedCodeSize = DecompressBPE(&source[offset], &buf[offset]);
+        uint32_t uncompressedDataSize = DecompressBPE(nullptr, &buf[offset + uncompressedCodeSize]);
+        if((uncompressedCodeSize + uncompressedDataSize) != iHdrJ->iUncompressedSize)
+            ReportWarning(ErrorCodes::BYTEPAIRINCONSISTENTSIZE);
+    }else if(h->iCompressionType == KUidCompressionDeflate)
+    {
+        DeCompressInflate((unsigned char*)&source[offset], source.size() - offset, (unsigned char*)&buf[offset], extracted);
+    }else
+        ReportError(ErrorCodes::UNKNOWNCOMPRESSION);
+    return buf;
+}
+
 // Compress if needed or return source
-std::vector<char> CompressE32Image(std::vector<char> source)
+E32Buf CompressE32Image(E32Buf source)
 {
     E32ImageHeader* h = (E32ImageHeader*)&source[0];
     uint32_t compressedSize = 0;
     uint32_t offset = h->iCodeOffset;
-    std::vector<char> compressed(source);
+    E32Buf compressed(source);
 
     if(h->iCompressionType == KUidCompressionBytePair)
     {
@@ -43,4 +85,9 @@ std::vector<char> CompressE32Image(std::vector<char> source)
 
     compressed.resize(offset + compressedSize);
     return compressed;
+}
+
+int32_t Adjust(int32_t size)
+{
+    return ((size+0x3)&0xfffffffc);
 }

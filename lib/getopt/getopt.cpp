@@ -33,7 +33,7 @@ struct Opts getopt(const std::string& argc)
     {
         wait_arg_val = false;
         auto argpos = argc.find_first_of("=");
-        if((argc[0] != '-') && (argc[1] != '-') && (argpos != std::string::npos))
+        if((argc[0] != '-') && (argc[1] != '-') && (argpos == std::string::npos))
             full_opt.arg = argc;
         else
             full_opt.val = OptionsType::EMISSEDARG;

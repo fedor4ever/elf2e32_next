@@ -343,18 +343,6 @@ void BuildE32Image(const Args* args, const ElfParser* elfParser, const Symbols& 
     file.WriteE32File();
 }
 
-void E32File::Compress(uint32_t compression)
-{
-    if(!compression)
-        return;
-    if(compression == KUidCompressionDeflate)
-        iHeader = CompressDeflate(iHeader);
-    else if(compression == KUidCompressionBytePair)
-        iHeader = CompressBPE(iHeader);
-    else
-        ReportError(INVALIDARGUMENT, "--compressionmethod", std::to_string(compression));
-}
-
 void PrintSymlookHdr(const E32Section& s)
 {
     if(s.type != E32Sections::SYMLOOK)

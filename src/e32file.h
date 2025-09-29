@@ -64,7 +64,6 @@ class E32File
     private:
         void PrepareData();
         void SetFixedAddress(E32ImageHeader* hdr);
-        void Compress(uint32_t compression);
     private:
         const Args* iE32Opts = nullptr;
         const ElfParser* iElfSrc = nullptr;

@@ -19,6 +19,7 @@
 #include "e32common.h"
 #include "e32compressor.h"
 
+// Compress if needed or return source
 std::vector<char> CompressE32Image(std::vector<char> source)
 {
     E32ImageHeader* h = (E32ImageHeader*)&source[0];
@@ -37,7 +38,9 @@ std::vector<char> CompressE32Image(std::vector<char> source)
     }else if(h->iCompressionType == KUidCompressionDeflate)
     {
         compressedSize = CompressDeflate(&source[offset], source.size() - offset, &compressed[offset], source.size() - offset);
-    }
+    }else if(h->iCompressionType == KFormatNotCompressed)
+        return source;
+
     compressed.resize(offset + compressedSize);
     return compressed;
 }

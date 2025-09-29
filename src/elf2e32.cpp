@@ -18,14 +18,14 @@
 #include <iostream>
 
 #include "logger.h"
-#include "elf2e32.h"
 #include "e32info.h"
+#include "elf2e32.h"
 #include "e32common.h"
-#include "argparser.h"
 #include "dsocrcfile.h"
 #include "e32rebuilder.h"
 #include "elf2e32_opt.hpp"
 #include "artifactbuilder.h"
+#include "cmdlineprocessor.h"
 
 
 void SetCmdParamAtCompileTime(Args* param)

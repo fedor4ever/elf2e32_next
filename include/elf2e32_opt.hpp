@@ -19,8 +19,8 @@
 
 #include <string>
 #include <vector>
+#include "argparser.h"
 #include "e32common.h"
-#include "cmdlineprocessor.h"
 
 const std::string DefaultOptionalArg = "none";
 

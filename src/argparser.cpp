@@ -20,9 +20,9 @@
 #include <limits.h>
 
 #include "common.hpp"
+#include "argparser.h"
 #include "e32common.h"
 #include "e32capability.h"
-#include "cmdlineprocessor.h"
 
 using std::string;
 using std::stringstream;

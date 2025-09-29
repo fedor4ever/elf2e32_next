@@ -23,7 +23,7 @@
 typedef std::vector<char> E32Buf;
 int32_t Adjust(int32_t size);
 
-E32Buf DeCompressE32Image(E32Buf source)
+E32Buf DeCompressE32Image(const E32Buf& source)
 {
     E32ImageHeader* h = (E32ImageHeader*)&source[0];
     if(h->iCompressionType == KFormatNotCompressed)
@@ -62,7 +62,7 @@ E32Buf DeCompressE32Image(E32Buf source)
 }
 
 // Compress if needed or return source
-E32Buf CompressE32Image(E32Buf source)
+E32Buf CompressE32Image(const E32Buf& source)
 {
     E32ImageHeader* h = (E32ImageHeader*)&source[0];
     uint32_t compressedSize = 0;

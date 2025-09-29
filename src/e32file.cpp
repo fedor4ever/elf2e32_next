@@ -169,24 +169,10 @@ void E32File::WriteE32File()
     E32ImageHeaderJ* j = (E32ImageHeaderJ*)&iHeader[sizeof(E32ImageHeader)];
     j->iUncompressedSize = iHeader.size() - hdr->iCodeOffset;
 
-//    Compress(iE32Opts->iCompressionMethod);
     hdr = (E32ImageHeader*)&iHeader[0];
     hdr->iCompressionType = iE32Opts->iCompressionMethod;
 
     SetE32ImageCrc(iHeader.data());
-
-// Compression doesn't work so we use E32Rebuilder to compress and save to file.
-//    E32SectionUnit s(iHeader);
-//    E32Parser* p = new E32Parser(s.data(), s.size());
-//    p->GetFileLayout();
-//    ValidateE32Image(p);
-
-    Args arg;
-    arg.iCompressionMethod = iE32Opts->iCompressionMethod;
-    arg.iOutput = iE32Opts->iOutput;
-    arg.iForceE32Build = iE32Opts->iForceE32Build;
-    arg.iFileCrc = iE32Opts->iFileCrc;
-    arg.iElfinput = iE32Opts->iElfinput;
 
     //call E32Info::HeaderInfo() for verbose output
     if(VerboseOut() && !DisableLongVerbosePrint())
@@ -200,11 +186,11 @@ void E32File::WriteE32File()
         hdr->iCompressionType = iE32Opts->iCompressionMethod;
     }
 
-    E32Rebuilder* rb = new E32Rebuilder(&arg);
-    rb->Compress(iHeader);
-    delete rb;
-    iHeader.clear();
-//    SaveFile(iE32Opts->iOutput.c_str(), iHeader.data(), iHeader.size());
+    E32SectionUnit tmp = CompressE32Image(iHeader);
+    E32Parser* p = E32Parser::NewL(tmp); // implicit call ValidateE32Image()
+//    ValidateE32Image(p);
+    delete p;
+    SaveFile(iE32Opts->iOutput.c_str(), tmp.data(), tmp.size());
 }
 
 /// Return count of exported functions or 0th ordinal

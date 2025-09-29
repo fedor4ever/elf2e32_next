@@ -50,3 +50,26 @@ std::vector<char> CompressDeflate(std::vector<char> source)
     source.insert(source.end(), compressed, compressed + compressedSize);
     return source;
 }
+
+std::vector<char> CompressE32Image(std::vector<char> source)
+{
+    E32ImageHeader* h = (E32ImageHeader*)&source[0];
+    uint32_t compressedSize = 0;
+    uint32_t offset = h->iCodeOffset;
+    std::vector<char> compressed(source);
+
+    if(h->iCompressionType == KUidCompressionBytePair)
+    {
+        int32_t BPECodeSize = CompressBPE(&source[offset], h->iCodeSize, &compressed[offset], source.size() - offset);
+        int32_t srcOffset = offset + h->iCodeSize;
+        int32_t BPEDataSize = CompressBPE(nullptr, source.size() - srcOffset,
+                                          nullptr, source.size() - BPECodeSize);
+
+        compressedSize = BPECodeSize + BPEDataSize;
+    }else if(h->iCompressionType == KUidCompressionDeflate)
+    {
+        compressedSize = CompressDeflate(&source[offset], source.size() - offset, &compressed[offset], source.size() - offset);
+    }
+    compressed.resize(offset + compressedSize);
+    return compressed;
+}

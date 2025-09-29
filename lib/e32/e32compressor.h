@@ -29,5 +29,6 @@ std::vector<char> CompressBPE(std::vector<char> src);
 void DeCompressInflate(unsigned char* source, int sourcesize, unsigned char* dst, int destsize);
 uint32_t CompressDeflate(const char* source, int sourcesize, const char* dst, int destsize);
 std::vector<char> CompressDeflate(std::vector<char> source);
+std::vector<char> CompressE32Image(std::vector<char> source);
 
 #endif // E32COMPRESSOR_H_INCLUDED

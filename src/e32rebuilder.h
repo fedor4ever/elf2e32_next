@@ -31,7 +31,6 @@ class E32Rebuilder: public Task
 		E32Rebuilder(Args* param);
 		virtual ~E32Rebuilder();
 		virtual void Run() final;
-		void Compress(const E32Buf& e32File);
 	private:
 		void EditHeader();
 		E32Buf ReCompress();

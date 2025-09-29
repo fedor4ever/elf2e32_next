@@ -91,46 +91,9 @@ E32Buf E32Rebuilder::ReCompress()
 {
     if(!iHdr)
         ReportError(ErrorCodes::ZEROBUFFER, __func__);
-
-    iHdr->iCompressionType = iReBuildOptions->iCompressionMethod;
-    if(!iReBuildOptions->iCompressionMethod)
-        return E32Buf(iFile, iFile + iFileSize);
-
-    char* compressed = new char[iFileSize * 2]();
-    uint32_t compressedSize = 0;
-
-    uint32_t offset = iHdr->iCodeOffset;
-    memcpy(compressed, iFile, offset);
-    if(iHdr->iCompressionType == KUidCompressionBytePair)
-    {
-        int32_t BPECodeSize = CompressBPE(iFile + offset, iHdr->iCodeSize, compressed + offset, iFileSize - offset);
-
-        int32_t srcOffset = offset + iHdr->iCodeSize;
-
-        int32_t BPEDataSize = CompressBPE(nullptr, iFileSize - srcOffset,
-                                          nullptr, iFileSize - BPECodeSize);
-
-        compressedSize = BPECodeSize + BPEDataSize;
-    }else if(iHdr->iCompressionType == KUidCompressionDeflate)
-    {
-        compressedSize = CompressDeflate(iFile + offset, iFileSize - offset, compressed + offset, iFileSize * 2 - offset);
-    }
-
-    iFileSize = offset + compressedSize;
-    return E32Buf(compressed, compressed + iFileSize);
-}
-
-//! Works with uncompressed E32Image only
-void E32Rebuilder::Compress(const E32Buf& e32File)
-{
-    iHdr = (E32ImageHeader*)&e32File[0];
-    iHdr->iCompressionType = KFormatNotCompressed;
-
-    iParser = E32Parser::NewL(e32File);
-    iHdr = (E32ImageHeader*)iParser->GetE32Hdr();
-    iFileSize = e32File.size();
-    iFile = (char*)iParser->GetBufferedImage();
-    SaveAndValidate(ReCompress());
+    auto tmp = CompressE32Image(E32Buf(iFile, iFile + iFileSize));
+    iFileSize = tmp.size();
+    return tmp;
 }
 
 void E32Rebuilder::SaveAndValidate(const E32Buf& e32File)

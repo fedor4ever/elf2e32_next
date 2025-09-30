@@ -41,8 +41,8 @@ E32Buf DeCompressE32Image(const E32Buf& source)
         ReportError(ErrorCodes::WRONGFILESIZEFORDECOMPRESSION,
             extracted + offset, e32Size);
     buf.reserve(e32Size);
-    buf.insert(buf.begin(), source.begin(), source.begin() + offset);
-    buf.insert(buf.begin() + offset, '0', e32Size - offset);
+    buf.insert(buf.end(), source.begin(), source.begin() + offset);
+    buf.insert(buf.end(), e32Size, '0');
 
     const uint32_t compr = h->iCompressionType;
 

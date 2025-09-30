@@ -187,8 +187,8 @@ void E32File::WriteE32File()
     }
 
     E32SectionUnit tmp = CompressE32Image(iHeader);
-    E32Parser* p = E32Parser::NewL(tmp); // implicit call ValidateE32Image()
-//    ValidateE32Image(p);
+    E32Parser* p = E32Parser::NewL(tmp);
+    ValidateE32Image(p);
     delete p;
     SaveFile(iE32Opts->iOutput.c_str(), tmp.data(), tmp.size());
 }
